@@ -1,0 +1,30 @@
+# Prevent directory listing
+Options -Indexes
+
+# Prefer index.php and index.html
+DirectoryIndex index.php index.html
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # If the request is for an existing file or directory, serve it directly
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # Otherwise, rewrite to PUBLIC/index.php (this file)
+  RewriteRule ^ index.php [L,QSA]
+</IfModule>
+
+<IfModule mod_headers.c>
+  # Basic security headers
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set X-XSS-Protection "1; mode=block"
+</IfModule>
+
+# Deny access to sensitive files if accidentally published
+<FilesMatch "(\.env|composer\.json|composer\.lock|\.git|README|rn\.sql)">
+  Require all denied
+</FilesMatch>
