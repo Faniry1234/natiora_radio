@@ -131,7 +131,7 @@ if (!defined('DATA_DIR')) {
     define('DATA_DIR', realpath(__DIR__ . '/../DATA') ?: (__DIR__ . '/../DATA'));
 }
 if (!defined('PUBLIC_DIR')) {
-    define('PUBLIC_DIR', realpath(__DIR__ . '/../PUBLIC') ?: (__DIR__ . '/../PUBLIC'));
+    define('PUBLIC_DIR', realpath(__DIR__ . '/../public') ?: (__DIR__ . '/../public'));
 }
 
 // Development / debug flags: set via .env or environment for local dev. Defaults to false in production.

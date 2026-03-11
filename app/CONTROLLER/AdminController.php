@@ -231,7 +231,7 @@ class AdminController {
         
         if ($videoType === 'file' && !empty($_FILES['src-file']['name'])) {
             // Upload le fichier vidéo
-            $uploadDir = __DIR__ . '/../../PUBLIC/assets/videos/';
+            $uploadDir = __DIR__ . '/../../public/assets/videos/';
             if (!is_dir($uploadDir)) {
                 mkdir($uploadDir, 0755, true);
             }
@@ -241,7 +241,7 @@ class AdminController {
             $filepath = $uploadDir . time() . '_' . $filename;
             
             if (move_uploaded_file($file['tmp_name'], $filepath)) {
-                $src = '/PUBLIC/assets/videos/' . basename($filepath);
+                $src = '/public/assets/videos/' . basename($filepath);
             }
         } else {
             // Utiliser l'URL
@@ -289,7 +289,7 @@ class AdminController {
         
         if ($videoType === 'file' && !empty($_FILES['src-file']['name'])) {
             // Upload le fichier vidéo
-            $uploadDir = __DIR__ . '/../../PUBLIC/assets/videos/';
+            $uploadDir = __DIR__ . '/../../public/assets/videos/';
             if (!is_dir($uploadDir)) {
                 mkdir($uploadDir, 0755, true);
             }
@@ -299,7 +299,7 @@ class AdminController {
             $filepath = $uploadDir . time() . '_' . $filename;
             
             if (move_uploaded_file($file['tmp_name'], $filepath)) {
-                $src = '/PUBLIC/assets/videos/' . basename($filepath);
+                $src = '/public/assets/videos/' . basename($filepath);
             }
         } else {
             // Utiliser l'URL
@@ -400,7 +400,7 @@ class AdminController {
 
         // Handle uploaded audio files
         if (!empty($_FILES['songs_files']) && is_array($_FILES['songs_files']['name'])) {
-            $uploadDir = __DIR__ . '/../../PUBLIC/assets/audios/';
+            $uploadDir = __DIR__ . '/../../public/assets/audios/';
             if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
             foreach ($_FILES['songs_files']['name'] as $idx => $name) {
                 if (empty($name)) continue;
@@ -410,7 +410,7 @@ class AdminController {
                 $destPath = $uploadDir . $destName;
                 if (move_uploaded_file($tmp, $destPath)) {
                     // store web-accessible path
-                    $songs[] = '/PUBLIC/assets/audios/' . $destName;
+                    $songs[] = '/public/assets/audios/' . $destName;
                 }
             }
         }
@@ -445,7 +445,7 @@ class AdminController {
 
         // Handle uploaded audio files
         if (!empty($_FILES['songs_files']) && is_array($_FILES['songs_files']['name'])) {
-            $uploadDir = __DIR__ . '/../../PUBLIC/assets/audios/';
+            $uploadDir = __DIR__ . '/../../public/assets/audios/';
             if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
             foreach ($_FILES['songs_files']['name'] as $idx => $name) {
                 if (empty($name)) continue;
@@ -454,7 +454,7 @@ class AdminController {
                 $destName = time() . '_' . $safe;
                 $destPath = $uploadDir . $destName;
                 if (move_uploaded_file($tmp, $destPath)) {
-                    $songs[] = '/PUBLIC/assets/audios/' . $destName;
+                    $songs[] = '/public/assets/audios/' . $destName;
                 }
             }
         }

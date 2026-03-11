@@ -3,7 +3,7 @@
         <div class="hero-left">
             <div class="poster" aria-hidden="false">
                 <div style="display:flex;align-items:center;gap:18px;">
-                    <img src="/PUBLIC/assets/images/LOGO%20RADIO.jpg" alt="Natiora logo" class="poster-img" style="width:110px;border-radius:50%">
+                    <img src="/assets/images/LOGO%20RADIO.jpg" alt="Natiora logo" class="poster-img" style="width:110px;border-radius:50%">
                     <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
                         <button id="playBtnMain" class="play-btn" aria-label="Play">▶</button>
                         <div class="audio-visualizer paused" aria-hidden="true">
@@ -35,7 +35,7 @@
 </section>
 
 <!-- External audio player script: injecte la source depuis l'attribut data-stream et gère play/pause -->
-<script src="/PUBLIC/assets/js/radio-player.js"></script>
+<script src="/assets/js/radio-player.js"></script>
 
 <!-- Team / Responsables -->
 <section id="team" style="margin-top:36px;">
@@ -43,8 +43,8 @@
         <h3 style="color:#e6f9f6;margin-bottom:12px;font-size:1.35rem">Nos Responsables</h3>
         <p style="color:rgba(230,249,246,0.85);margin-bottom:18px;">Contactez l'un des responsables pour assistance, partenariats ou questions générales.</p>
         <div class="team-grid">
-            <div class="team-card" data-name="Rakoto Andry" data-role="Responsable programmation" data-phone="+261341234567" data-whatsapp="261341234567" data-facebook="https://facebook.com/rakoto" data-instagram="https://instagram.com/rakoto" data-img="/PUBLIC/assets/images/responsable1.jpg">
-                <img src="/PUBLIC/assets/images/responsable1.jpg" alt="Responsable 1" class="team-avatar">
+            <div class="team-card" data-name="Rakoto Andry" data-role="Responsable programmation" data-phone="+261341234567" data-whatsapp="261341234567" data-facebook="https://facebook.com/rakoto" data-instagram="https://instagram.com/rakoto" data-img="/assets/images/responsable1.jpg">
+                <img src="/assets/images/responsable1.jpg" alt="Responsable 1" class="team-avatar">
                 <div class="team-info">
                     <div class="team-name">Rakoto Andry</div>
                     <div class="team-role">Responsable programmation</div>
@@ -59,8 +59,8 @@
                 </div>
             </div>
 
-            <div class="team-card" data-name="Rasoa Lala" data-role="Responsable communication" data-phone="+261339876543" data-whatsapp="261339876543" data-facebook="https://facebook.com/rasoa" data-instagram="https://instagram.com/rasoa" data-img="/PUBLIC/assets/images/responsable2.jpg">
-                <img src="/PUBLIC/assets/images/responsable2.jpg" alt="Responsable 2" class="team-avatar">
+            <div class="team-card" data-name="Rasoa Lala" data-role="Responsable communication" data-phone="+261339876543" data-whatsapp="261339876543" data-facebook="https://facebook.com/rasoa" data-instagram="https://instagram.com/rasoa" data-img="/assets/images/responsable2.jpg">
+                <img src="/assets/images/responsable2.jpg" alt="Responsable 2" class="team-avatar">
                 <div class="team-info">
                     <div class="team-name">Rasoa Lala</div>
                     <div class="team-role">Responsable communication</div>
@@ -75,8 +75,8 @@
                 </div>
             </div>
 
-            <div class="team-card" data-name="Jeanine Mamy" data-role="Responsable technique" data-phone="+261327654321" data-whatsapp="261327654321" data-facebook="https://facebook.com/jeanine" data-instagram="https://instagram.com/jeanine" data-img="/PUBLIC/assets/images/responsable3.jpg">
-                <img src="/PUBLIC/assets/images/responsable3.jpg" alt="Responsable 3" class="team-avatar">
+            <div class="team-card" data-name="Jeanine Mamy" data-role="Responsable technique" data-phone="+261327654321" data-whatsapp="261327654321" data-facebook="https://facebook.com/jeanine" data-instagram="https://instagram.com/jeanine" data-img="/assets/images/responsable3.jpg">
+                <img src="/assets/images/responsable3.jpg" alt="Responsable 3" class="team-avatar">
                 <div class="team-info">
                     <div class="team-name">Jeanine Mamy</div>
                     <div class="team-role">Responsable technique</div>
@@ -96,7 +96,7 @@
     <!-- Contact card placed below responsables -->
     <div style="max-width:1100px;margin:18px auto 60px;padding:0 18px;">
         <div class="contact-card" style="margin-top:18px;">
-            <img src="/PUBLIC/assets/images/contact.jpg" alt="Contact Natiora" class="contact-img">
+            <img src="/assets/images/contact.jpg" alt="Contact Natiora" class="contact-img">
             <div class="contact-details">
                 <div class="contact-title">Contact central</div>
                 <div class="contact-line">Tel: <a href="tel:+261341234567">+261 34 12 34 567</a></div>
@@ -114,7 +114,7 @@
         <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="teamModalTitle">
             <button class="close" id="teamModalClose">×</button>
             <div style="display:flex;gap:14px;align-items:flex-start;">
-                <img id="teamModalImg" src="/PUBLIC/assets/images/contact.jpg" alt="" style="width:140px;height:140px;object-fit:cover;border-radius:8px;">
+                <img id="teamModalImg" src="/assets/images/contact.jpg" alt="" style="width:140px;height:140px;object-fit:cover;border-radius:8px;">
                 <div style="flex:1;text-align:left;color:#e6eef6">
                     <h3 id="teamModalTitle" style="margin:0 0 6px 0;font-size:1.25rem"></h3>
                     <div id="teamModalRole" style="margin-bottom:10px;opacity:0.9"></div>
@@ -139,7 +139,7 @@ document.addEventListener('DOMContentLoaded', function(){
     const socials = document.getElementById('teamModalSocials');
 
     function openModal(data){
-        img.src = data.img || '/PUBLIC/assets/images/contact.jpg';
+        img.src = data.img || '/assets/images/contact.jpg';
         img.alt = data.name || 'Contact';
         title.textContent = data.name || '';
         role.textContent = data.role || '';

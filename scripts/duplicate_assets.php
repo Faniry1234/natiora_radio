@@ -1,5 +1,5 @@
 <?php
-$root = __DIR__ . '/../PUBLIC/assets/';
+$root = __DIR__ . '/../public/assets/';
 $images = $root . 'images/';
 $videos = $root . 'videos/';
 $audios = $root . 'audios/';

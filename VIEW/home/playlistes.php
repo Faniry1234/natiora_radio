@@ -62,7 +62,7 @@ foreach ($playlists as $pl) {
 </style>
 
 <?php
-$bg = $base . '/PUBLIC/assets/images/playliste1.jpg';
+$bg = $base . '/public/assets/images/playliste1.jpg';
 ?>
 <section id="playlist" class="playlist-hero" style="background-image: linear-gradient(180deg, rgba(6,12,34,0.35), rgba(6,12,34,0.6)), url('<?php echo htmlspecialchars($bg); ?>');">
         <div class="hero-content">

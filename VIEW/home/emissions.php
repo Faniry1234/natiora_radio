@@ -23,7 +23,7 @@
                     { 
                         time: '08:00', 
                         title: 'Concevoir une affiche', 
-                        src: '/PUBLIC/assets/videos/Tuto Boy  Comment concevoir une affiche sur Photoshop..mp4', 
+                        src: '/public/assets/videos/Tuto Boy  Comment concevoir une affiche sur Photoshop..mp4', 
                         desc: "Atelier complet sur la composition d'affiche et typographie.", 
                         presenter: 'Tuto Boy',
                         duration: '45 min',
@@ -33,7 +33,7 @@
                     { 
                         time: '09:00', 
                         title: 'Montage Flyer Professionnel', 
-                        src: '/PUBLIC/assets/videos/TUTO BOY COMMENT FAIRE UN MONTAGE PHOTO SUR PHOTOSHOP  [flyer].mp4', 
+                        src: '/public/assets/videos/TUTO BOY COMMENT FAIRE UN MONTAGE PHOTO SUR PHOTOSHOP  [flyer].mp4', 
                         desc: "Techniques rapides et efficaces pour créer un flyer promotionnel captivant et professionnel.", 
                         presenter: 'Tuto Boy',
                         duration: '35 min',
@@ -45,7 +45,7 @@
                     { 
                         time: '10:00', 
                         title: 'Dégradé sur texte Avancé', 
-                        src: '/PUBLIC/assets/videos/[Tuto Boy] Comment faire un dégradé sur un texte dans Photoshop..mp4', 
+                        src: '/public/assets/videos/[Tuto Boy] Comment faire un dégradé sur un texte dans Photoshop..mp4', 
                         desc: "Effets de texte modernes, color grading et techniques de dégradé pour des résultats époustouflants.", 
                         presenter: 'Tuto Boy',
                         duration: '28 min',
@@ -55,7 +55,7 @@
                     { 
                         time: '11:00', 
                         title: 'Effet de lumière Réaliste', 
-                        src: '/PUBLIC/assets/videos/[Tuto boy] Comment faire un effet de lumière sur une image sur Photoshop.mp4', 
+                        src: '/public/assets/videos/[Tuto boy] Comment faire un effet de lumière sur une image sur Photoshop.mp4', 
                         desc: "Astuces professionnelles pour simuler des éclairages réalistes, ombres et reflets lumineux.", 
                         presenter: 'Tuto Boy',
                         duration: '32 min',
@@ -67,7 +67,7 @@
                     { 
                         time: '09:30', 
                         title: 'Concevoir une affiche - Rediffusion', 
-                        src: '/PUBLIC/assets/videos/Tuto Boy  Comment concevoir une affiche sur Photoshop..mp4', 
+                        src: '/public/assets/videos/Tuto Boy  Comment concevoir une affiche sur Photoshop..mp4', 
                         desc: "Rediffusion : composition, hiérarchie visuelle et principes de design graphique modernes.", 
                         presenter: 'Tuto Boy',
                         duration: '45 min',
@@ -79,7 +79,7 @@
                     { 
                         time: '14:00', 
                         title: 'Montage Flyer - Spécial Événement', 
-                        src: '/PUBLIC/assets/videos/TUTO BOY COMMENT FAIRE UN MONTAGE PHOTO SUR PHOTOSHOP  [flyer].mp4', 
+                        src: '/public/assets/videos/TUTO BOY COMMENT FAIRE UN MONTAGE PHOTO SUR PHOTOSHOP  [flyer].mp4', 
                         desc: "Tutoriel pas-à-pas pour créer des flyers promotionnels pour vos événements et activations.", 
                         presenter: 'Tuto Boy',
                         duration: '40 min',
@@ -91,7 +91,7 @@
                     { 
                         time: '15:30', 
                         title: 'Dégradé - Techniques Avancées', 
-                        src: '/PUBLIC/assets/videos/[Tuto Boy] Comment faire un dégradé sur un texte dans Photoshop..mp4', 
+                        src: '/public/assets/videos/[Tuto Boy] Comment faire un dégradé sur un texte dans Photoshop..mp4', 
                         desc: "Techniques avancées de dégradé, raccourcis clavier, et astuces pour gagner du temps en production.", 
                         presenter: 'Tuto Boy',
                         duration: '30 min',
@@ -103,7 +103,7 @@
                     { 
                         time: '11:00', 
                         title: 'Effets de Lumière - Créatifs', 
-                        src: '/PUBLIC/assets/videos/[Tuto boy] Comment faire un effet de lumière sur une image sur Photoshop.mp4', 
+                        src: '/public/assets/videos/[Tuto boy] Comment faire un effet de lumière sur une image sur Photoshop.mp4', 
                         desc: "Effets créatifs avancés pour vos images, ajout de lumière naturelle et synthétique avec réalisme.", 
                         presenter: 'Tuto Boy',
                         duration: '38 min',
@@ -115,7 +115,7 @@
                     { 
                         time: '19:00', 
                         title: 'Best Of - Compilation Spéciale', 
-                        src: '/PUBLIC/assets/videos/Tuto Boy  Comment concevoir une affiche sur Photoshop..mp4', 
+                        src: '/public/assets/videos/Tuto Boy  Comment concevoir une affiche sur Photoshop..mp4', 
                         desc: "Compilation des meilleurs extraits et tutoriels de la semaine avec conseils bonus et Q&A.", 
                         presenter: 'Tuto Boy',
                         duration: '60 min',

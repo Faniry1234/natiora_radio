@@ -42,7 +42,7 @@ if ((defined('DEBUG_ADMIN') && DEBUG_ADMIN) || (defined('DEV_ADMIN') && DEV_ADMI
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Gestion Émissions</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="<?php echo $base; ?>/PUBLIC/assets/css/style.css">
+    <link rel="stylesheet" href="<?php echo $base; ?>/public/assets/css/style.css">
     <style>
         * {
             margin: 0;

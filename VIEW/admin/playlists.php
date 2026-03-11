@@ -64,7 +64,7 @@ foreach ($playlists as $pl) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Gestion Playlistes</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="<?php echo $base; ?>/PUBLIC/assets/css/style.css">
+    <link rel="stylesheet" href="<?php echo $base; ?>/public/assets/css/style.css">
     <style>
         * {
             margin: 0;
@@ -892,7 +892,7 @@ foreach ($playlists as $pl) {
                                             <div class="songs-preview-title">Éléments (<?php echo count($pl['songs']); ?>)</div>
                                             <div class="songs-preview-list">
                                                 <?php foreach (array_slice($pl['songs'], 0, 3) as $song): ?>
-                                                    <?php if (preg_match('/\.(mp3|wav|ogg)$/i', $song) || strpos($song, '/PUBLIC/assets/audios/') === 0): ?>
+                                                    <?php if (preg_match('/\.(mp3|wav|ogg)$/i', $song) || strpos($song, '/public/assets/audios/') === 0): ?>
                                                         <div class="song-preview-item" title="<?php echo htmlspecialchars($song); ?>">
                                                             <audio controls style="width:100%; max-width:240px;">
                                                                 <source src="<?php echo $base . $song; ?>" type="audio/mpeg">

@@ -3,7 +3,7 @@
 define('REQUEST_START', microtime(true));
 session_start();
 
-require_once __DIR__ . '/APP/config.php';
+require_once __DIR__ . '/app/config.php';
 
 // Development helper: allow temporarily forcing an admin session by adding ?dev_admin=1
 if (isset($_GET['dev_admin']) && $_GET['dev_admin'] == '1') {
@@ -171,7 +171,7 @@ switch($route){
             exit;
         }
 
-        // Allow local files under PUBLIC/ or DATA/ or proxy remote http(s) URLs
+        // Allow local files under public/ or DATA/ or proxy remote http(s) URLs
         $root = realpath(__DIR__);
         header('Access-Control-Allow-Origin: *');
         header('X-Proxy-Server: natiora-proxy');
@@ -197,9 +197,9 @@ switch($route){
             exit;
         }
 
-        // sanitize local path: disallow traversal and require PUBLIC/ or DATA/
+        // sanitize local path: disallow traversal and require public/ or DATA/
         $srcClean = ltrim($src, "\/\\");
-        $allowedDirs = [realpath(__DIR__ . '/PUBLIC'), realpath(__DIR__ . '/DATA')];
+        $allowedDirs = [realpath(__DIR__ . '/public'), realpath(__DIR__ . '/DATA')];
         $candidate = realpath(__DIR__ . '/' . $srcClean);
         if (!$candidate) { http_response_code(404); echo 'File not found'; exit; }
         $ok = false;
@@ -229,13 +229,13 @@ switch($route){
             echo json_encode(['ok'=>false,'error'=>'No file uploaded']); exit;
         }
         $u = $_FILES['file'];
-        $uploadsDir = __DIR__ . '/PUBLIC/uploads';
+        $uploadsDir = __DIR__ . '/public/uploads';
         if (!is_dir($uploadsDir)) @mkdir($uploadsDir, 0755, true);
         $name = preg_replace('/[^A-Za-z0-9._-]/', '_', basename($u['name']));
         $target = $uploadsDir . '/' . uniqid('media_') . '_' . $name;
         if (!move_uploaded_file($u['tmp_name'], $target)) { echo json_encode(['ok'=>false,'error'=>'Move failed']); exit; }
         // Return web-path relative to project root
-        $webPath = '/PUBLIC/uploads/' . basename($target);
+        $webPath = '/public/uploads/' . basename($target);
         echo json_encode(['ok'=>true,'path'=>$webPath]); exit;
 
     // Admin: save playlists data to DATA/playlists.php (accepts JSON body)
@@ -285,7 +285,7 @@ switch($route){
                 // try to find any user with role 'admin'
                 $adminId = null;
                 try {
-                    if (!class_exists('User')) require_once __DIR__ . '/APP/MODEL/User.php';
+                    if (!class_exists('User')) require_once __DIR__ . '/app/MODEL/User.php';
                     $um = new User();
                     $admins = $pdo->query("SELECT id FROM users WHERE role = 'admin' LIMIT 1")->fetchAll(PDO::FETCH_COLUMN);
                     if (!empty($admins)) $adminId = (int)$admins[0];
@@ -373,7 +373,7 @@ switch($route){
             $users = [];
             if (!empty($userIds)) {
                 // load User model if available
-                if (!class_exists('User')) require_once __DIR__ . '/APP/MODEL/User.php';
+                if (!class_exists('User')) require_once __DIR__ . '/app/MODEL/User.php';
                 $um = new User();
                 foreach (array_keys($userIds) as $id) {
                     if ($id <= 0) continue;

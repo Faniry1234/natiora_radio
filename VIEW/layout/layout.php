@@ -42,9 +42,9 @@ if ($base === '/' || $base === '\\') $base = '';
     <title><?= isset($pageTitle) ? $pageTitle : 'Natiora_Radio_98.2' ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="<?php echo $base; ?>/PUBLIC/assets/css/style.css" rel="stylesheet">
+    <link href="<?php echo $base; ?>/assets/css/style.css" rel="stylesheet">
     <!-- Explicit favicon to avoid default /favicon.ico 404 -->
-    <link rel="icon" type="image/png" href="<?php echo $base; ?>/PUBLIC/assets/images/acceuil.jpg">
+    <link rel="icon" type="image/png" href="<?php echo $base; ?>/assets/images/acceuil.jpg">
 </head>
 <body<?php if (defined('DEV_ADMIN') && DEV_ADMIN) echo ' class="dev-admin"'; ?>>
     <?php
@@ -63,7 +63,7 @@ if ($base === '/' || $base === '\\') $base = '';
     <header>
         <div class="header-inner">
             <div class="brand">
-                <img src="<?php echo $base; ?>/PUBLIC/assets/images/LOGO%20RADIO.jpg" alt="Natiora Logo" class="logo">
+                <img src="<?php echo $base; ?>/assets/images/LOGO%20RADIO.jpg" alt="Natiora Logo" class="logo">
                 <h1>Natiora Radio <span>98.2</span></h1>
             </div>
             <nav class="main-nav" aria-label="Main navigation">
@@ -133,21 +133,21 @@ if ($base === '/' || $base === '\\') $base = '';
     ];
     $key = $map[$routeName] ?? $map['home'];
     // prefer premium file if it exists
-    $candidatePremium = __DIR__ . '/../../PUBLIC/assets/images/' . $key . '_premium.svg';
-    $candidateNormal = __DIR__ . '/../../PUBLIC/assets/images/' . $key . '.svg';
+    $candidatePremium = __DIR__ . '/../../public/assets/images/' . $key . '_premium.svg';
+    $candidateNormal = __DIR__ . '/../../public/assets/images/' . $key . '.svg';
     if (file_exists($candidatePremium)) {
-        $hero = $base . '/PUBLIC/assets/images/' . $key . '_premium.svg';
+        $hero = $base . '/assets/images/' . $key . '_premium.svg';
     } elseif (file_exists($candidateNormal)) {
-        $hero = $base . '/PUBLIC/assets/images/' . $key . '.svg';
+        $hero = $base . '/assets/images/' . $key . '.svg';
     } else {
         // fallbacks to older JPGs if no SVG found
         $fallbacks = [
-            'home' => $base . '/PUBLIC/assets/images/acceuil.jpg',
-            'playlistes' => $base . '/PUBLIC/assets/images/playliste1.jpg',
-            'emissions' => $base . '/PUBLIC/assets/images/LOGO%20RADIO.jpg',
-            'historiques' => $base . '/PUBLIC/assets/images/LOGO%20VAO.jpg',
-            'auth/profile' => $base . '/PUBLIC/assets/images/LOGO%20VAO.jpg',
-            'admin' => $base . '/PUBLIC/assets/images/LOGO%20RADIO.jpg'
+            'home' => $base . '/assets/images/acceuil.jpg',
+            'playlistes' => $base . '/assets/images/playliste1.jpg',
+            'emissions' => $base . '/assets/images/LOGO%20RADIO.jpg',
+            'historiques' => $base . '/assets/images/LOGO%20VAO.jpg',
+            'auth/profile' => $base . '/assets/images/LOGO%20VAO.jpg',
+            'admin' => $base . '/assets/images/LOGO%20RADIO.jpg'
         ];
         $hero = $fallbacks[$routeName] ?? $fallbacks['home'];
     }
