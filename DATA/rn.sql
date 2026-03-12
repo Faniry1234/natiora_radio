@@ -3,10 +3,10 @@
 -- ============================================
 
 -- Créer la base de données
-CREATE DATABASE IF NOT EXISTS natiora_radio CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+-- CREATE DATABASE IF NOT EXISTS natiora_radio CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- Utiliser la base de données
-USE natiora_radio;
+-- -- Utiliser la base de données
+-- USE natiora_radio;
 
 -- ============================================
 

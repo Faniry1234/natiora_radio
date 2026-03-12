@@ -10,73 +10,42 @@ if (file_exists($envPath) && is_readable($envPath)) {
         list($key, $val) = explode('=', $line, 2);
         $key = trim($key);
         $val = trim($val);
-        $val = trim($val, "\"' ");
+        $val = trim($val, "\"' "); // supprime les quotes et espaces
         putenv("$key=$val");
         $_ENV[$key] = $val;
         $_SERVER[$key] = $val;
     }
 }
 
-// Database configuration
-// Resolve DB_DRIVER: prefer explicit .env value; otherwise try MySQL (if credentials present and connection succeeds),
-// and fall back to sqlite so app remains usable locally.
-$envDriver = getenv('DB_DRIVER');
-if ($envDriver !== false && $envDriver !== '') {
-    define('DB_DRIVER', $envDriver);
-} else {
-    $testHost = getenv('DB_HOST') ?: '127.0.0.1';
-    $testPort = getenv('DB_PORT') ?: '3306';
-    $testUser = getenv('DB_USER') ?: '';
-    $testPass = getenv('DB_PASS') ?: '';
-    $canMysql = false;
-    if ($testUser !== '') {
-        try {
-            $testDsn = "mysql:host={$testHost};port={$testPort};charset=utf8mb4";
-            $tmp = new PDO($testDsn, $testUser, $testPass, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_TIMEOUT => 2]);
-            $canMysql = true;
-            // close
-            $tmp = null;
-        } catch (Throwable $e) {
-            $canMysql = false;
-        }
-    }
-    define('DB_DRIVER', $canMysql ? 'mysql' : 'sqlite');
-}
-
-// SQLite default path (used when DB_DRIVER = 'sqlite'). Accept relative path from project root.
-$defaultSqlite = __DIR__ . '/../DATA/database.sqlite';
-$envDbPath = getenv('DB_PATH') ?: '';
-if ($envDbPath) {
-    // If path looks relative, make absolute relative to project root
-    if (preg_match('#^[A-Za-z]:\\|^/#', $envDbPath) === 0 && strpos($envDbPath, DIRECTORY_SEPARATOR) !== 0) {
-        $envDbPath = realpath(__DIR__ . '/../' . $envDbPath) ?: __DIR__ . '/../' . $envDbPath;
-    }
-    define('DB_PATH', $envDbPath);
-} else {
-    define('DB_PATH', $defaultSqlite);
-}
-
-// MySQL configuration (used when DB_DRIVER = 'mysql')
+// ----------------------
+// Forcer MySQL pour éviter le fallback SQLite
+// ----------------------
+define('DB_DRIVER', 'mysql');
 define('DB_HOST', getenv('DB_HOST') ?: '127.0.0.1');
-define('DB_PORT', getenv('DB_PORT') ?: '3306');
+define('DB_PORT', getenv('DB_PORT') ?: 3306);
 define('DB_NAME', getenv('DB_NAME') ?: 'natiora_radio');
 define('DB_USER', getenv('DB_USER') ?: 'root');
-define('DB_PASS', getenv('DB_PASS') ?: '');
+define('DB_PASS', getenv('DB_PASS') ?: ''); // mot de passe vide
 
-// Ensure DATA dir exists for sqlite/json and ensure sqlite file exists (empty) if using sqlite
+// ----------------------
+// SQLite default path (inutile, mais on garde la constante pour compatibilité)
+// ----------------------
+$defaultSqlite = __DIR__ . '/../DATA/database.sqlite';
+define('DB_PATH', $defaultSqlite);
+
+// ----------------------
+// Ensure DATA dir exists for sqlite/json
+// ----------------------
 if (!file_exists(__DIR__ . '/../DATA')) {
     mkdir(__DIR__ . '/../DATA', 0755, true);
 }
-if (defined('DB_PATH') && DB_DRIVER === 'sqlite') {
-    $dir = dirname(DB_PATH);
-    if (!file_exists($dir)) mkdir($dir, 0755, true);
-    if (!file_exists(DB_PATH)) {
-        // Create an empty sqlite file so PDO can open it on hosts that require file to exist
-        touch(DB_PATH);
-    }
+if (!file_exists(DB_PATH)) {
+    touch(DB_PATH);
 }
 
+// ----------------------
 // Include required model/controller files with robust checks
+// ----------------------
 $required = [
     'MODEL/Database.php',
     'MODEL/User.php',
@@ -99,9 +68,12 @@ foreach ($required as $rel) {
     }
 }
 
+// ----------------------
 // Initialize DB and tables
+// ----------------------
 try {
-    Database::getInstance()->init();
+    $db = Database::getInstance();
+    $db->init();
 } catch (\Throwable $e) {
     $msg = $e->getMessage();
     echo "<h2>Erreur de configuration PHP</h2>";
@@ -116,17 +88,23 @@ try {
     exit;
 }
 
+// ----------------------
 // Secret used to sign "remember me" cookies. Override with AUTH_SECRET in .env for production.
+// ----------------------
 if (!defined('AUTH_SECRET')) {
     define('AUTH_SECRET', getenv('AUTH_SECRET') ?: 'please_change_this_secret');
 }
 
+// ----------------------
 // Cookie name used for "remember me" functionality
+// ----------------------
 if (!defined('AUTH_COOKIE_NAME')) {
     define('AUTH_COOKIE_NAME', 'remember');
 }
 
+// ----------------------
 // Common directory constants
+// ----------------------
 if (!defined('DATA_DIR')) {
     define('DATA_DIR', realpath(__DIR__ . '/../DATA') ?: (__DIR__ . '/../DATA'));
 }
@@ -134,7 +112,9 @@ if (!defined('PUBLIC_DIR')) {
     define('PUBLIC_DIR', realpath(__DIR__ . '/../public') ?: (__DIR__ . '/../public'));
 }
 
-// Development / debug flags: set via .env or environment for local dev. Defaults to false in production.
+// ----------------------
+// Development / debug flags
+// ----------------------
 if (!defined('DEV_ADMIN')) {
     $devAdminEnv = getenv('DEV_ADMIN');
     $isDevAdmin = false;
@@ -155,7 +135,9 @@ if (!defined('DEBUG_ADMIN')) {
     define('DEBUG_ADMIN', $isDebug);
 }
 
-// Base URL used to generate absolute links. Can be overridden by BASE_URL in .env for production.
+// ----------------------
+// Base URL used to generate absolute links
+// ----------------------
 if (!defined('BASE_URL')) {
     $envBase = getenv('BASE_URL');
     if ($envBase && $envBase !== '') {
@@ -169,7 +151,9 @@ if (!defined('BASE_URL')) {
     }
 }
 
-// Helper functions: use Database singleton so config doesn't create a second PDO instance
+// ----------------------
+// Helper functions
+// ----------------------
 function insertHistorique(?int $userId, string $action, ?string $details = null): int {
     $db = Database::getInstance();
     $pdo = $db->getConnection();

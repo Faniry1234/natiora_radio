@@ -15,6 +15,7 @@
     pkgs.php81Packages.composer
     pkgs.docker
     pkgs.sudo
+    pkgs.mysql80
   ];
 
   # Sets environment variables in the workspace

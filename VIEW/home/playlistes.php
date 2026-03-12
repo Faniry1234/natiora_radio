@@ -11,7 +11,6 @@ if (!class_exists('Playlists')) require_once __DIR__ . '/../../APP/MODEL/Playlis
 
 $plModel = new Playlists();
 $playlists = $plModel->getAll();
-
 // Group playlists by weekday (French) using created_at when available
 $days = ['lundi','mardi','mercredi','jeudi','vendredi','samedi','dimanche'];
 $playlists_by_day = array_fill_keys($days, []);
