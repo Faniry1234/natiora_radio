@@ -125,6 +125,7 @@ $bg = $base . '/public/assets/images/playliste1.jpg';
                     const li = document.createElement('li');
                     li.className = 'video-item';
                     let audios = '';
+                    console.log(item.songs);
                     if (Array.isArray(item.songs)){
                         audios = item.songs.map(s => `\n                        <audio controls style="width:100%; margin-top:8px;">\n                            <source src="${s}" type="audio/mpeg">\n                            Votre navigateur ne supporte pas l'audio.\n                        </audio>`).join('');
                     }

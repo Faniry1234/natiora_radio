@@ -1229,3 +1229,320 @@
 #34 /home/user/natiora_radio/artisan(15): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
 #35 {main}
 "} 
+[2026-03-12 19:11:29] laravel.EMERGENCY: Unable to create configured logger. Using emergency logger. {"exception":"[object] (InvalidArgumentException(code: 0): Log [] is not defined. at /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Log/LogManager.php:212)
+[stacktrace]
+#0 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(137): Illuminate\\Log\\LogManager->resolve(NULL, NULL)
+#1 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(124): Illuminate\\Log\\LogManager->get(NULL)
+#2 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(681): Illuminate\\Log\\LogManager->driver()
+#3 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(317): Illuminate\\Log\\LogManager->error('Command \"tinker...', Array)
+#4 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(278): Illuminate\\Foundation\\Exceptions\\Handler->reportThrowable(Object(Symfony\\Component\\Console\\Exception\\CommandNotFoundException))
+#5 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(523): Illuminate\\Foundation\\Exceptions\\Handler->report(Object(Symfony\\Component\\Console\\Exception\\CommandNotFoundException))
+#6 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(203): Illuminate\\Foundation\\Console\\Kernel->reportException(Object(Symfony\\Component\\Console\\Exception\\CommandNotFoundException))
+#7 /home/user/natiora_radio/artisan(15): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#8 {main}
+"} 
+[2026-03-12 19:11:29] laravel.ERROR: Command "tinker" is not defined. {"exception":"[object] (Symfony\\Component\\Console\\Exception\\CommandNotFoundException(code: 0): Command \"tinker\" is not defined. at /home/user/natiora_radio/vendor/symfony/console/Application.php:745)
+[stacktrace]
+#0 /home/user/natiora_radio/vendor/symfony/console/Application.php(266): Symfony\\Component\\Console\\Application->find('tinker')
+#1 /home/user/natiora_radio/vendor/symfony/console/Application.php(175): Symfony\\Component\\Console\\Application->doRun(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#2 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(201): Symfony\\Component\\Console\\Application->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#3 /home/user/natiora_radio/artisan(15): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#4 {main}
+"} 
+[2026-03-12 19:21:03] laravel.EMERGENCY: Unable to create configured logger. Using emergency logger. {"exception":"[object] (InvalidArgumentException(code: 0): Log [] is not defined. at /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Log/LogManager.php:212)
+[stacktrace]
+#0 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(137): Illuminate\\Log\\LogManager->resolve(NULL, NULL)
+#1 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(124): Illuminate\\Log\\LogManager->get(NULL)
+#2 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(681): Illuminate\\Log\\LogManager->driver()
+#3 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(317): Illuminate\\Log\\LogManager->error('View path not f...', Array)
+#4 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(278): Illuminate\\Foundation\\Exceptions\\Handler->reportThrowable(Object(RuntimeException))
+#5 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(523): Illuminate\\Foundation\\Exceptions\\Handler->report(Object(RuntimeException))
+#6 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(203): Illuminate\\Foundation\\Console\\Kernel->reportException(Object(RuntimeException))
+#7 /home/user/natiora_radio/artisan(15): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#8 {main}
+"} 
+[2026-03-12 19:21:03] laravel.ERROR: View path not found. {"exception":"[object] (RuntimeException(code: 0): View path not found. at /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Console/ViewClearCommand.php:59)
+[stacktrace]
+#0 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate\\Foundation\\Console\\ViewClearCommand->handle()
+#1 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Container/Util.php(41): Illuminate\\Container\\BoundMethod::Illuminate\\Container\\{closure}()
+#2 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(93): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#3 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Illuminate\\Foundation\\Application), Array, Object(Closure))
+#4 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Container/Container.php(662): Illuminate\\Container\\BoundMethod::call(Object(Illuminate\\Foundation\\Application), Array, Array, NULL)
+#5 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate\\Container\\Container->call(Array)
+#6 /home/user/natiora_radio/vendor/symfony/console/Command/Command.php(326): Illuminate\\Console\\Command->execute(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Illuminate\\Console\\OutputStyle))
+#7 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony\\Component\\Console\\Command\\Command->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Illuminate\\Console\\OutputStyle))
+#8 /home/user/natiora_radio/vendor/symfony/console/Application.php(1121): Illuminate\\Console\\Command->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#9 /home/user/natiora_radio/vendor/symfony/console/Application.php(324): Symfony\\Component\\Console\\Application->doRunCommand(Object(Illuminate\\Foundation\\Console\\ViewClearCommand), Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#10 /home/user/natiora_radio/vendor/symfony/console/Application.php(175): Symfony\\Component\\Console\\Application->doRun(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#11 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(201): Symfony\\Component\\Console\\Application->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#12 /home/user/natiora_radio/artisan(15): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#13 {main}
+"} 
+[2026-03-12 19:21:04] laravel.EMERGENCY: Unable to create configured logger. Using emergency logger. {"exception":"[object] (InvalidArgumentException(code: 0): Log [] is not defined. at /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Log/LogManager.php:212)
+[stacktrace]
+#0 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(137): Illuminate\\Log\\LogManager->resolve(NULL, NULL)
+#1 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(124): Illuminate\\Log\\LogManager->get(NULL)
+#2 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(681): Illuminate\\Log\\LogManager->driver()
+#3 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(317): Illuminate\\Log\\LogManager->error('View path not f...', Array)
+#4 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(278): Illuminate\\Foundation\\Exceptions\\Handler->reportThrowable(Object(RuntimeException))
+#5 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(523): Illuminate\\Foundation\\Exceptions\\Handler->report(Object(RuntimeException))
+#6 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(203): Illuminate\\Foundation\\Console\\Kernel->reportException(Object(RuntimeException))
+#7 /home/user/natiora_radio/artisan(15): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#8 {main}
+"} 
+[2026-03-12 19:21:04] laravel.ERROR: View path not found. {"exception":"[object] (RuntimeException(code: 0): View path not found. at /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Console/ViewClearCommand.php:59)
+[stacktrace]
+#0 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate\\Foundation\\Console\\ViewClearCommand->handle()
+#1 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Container/Util.php(41): Illuminate\\Container\\BoundMethod::Illuminate\\Container\\{closure}()
+#2 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(93): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#3 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Illuminate\\Foundation\\Application), Array, Object(Closure))
+#4 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Container/Container.php(662): Illuminate\\Container\\BoundMethod::call(Object(Illuminate\\Foundation\\Application), Array, Array, NULL)
+#5 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate\\Container\\Container->call(Array)
+#6 /home/user/natiora_radio/vendor/symfony/console/Command/Command.php(326): Illuminate\\Console\\Command->execute(Object(Symfony\\Component\\Console\\Input\\ArrayInput), Object(Illuminate\\Console\\OutputStyle))
+#7 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony\\Component\\Console\\Command\\Command->run(Object(Symfony\\Component\\Console\\Input\\ArrayInput), Object(Illuminate\\Console\\OutputStyle))
+#8 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Console/Concerns/CallsCommands.php(67): Illuminate\\Console\\Command->run(Object(Symfony\\Component\\Console\\Input\\ArrayInput), Object(Symfony\\Component\\Console\\Output\\NullOutput))
+#9 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Console/Concerns/CallsCommands.php(40): Illuminate\\Console\\Command->runCommand('view:clear', Array, Object(Symfony\\Component\\Console\\Output\\NullOutput))
+#10 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Console/OptimizeClearCommand.php(36): Illuminate\\Console\\Command->callSilent('view:clear')
+#11 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Console/View/Components/Task.php(37): Illuminate\\Foundation\\Console\\OptimizeClearCommand->Illuminate\\Foundation\\Console\\{closure}()
+#12 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Console/View/Components/Factory.php(58): Illuminate\\Console\\View\\Components\\Task->render('views', Object(Closure))
+#13 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Console/OptimizeClearCommand.php(41): Illuminate\\Console\\View\\Components\\Factory->__call('task', Array)
+#14 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Collections/Traits/EnumeratesValues.php(240): Illuminate\\Foundation\\Console\\OptimizeClearCommand->Illuminate\\Foundation\\Console\\{closure}(Object(Closure), 'views')
+#15 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Console/OptimizeClearCommand.php(41): Illuminate\\Support\\Collection->each(Object(Closure))
+#16 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate\\Foundation\\Console\\OptimizeClearCommand->handle()
+#17 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Container/Util.php(41): Illuminate\\Container\\BoundMethod::Illuminate\\Container\\{closure}()
+#18 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(93): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#19 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Illuminate\\Foundation\\Application), Array, Object(Closure))
+#20 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Container/Container.php(662): Illuminate\\Container\\BoundMethod::call(Object(Illuminate\\Foundation\\Application), Array, Array, NULL)
+#21 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate\\Container\\Container->call(Array)
+#22 /home/user/natiora_radio/vendor/symfony/console/Command/Command.php(326): Illuminate\\Console\\Command->execute(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Illuminate\\Console\\OutputStyle))
+#23 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony\\Component\\Console\\Command\\Command->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Illuminate\\Console\\OutputStyle))
+#24 /home/user/natiora_radio/vendor/symfony/console/Application.php(1121): Illuminate\\Console\\Command->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#25 /home/user/natiora_radio/vendor/symfony/console/Application.php(324): Symfony\\Component\\Console\\Application->doRunCommand(Object(Illuminate\\Foundation\\Console\\OptimizeClearCommand), Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#26 /home/user/natiora_radio/vendor/symfony/console/Application.php(175): Symfony\\Component\\Console\\Application->doRun(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#27 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(201): Symfony\\Component\\Console\\Application->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#28 /home/user/natiora_radio/artisan(15): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#29 {main}
+"} 
+[2026-03-12 19:21:23] laravel.EMERGENCY: Unable to create configured logger. Using emergency logger. {"exception":"[object] (InvalidArgumentException(code: 0): Log [] is not defined. at /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Log/LogManager.php:212)
+[stacktrace]
+#0 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(137): Illuminate\\Log\\LogManager->resolve(NULL, NULL)
+#1 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(124): Illuminate\\Log\\LogManager->get(NULL)
+#2 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(681): Illuminate\\Log\\LogManager->driver()
+#3 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(317): Illuminate\\Log\\LogManager->error('Command \"tinker...', Array)
+#4 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(278): Illuminate\\Foundation\\Exceptions\\Handler->reportThrowable(Object(Symfony\\Component\\Console\\Exception\\CommandNotFoundException))
+#5 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(523): Illuminate\\Foundation\\Exceptions\\Handler->report(Object(Symfony\\Component\\Console\\Exception\\CommandNotFoundException))
+#6 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(203): Illuminate\\Foundation\\Console\\Kernel->reportException(Object(Symfony\\Component\\Console\\Exception\\CommandNotFoundException))
+#7 /home/user/natiora_radio/artisan(15): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#8 {main}
+"} 
+[2026-03-12 19:21:23] laravel.ERROR: Command "tinker" is not defined. {"exception":"[object] (Symfony\\Component\\Console\\Exception\\CommandNotFoundException(code: 0): Command \"tinker\" is not defined. at /home/user/natiora_radio/vendor/symfony/console/Application.php:745)
+[stacktrace]
+#0 /home/user/natiora_radio/vendor/symfony/console/Application.php(266): Symfony\\Component\\Console\\Application->find('tinker')
+#1 /home/user/natiora_radio/vendor/symfony/console/Application.php(175): Symfony\\Component\\Console\\Application->doRun(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#2 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(201): Symfony\\Component\\Console\\Application->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#3 /home/user/natiora_radio/artisan(15): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#4 {main}
+"} 
+[2026-03-12 19:25:29] laravel.EMERGENCY: Unable to create configured logger. Using emergency logger. {"exception":"[object] (InvalidArgumentException(code: 0): Log [] is not defined. at /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Log/LogManager.php:212)
+[stacktrace]
+#0 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(137): Illuminate\\Log\\LogManager->resolve(NULL, NULL)
+#1 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(124): Illuminate\\Log\\LogManager->get(NULL)
+#2 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(681): Illuminate\\Log\\LogManager->driver()
+#3 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(317): Illuminate\\Log\\LogManager->error('Command \"tinker...', Array)
+#4 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(278): Illuminate\\Foundation\\Exceptions\\Handler->reportThrowable(Object(Symfony\\Component\\Console\\Exception\\CommandNotFoundException))
+#5 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(523): Illuminate\\Foundation\\Exceptions\\Handler->report(Object(Symfony\\Component\\Console\\Exception\\CommandNotFoundException))
+#6 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(203): Illuminate\\Foundation\\Console\\Kernel->reportException(Object(Symfony\\Component\\Console\\Exception\\CommandNotFoundException))
+#7 /home/user/natiora_radio/artisan(15): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#8 {main}
+"} 
+[2026-03-12 19:25:29] laravel.ERROR: Command "tinker" is not defined. {"exception":"[object] (Symfony\\Component\\Console\\Exception\\CommandNotFoundException(code: 0): Command \"tinker\" is not defined. at /home/user/natiora_radio/vendor/symfony/console/Application.php:745)
+[stacktrace]
+#0 /home/user/natiora_radio/vendor/symfony/console/Application.php(266): Symfony\\Component\\Console\\Application->find('tinker')
+#1 /home/user/natiora_radio/vendor/symfony/console/Application.php(175): Symfony\\Component\\Console\\Application->doRun(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#2 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(201): Symfony\\Component\\Console\\Application->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#3 /home/user/natiora_radio/artisan(15): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#4 {main}
+"} 
+[2026-03-12 19:26:00] laravel.EMERGENCY: Unable to create configured logger. Using emergency logger. {"exception":"[object] (InvalidArgumentException(code: 0): Log [] is not defined. at /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Log/LogManager.php:212)
+[stacktrace]
+#0 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(137): Illuminate\\Log\\LogManager->resolve(NULL, NULL)
+#1 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(124): Illuminate\\Log\\LogManager->get(NULL)
+#2 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(681): Illuminate\\Log\\LogManager->driver()
+#3 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(317): Illuminate\\Log\\LogManager->error('Command \"tinker...', Array)
+#4 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(278): Illuminate\\Foundation\\Exceptions\\Handler->reportThrowable(Object(Symfony\\Component\\Console\\Exception\\CommandNotFoundException))
+#5 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(523): Illuminate\\Foundation\\Exceptions\\Handler->report(Object(Symfony\\Component\\Console\\Exception\\CommandNotFoundException))
+#6 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(203): Illuminate\\Foundation\\Console\\Kernel->reportException(Object(Symfony\\Component\\Console\\Exception\\CommandNotFoundException))
+#7 /home/user/natiora_radio/artisan(15): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#8 {main}
+"} 
+[2026-03-12 19:26:00] laravel.ERROR: Command "tinker" is not defined. {"exception":"[object] (Symfony\\Component\\Console\\Exception\\CommandNotFoundException(code: 0): Command \"tinker\" is not defined. at /home/user/natiora_radio/vendor/symfony/console/Application.php:745)
+[stacktrace]
+#0 /home/user/natiora_radio/vendor/symfony/console/Application.php(266): Symfony\\Component\\Console\\Application->find('tinker')
+#1 /home/user/natiora_radio/vendor/symfony/console/Application.php(175): Symfony\\Component\\Console\\Application->doRun(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#2 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(201): Symfony\\Component\\Console\\Application->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#3 /home/user/natiora_radio/artisan(15): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#4 {main}
+"} 
+[2026-03-12 19:27:41] laravel.EMERGENCY: Unable to create configured logger. Using emergency logger. {"exception":"[object] (InvalidArgumentException(code: 0): Log [] is not defined. at /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Log/LogManager.php:212)
+[stacktrace]
+#0 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(137): Illuminate\\Log\\LogManager->resolve(NULL, NULL)
+#1 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(124): Illuminate\\Log\\LogManager->get(NULL)
+#2 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(681): Illuminate\\Log\\LogManager->driver()
+#3 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(317): Illuminate\\Log\\LogManager->error('Command \"tinker...', Array)
+#4 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(278): Illuminate\\Foundation\\Exceptions\\Handler->reportThrowable(Object(Symfony\\Component\\Console\\Exception\\CommandNotFoundException))
+#5 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(523): Illuminate\\Foundation\\Exceptions\\Handler->report(Object(Symfony\\Component\\Console\\Exception\\CommandNotFoundException))
+#6 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(203): Illuminate\\Foundation\\Console\\Kernel->reportException(Object(Symfony\\Component\\Console\\Exception\\CommandNotFoundException))
+#7 /home/user/natiora_radio/artisan(15): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#8 {main}
+"} 
+[2026-03-12 19:27:41] laravel.ERROR: Command "tinker" is not defined. {"exception":"[object] (Symfony\\Component\\Console\\Exception\\CommandNotFoundException(code: 0): Command \"tinker\" is not defined. at /home/user/natiora_radio/vendor/symfony/console/Application.php:745)
+[stacktrace]
+#0 /home/user/natiora_radio/vendor/symfony/console/Application.php(266): Symfony\\Component\\Console\\Application->find('tinker')
+#1 /home/user/natiora_radio/vendor/symfony/console/Application.php(175): Symfony\\Component\\Console\\Application->doRun(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#2 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(201): Symfony\\Component\\Console\\Application->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#3 /home/user/natiora_radio/artisan(15): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#4 {main}
+"} 
+[2026-03-12 19:28:17] laravel.EMERGENCY: Unable to create configured logger. Using emergency logger. {"exception":"[object] (InvalidArgumentException(code: 0): Log [] is not defined. at /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Log/LogManager.php:212)
+[stacktrace]
+#0 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(137): Illuminate\\Log\\LogManager->resolve(NULL, NULL)
+#1 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(124): Illuminate\\Log\\LogManager->get(NULL)
+#2 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(681): Illuminate\\Log\\LogManager->driver()
+#3 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(317): Illuminate\\Log\\LogManager->error('Command \"tinker...', Array)
+#4 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(278): Illuminate\\Foundation\\Exceptions\\Handler->reportThrowable(Object(Symfony\\Component\\Console\\Exception\\CommandNotFoundException))
+#5 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(523): Illuminate\\Foundation\\Exceptions\\Handler->report(Object(Symfony\\Component\\Console\\Exception\\CommandNotFoundException))
+#6 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(203): Illuminate\\Foundation\\Console\\Kernel->reportException(Object(Symfony\\Component\\Console\\Exception\\CommandNotFoundException))
+#7 /home/user/natiora_radio/artisan(15): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#8 {main}
+"} 
+[2026-03-12 19:28:17] laravel.ERROR: Command "tinker" is not defined. {"exception":"[object] (Symfony\\Component\\Console\\Exception\\CommandNotFoundException(code: 0): Command \"tinker\" is not defined. at /home/user/natiora_radio/vendor/symfony/console/Application.php:745)
+[stacktrace]
+#0 /home/user/natiora_radio/vendor/symfony/console/Application.php(266): Symfony\\Component\\Console\\Application->find('tinker')
+#1 /home/user/natiora_radio/vendor/symfony/console/Application.php(175): Symfony\\Component\\Console\\Application->doRun(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#2 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(201): Symfony\\Component\\Console\\Application->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#3 /home/user/natiora_radio/artisan(15): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#4 {main}
+"} 
+[2026-03-12 19:28:24] laravel.EMERGENCY: Unable to create configured logger. Using emergency logger. {"exception":"[object] (InvalidArgumentException(code: 0): Log [] is not defined. at /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Log/LogManager.php:212)
+[stacktrace]
+#0 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(137): Illuminate\\Log\\LogManager->resolve(NULL, NULL)
+#1 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(124): Illuminate\\Log\\LogManager->get(NULL)
+#2 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(681): Illuminate\\Log\\LogManager->driver()
+#3 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(317): Illuminate\\Log\\LogManager->error('Command \"tinker...', Array)
+#4 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(278): Illuminate\\Foundation\\Exceptions\\Handler->reportThrowable(Object(Symfony\\Component\\Console\\Exception\\CommandNotFoundException))
+#5 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(523): Illuminate\\Foundation\\Exceptions\\Handler->report(Object(Symfony\\Component\\Console\\Exception\\CommandNotFoundException))
+#6 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(203): Illuminate\\Foundation\\Console\\Kernel->reportException(Object(Symfony\\Component\\Console\\Exception\\CommandNotFoundException))
+#7 /home/user/natiora_radio/artisan(15): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#8 {main}
+"} 
+[2026-03-12 19:28:24] laravel.ERROR: Command "tinker" is not defined. {"exception":"[object] (Symfony\\Component\\Console\\Exception\\CommandNotFoundException(code: 0): Command \"tinker\" is not defined. at /home/user/natiora_radio/vendor/symfony/console/Application.php:745)
+[stacktrace]
+#0 /home/user/natiora_radio/vendor/symfony/console/Application.php(266): Symfony\\Component\\Console\\Application->find('tinker')
+#1 /home/user/natiora_radio/vendor/symfony/console/Application.php(175): Symfony\\Component\\Console\\Application->doRun(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#2 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(201): Symfony\\Component\\Console\\Application->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#3 /home/user/natiora_radio/artisan(15): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#4 {main}
+"} 
+[2026-03-12 19:42:55] laravel.EMERGENCY: Unable to create configured logger. Using emergency logger. {"exception":"[object] (InvalidArgumentException(code: 0): Log [] is not defined. at /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Log/LogManager.php:212)
+[stacktrace]
+#0 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(137): Illuminate\\Log\\LogManager->resolve(NULL, NULL)
+#1 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(124): Illuminate\\Log\\LogManager->get(NULL)
+#2 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(681): Illuminate\\Log\\LogManager->driver()
+#3 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(317): Illuminate\\Log\\LogManager->error('View path not f...', Array)
+#4 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(278): Illuminate\\Foundation\\Exceptions\\Handler->reportThrowable(Object(RuntimeException))
+#5 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(523): Illuminate\\Foundation\\Exceptions\\Handler->report(Object(RuntimeException))
+#6 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(203): Illuminate\\Foundation\\Console\\Kernel->reportException(Object(RuntimeException))
+#7 /home/user/natiora_radio/artisan(15): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#8 {main}
+"} 
+[2026-03-12 19:42:55] laravel.ERROR: View path not found. {"exception":"[object] (RuntimeException(code: 0): View path not found. at /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Console/ViewClearCommand.php:59)
+[stacktrace]
+#0 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate\\Foundation\\Console\\ViewClearCommand->handle()
+#1 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Container/Util.php(41): Illuminate\\Container\\BoundMethod::Illuminate\\Container\\{closure}()
+#2 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(93): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#3 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Illuminate\\Foundation\\Application), Array, Object(Closure))
+#4 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Container/Container.php(662): Illuminate\\Container\\BoundMethod::call(Object(Illuminate\\Foundation\\Application), Array, Array, NULL)
+#5 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate\\Container\\Container->call(Array)
+#6 /home/user/natiora_radio/vendor/symfony/console/Command/Command.php(326): Illuminate\\Console\\Command->execute(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Illuminate\\Console\\OutputStyle))
+#7 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony\\Component\\Console\\Command\\Command->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Illuminate\\Console\\OutputStyle))
+#8 /home/user/natiora_radio/vendor/symfony/console/Application.php(1121): Illuminate\\Console\\Command->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#9 /home/user/natiora_radio/vendor/symfony/console/Application.php(324): Symfony\\Component\\Console\\Application->doRunCommand(Object(Illuminate\\Foundation\\Console\\ViewClearCommand), Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#10 /home/user/natiora_radio/vendor/symfony/console/Application.php(175): Symfony\\Component\\Console\\Application->doRun(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#11 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(201): Symfony\\Component\\Console\\Application->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#12 /home/user/natiora_radio/artisan(15): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#13 {main}
+"} 
+[2026-03-12 19:42:55] laravel.EMERGENCY: Unable to create configured logger. Using emergency logger. {"exception":"[object] (InvalidArgumentException(code: 0): Log [] is not defined. at /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Log/LogManager.php:212)
+[stacktrace]
+#0 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(137): Illuminate\\Log\\LogManager->resolve(NULL, NULL)
+#1 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(124): Illuminate\\Log\\LogManager->get(NULL)
+#2 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(681): Illuminate\\Log\\LogManager->driver()
+#3 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(317): Illuminate\\Log\\LogManager->error('View path not f...', Array)
+#4 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(278): Illuminate\\Foundation\\Exceptions\\Handler->reportThrowable(Object(RuntimeException))
+#5 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(523): Illuminate\\Foundation\\Exceptions\\Handler->report(Object(RuntimeException))
+#6 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(203): Illuminate\\Foundation\\Console\\Kernel->reportException(Object(RuntimeException))
+#7 /home/user/natiora_radio/artisan(15): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#8 {main}
+"} 
+[2026-03-12 19:42:55] laravel.ERROR: View path not found. {"exception":"[object] (RuntimeException(code: 0): View path not found. at /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Console/ViewClearCommand.php:59)
+[stacktrace]
+#0 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate\\Foundation\\Console\\ViewClearCommand->handle()
+#1 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Container/Util.php(41): Illuminate\\Container\\BoundMethod::Illuminate\\Container\\{closure}()
+#2 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(93): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#3 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Illuminate\\Foundation\\Application), Array, Object(Closure))
+#4 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Container/Container.php(662): Illuminate\\Container\\BoundMethod::call(Object(Illuminate\\Foundation\\Application), Array, Array, NULL)
+#5 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate\\Container\\Container->call(Array)
+#6 /home/user/natiora_radio/vendor/symfony/console/Command/Command.php(326): Illuminate\\Console\\Command->execute(Object(Symfony\\Component\\Console\\Input\\ArrayInput), Object(Illuminate\\Console\\OutputStyle))
+#7 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony\\Component\\Console\\Command\\Command->run(Object(Symfony\\Component\\Console\\Input\\ArrayInput), Object(Illuminate\\Console\\OutputStyle))
+#8 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Console/Concerns/CallsCommands.php(67): Illuminate\\Console\\Command->run(Object(Symfony\\Component\\Console\\Input\\ArrayInput), Object(Symfony\\Component\\Console\\Output\\NullOutput))
+#9 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Console/Concerns/CallsCommands.php(40): Illuminate\\Console\\Command->runCommand('view:clear', Array, Object(Symfony\\Component\\Console\\Output\\NullOutput))
+#10 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Console/OptimizeClearCommand.php(36): Illuminate\\Console\\Command->callSilent('view:clear')
+#11 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Console/View/Components/Task.php(37): Illuminate\\Foundation\\Console\\OptimizeClearCommand->Illuminate\\Foundation\\Console\\{closure}()
+#12 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Console/View/Components/Factory.php(58): Illuminate\\Console\\View\\Components\\Task->render('views', Object(Closure))
+#13 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Console/OptimizeClearCommand.php(41): Illuminate\\Console\\View\\Components\\Factory->__call('task', Array)
+#14 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Collections/Traits/EnumeratesValues.php(240): Illuminate\\Foundation\\Console\\OptimizeClearCommand->Illuminate\\Foundation\\Console\\{closure}(Object(Closure), 'views')
+#15 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Console/OptimizeClearCommand.php(41): Illuminate\\Support\\Collection->each(Object(Closure))
+#16 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate\\Foundation\\Console\\OptimizeClearCommand->handle()
+#17 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Container/Util.php(41): Illuminate\\Container\\BoundMethod::Illuminate\\Container\\{closure}()
+#18 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(93): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#19 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Illuminate\\Foundation\\Application), Array, Object(Closure))
+#20 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Container/Container.php(662): Illuminate\\Container\\BoundMethod::call(Object(Illuminate\\Foundation\\Application), Array, Array, NULL)
+#21 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate\\Container\\Container->call(Array)
+#22 /home/user/natiora_radio/vendor/symfony/console/Command/Command.php(326): Illuminate\\Console\\Command->execute(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Illuminate\\Console\\OutputStyle))
+#23 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony\\Component\\Console\\Command\\Command->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Illuminate\\Console\\OutputStyle))
+#24 /home/user/natiora_radio/vendor/symfony/console/Application.php(1121): Illuminate\\Console\\Command->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#25 /home/user/natiora_radio/vendor/symfony/console/Application.php(324): Symfony\\Component\\Console\\Application->doRunCommand(Object(Illuminate\\Foundation\\Console\\OptimizeClearCommand), Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#26 /home/user/natiora_radio/vendor/symfony/console/Application.php(175): Symfony\\Component\\Console\\Application->doRun(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#27 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(201): Symfony\\Component\\Console\\Application->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#28 /home/user/natiora_radio/artisan(15): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#29 {main}
+"} 
+[2026-03-12 20:04:10] laravel.EMERGENCY: Unable to create configured logger. Using emergency logger. {"exception":"[object] (InvalidArgumentException(code: 0): Log [] is not defined. at /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Log/LogManager.php:212)
+[stacktrace]
+#0 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(137): Illuminate\\Log\\LogManager->resolve(NULL, NULL)
+#1 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(124): Illuminate\\Log\\LogManager->get(NULL)
+#2 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(681): Illuminate\\Log\\LogManager->driver()
+#3 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(317): Illuminate\\Log\\LogManager->error('View path not f...', Array)
+#4 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(278): Illuminate\\Foundation\\Exceptions\\Handler->reportThrowable(Object(RuntimeException))
+#5 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(523): Illuminate\\Foundation\\Exceptions\\Handler->report(Object(RuntimeException))
+#6 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(203): Illuminate\\Foundation\\Console\\Kernel->reportException(Object(RuntimeException))
+#7 /home/user/natiora_radio/artisan(15): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#8 {main}
+"} 
+[2026-03-12 20:04:10] laravel.ERROR: View path not found. {"exception":"[object] (RuntimeException(code: 0): View path not found. at /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Console/ViewClearCommand.php:59)
+[stacktrace]
+#0 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate\\Foundation\\Console\\ViewClearCommand->handle()
+#1 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Container/Util.php(41): Illuminate\\Container\\BoundMethod::Illuminate\\Container\\{closure}()
+#2 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(93): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#3 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Illuminate\\Foundation\\Application), Array, Object(Closure))
+#4 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Container/Container.php(662): Illuminate\\Container\\BoundMethod::call(Object(Illuminate\\Foundation\\Application), Array, Array, NULL)
+#5 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate\\Container\\Container->call(Array)
+#6 /home/user/natiora_radio/vendor/symfony/console/Command/Command.php(326): Illuminate\\Console\\Command->execute(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Illuminate\\Console\\OutputStyle))
+#7 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony\\Component\\Console\\Command\\Command->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Illuminate\\Console\\OutputStyle))
+#8 /home/user/natiora_radio/vendor/symfony/console/Application.php(1121): Illuminate\\Console\\Command->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#9 /home/user/natiora_radio/vendor/symfony/console/Application.php(324): Symfony\\Component\\Console\\Application->doRunCommand(Object(Illuminate\\Foundation\\Console\\ViewClearCommand), Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#10 /home/user/natiora_radio/vendor/symfony/console/Application.php(175): Symfony\\Component\\Console\\Application->doRun(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#11 /home/user/natiora_radio/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(201): Symfony\\Component\\Console\\Application->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#12 /home/user/natiora_radio/artisan(15): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#13 {main}
+"} 

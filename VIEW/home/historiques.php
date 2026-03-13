@@ -121,7 +121,6 @@ $js_emissions = json_encode(array_values($selectedEmissions), JSON_UNESCAPED_SLA
     <div id="history-player-container" style="display:block;margin-top:12px;">
         <div id="historyPlayerStatus" style="color:#ddd;margin-bottom:6px;"></div>
     </div>
-
     <script>
         (function(){
             var playlists = <?php echo $js_playlists; ?>;
@@ -137,10 +136,10 @@ $js_emissions = json_encode(array_values($selectedEmissions), JSON_UNESCAPED_SLA
                     var form = ev.currentTarget;
                     var params = new URLSearchParams(new FormData(form));
                     var endpoint = (window.app_BASE && window.app_BASE.length) ? (window.app_BASE.replace(/\/+$/,'') + '/scripts/history_fetch.php') : 'scripts/history_fetch.php';
+                    console.log(window.app_BASE);
                     try { console.log('history fetch ->', endpoint + '?' + params.toString()); } catch(e){}
                     fetch(endpoint + '?' + params.toString(), { credentials: 'same-origin' })
-                        .then(function(r){ return r.json(); })
-                        .then(function(json){
+                        .then( (json) => {
                             playlists = json.playlists || [];
                             emissions = json.emissions || [];
                             type = json.type || params.get('type') || 'all';
