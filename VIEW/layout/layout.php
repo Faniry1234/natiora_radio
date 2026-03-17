@@ -42,9 +42,46 @@ if ($base === '/' || $base === '\\') $base = '';
     <title><?= isset($pageTitle) ? $pageTitle : 'Natiora_Radio_98.2' ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="<?php echo $base; ?>/PUBLIC/assets/css/style.css" rel="stylesheet">
+    <?php
+    // Determine correct public asset path so CSS loads whether the server
+    // has DocumentRoot set to project root or to the `public/` folder.
+    $projectRoot = realpath(__DIR__ . '/../../');
+    $docRoot = isset($_SERVER['DOCUMENT_ROOT']) ? realpath($_SERVER['DOCUMENT_ROOT']) : false;
+    $b = rtrim($base, '/');
+    // Default: assume assets are served at /assets (i.e. docroot == public/)
+    $cssHref = ($b === '') ? '/assets/css/style.css' : $b . '/assets/css/style.css';
+    if ($docRoot) {
+        // If the server's docroot is the project root, assets are under /public/assets
+        if ($docRoot === $projectRoot) {
+            $cssHref = ($b === '') ? '/public/assets/css/style.css' : $b . '/public/assets/css/style.css';
+        } elseif ($docRoot === $projectRoot . DIRECTORY_SEPARATOR . 'public') {
+            $cssHref = ($b === '') ? '/assets/css/style.css' : $b . '/assets/css/style.css';
+        }
+    } else {
+        // fallback: if public/assets exists on disk but /assets might not map, prefer /public/assets
+        if (file_exists($projectRoot . '/public/assets/css/style.css')) {
+            $cssHref = ($b === '') ? '/public/assets/css/style.css' : $b . '/public/assets/css/style.css';
+        }
+    }
+    ?>
+    <link href="<?php echo htmlspecialchars($cssHref); ?>" rel="stylesheet">
+    <?php
+    // Compute asset base once so header and views can reference images/scripts
+    $assetBase = '/assets';
+    if ($docRoot) {
+        if ($docRoot === $projectRoot) {
+            $assetBase = '/public/assets';
+        } elseif ($docRoot === $projectRoot . DIRECTORY_SEPARATOR . 'public') {
+            $assetBase = '/assets';
+        }
+    } else {
+        if (file_exists($projectRoot . '/public/assets')) {
+            $assetBase = '/public/assets';
+        }
+    }
+    ?>
     <!-- Explicit favicon to avoid default /favicon.ico 404 -->
-    <link rel="icon" type="image/png" href="<?php echo $base; ?>/PUBLIC/assets/images/acceuil.jpg">
+    <link rel="icon" type="image/png" href="<?php echo htmlspecialchars($assetBase); ?>/images/acceuil.jpg">
 </head>
 <body<?php if (defined('DEV_ADMIN') && DEV_ADMIN) echo ' class="dev-admin"'; ?>>
     <?php
@@ -62,8 +99,8 @@ if ($base === '/' || $base === '\\') $base = '';
     <!-- Header -->
     <header>
         <div class="header-inner">
-            <div class="brand">
-                <img src="<?php echo $base; ?>/PUBLIC/assets/images/LOGO%20RADIO.jpg" alt="Natiora Logo" class="logo">
+                <div class="brand">
+                <img src="<?php echo htmlspecialchars($assetBase); ?>/images/LOGO%20RADIO.jpg" alt="Natiora Logo" class="logo">
                 <h1>Natiora Radio <span>98.2</span></h1>
             </div>
             <nav class="main-nav" aria-label="Main navigation">
@@ -133,21 +170,21 @@ if ($base === '/' || $base === '\\') $base = '';
     ];
     $key = $map[$routeName] ?? $map['home'];
     // prefer premium file if it exists
-    $candidatePremium = __DIR__ . '/../../PUBLIC/assets/images/' . $key . '_premium.svg';
-    $candidateNormal = __DIR__ . '/../../PUBLIC/assets/images/' . $key . '.svg';
+    $candidatePremium = __DIR__ . '/../../public/assets/images/' . $key . '_premium.svg';
+    $candidateNormal = __DIR__ . '/../../public/assets/images/' . $key . '.svg';
     if (file_exists($candidatePremium)) {
-        $hero = $base . '/PUBLIC/assets/images/' . $key . '_premium.svg';
+        $hero = $assetBase . '/images/' . $key . '_premium.svg';
     } elseif (file_exists($candidateNormal)) {
-        $hero = $base . '/PUBLIC/assets/images/' . $key . '.svg';
+        $hero = $assetBase . '/images/' . $key . '.svg';
     } else {
         // fallbacks to older JPGs if no SVG found
         $fallbacks = [
-            'home' => $base . '/PUBLIC/assets/images/acceuil.jpg',
-            'playlistes' => $base . '/PUBLIC/assets/images/playliste1.jpg',
-            'emissions' => $base . '/PUBLIC/assets/images/LOGO%20RADIO.jpg',
-            'historiques' => $base . '/PUBLIC/assets/images/LOGO%20VAO.jpg',
-            'auth/profile' => $base . '/PUBLIC/assets/images/LOGO%20VAO.jpg',
-            'admin' => $base . '/PUBLIC/assets/images/LOGO%20RADIO.jpg'
+            'home' => $assetBase . '/images/acceuil.jpg',
+            'playlistes' => $assetBase . '/images/playliste1.jpg',
+            'emissions' => $assetBase . '/images/LOGO%20RADIO.jpg',
+            'historiques' => $assetBase . '/images/LOGO%20VAO.jpg',
+            'auth/profile' => $assetBase . '/images/LOGO%20VAO.jpg',
+            'admin' => $assetBase . '/images/LOGO%20RADIO.jpg'
         ];
         $hero = $fallbacks[$routeName] ?? $fallbacks['home'];
     }
@@ -183,7 +220,7 @@ if ($base === '/' || $base === '\\') $base = '';
     <main>
         <?php 
         if (!empty($view) && file_exists(__DIR__ . '/../' . $view)) {
-            include __DIR__ . '/../' . $view;
+                include __DIR__ . '/../' . $view;
         } else {
             echo '<div style="text-align: center; padding: 40px; color: #f5576c;"><h2>Vue introuvable</h2></div>';
         }
@@ -304,6 +341,8 @@ if ($base === '/' || $base === '\\') $base = '';
     <script>
         // Application base path for JS (useful when app runs in a subfolder)
         window.APP_BASE = '<?php echo $base; ?>';
+        // Optional live stream URL from environment (useful when running in Docker)
+        window.APP_STREAM = <?php echo json_encode(getenv('STREAM_URL') ?: null); ?>;
             // Theme: read saved preference or system preference and apply class to <body>
         (function(){
             const toggle = document.getElementById('themeToggle');
@@ -377,6 +416,8 @@ if ($base === '/' || $base === '\\') $base = '';
         body.theme-dark { --bg:#0b0f14; --card:#0f1724; --muted:#94a3b8; --accent:#6c63ff; --accent-2:#00c2a8; --danger:#ff6b6b; --text:#e6eef6; }
         body.theme-light { --bg:#ffffff; --card:#ffffff; --muted:#64748b; --accent:#4f46e5; --accent-2:#06b6d4; --danger:#ef4444; --text:#0b1220; }
         body { background: var(--bg); color: var(--text); }
+        /* Ensure header (and its dropdown) sits above page hero and any filtered elements */
+        header { position: relative; z-index: 1100; }
         header .header-inner { background: transparent; }
         .brand h1, .brand h1 span { color: var(--text); }
         .main-nav .nav-btn { color: var(--text); }

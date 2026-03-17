@@ -3,10 +3,10 @@
 -- ============================================
 
 -- Créer la base de données
-CREATE DATABASE IF NOT EXISTS natiora_radio CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+-- CREATE DATABASE IF NOT EXISTS natiora_radio CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- Utiliser la base de données
-USE natiora_radio;
+-- -- Utiliser la base de données
+-- USE natiora_radio;
 
 -- ============================================
 
@@ -108,15 +108,15 @@ DELETE FROM emissions;
 ALTER TABLE emissions AUTO_INCREMENT = 1;
 
 INSERT INTO emissions (day, time, title, presenter, duration, level, category, src, description, created_at) VALUES
-('lundi', '08:00:00', 'Concevoir une affiche', 'Tuto Boy', '45 min', 'Intermédiaire', 'Design Graphique', '/PUBLIC/assets/videos/Tuto Boy  Comment concevoir une affiche sur Photoshop..mp4', 'Atelier complet sur la composition d\'affiche et typographie.', '2026-02-18 08:00:00'),
-('lundi', '09:00:00', 'Montage Flyer Professionnel', 'Tuto Boy', '35 min', 'Débutant', 'Design Graphique', '/PUBLIC/assets/videos/TUTO BOY COMMENT FAIRE UN MONTAGE PHOTO SUR PHOTOSHOP  [flyer].mp4', 'Techniques rapides et efficaces pour créer un flyer promotionnel captivant.', '2026-02-18 09:00:00'),
-('mardi', '10:00:00', 'Dégradé sur texte Avancé', 'Tuto Boy', '28 min', 'Avancé', 'Effets Visuels', '/PUBLIC/assets/videos/[Tuto Boy] Comment faire un dégradé sur un texte dans Photoshop..mp4', 'Effets de texte modernes, color grading et techniques de dégradé pour résultats époustouflants.', '2026-02-18 10:00:00'),
-('mardi', '11:00:00', 'Effet de lumière Réaliste', 'Tuto Boy', '32 min', 'Intermédiaire', 'Retouche Photo', '/PUBLIC/assets/videos/[Tuto boy] Comment faire un effet de lumière sur une image sur Photoshop.mp4', 'Astuces professionnelles pour simuler des éclairages réalistes, ombres et reflets lumineux.', '2026-02-18 11:00:00'),
-('mercredi', '09:30:00', 'Concevoir une affiche - Rediffusion', 'Tuto Boy', '45 min', 'Intermédiaire', 'Design Graphique', '/PUBLIC/assets/videos/Tuto Boy  Comment concevoir une affiche sur Photoshop..mp4', 'Rediffusion : composition, hiérarchie visuelle et principes de design graphique modernes.', '2026-02-18 09:30:00'),
-('jeudi', '14:00:00', 'Montage Flyer - Spécial Événement', 'Tuto Boy', '40 min', 'Débutant', 'Design Graphique', '/PUBLIC/assets/videos/TUTO BOY COMMENT FAIRE UN MONTAGE PHOTO SUR PHOTOSHOP  [flyer].mp4', 'Tutoriel pas-à-pas pour créer des flyers promotionnels pour vos événements.', '2026-02-18 14:00:00'),
-('vendredi', '15:30:00', 'Effets de Lumière - Créatifs', 'Tuto Boy', '38 min', 'Intermédiaire', 'Retouche Photo', '/PUBLIC/assets/videos/[Tuto boy] Comment faire un effet de lumière sur une image sur Photoshop.mp4', 'Effets créatifs avancés pour vos images, ajout de lumière naturelle et synthétique.', '2026-02-18 15:30:00'),
-('samedi', '11:00:00', 'Best Of Design Avancé', 'Tuto Boy', '50 min', 'Avancé', 'Spécial', '/PUBLIC/assets/videos/[Tuto Boy] Comment faire un dégradé sur un texte dans Photoshop..mp4', 'Compilation de techniques avancées pour utilisateurs confirmés.', '2026-02-18 11:00:00'),
-('dimanche', '19:00:00', 'Best Of - Compilation Spéciale', 'Tuto Boy', '60 min', 'Tous niveaux', 'Spécial', '/PUBLIC/assets/videos/Tuto Boy  Comment concevoir une affiche sur Photoshop..mp4', 'Compilation des meilleurs extraits et tutoriels de la semaine avec conseils bonus et Q&A.', '2026-02-18 19:00:00');
+('lundi', '08:00:00', 'Concevoir une affiche', 'Tuto Boy', '45 min', 'Intermédiaire', 'Design Graphique', '/public/assets/videos/Tuto Boy  Comment concevoir une affiche sur Photoshop..mp4', 'Atelier complet sur la composition d\'affiche et typographie.', '2026-02-18 08:00:00'),
+('lundi', '09:00:00', 'Montage Flyer Professionnel', 'Tuto Boy', '35 min', 'Débutant', 'Design Graphique', '/public/assets/videos/TUTO BOY COMMENT FAIRE UN MONTAGE PHOTO SUR PHOTOSHOP  [flyer].mp4', 'Techniques rapides et efficaces pour créer un flyer promotionnel captivant.', '2026-02-18 09:00:00'),
+('mardi', '10:00:00', 'Dégradé sur texte Avancé', 'Tuto Boy', '28 min', 'Avancé', 'Effets Visuels', '/public/assets/videos/[Tuto Boy] Comment faire un dégradé sur un texte dans Photoshop..mp4', 'Effets de texte modernes, color grading et techniques de dégradé pour résultats époustouflants.', '2026-02-18 10:00:00'),
+('mardi', '11:00:00', 'Effet de lumière Réaliste', 'Tuto Boy', '32 min', 'Intermédiaire', 'Retouche Photo', '/public/assets/videos/[Tuto boy] Comment faire un effet de lumière sur une image sur Photoshop.mp4', 'Astuces professionnelles pour simuler des éclairages réalistes, ombres et reflets lumineux.', '2026-02-18 11:00:00'),
+('mercredi', '09:30:00', 'Concevoir une affiche - Rediffusion', 'Tuto Boy', '45 min', 'Intermédiaire', 'Design Graphique', '/public/assets/videos/Tuto Boy  Comment concevoir une affiche sur Photoshop..mp4', 'Rediffusion : composition, hiérarchie visuelle et principes de design graphique modernes.', '2026-02-18 09:30:00'),
+('jeudi', '14:00:00', 'Montage Flyer - Spécial Événement', 'Tuto Boy', '40 min', 'Débutant', 'Design Graphique', '/public/assets/videos/TUTO BOY COMMENT FAIRE UN MONTAGE PHOTO SUR PHOTOSHOP  [flyer].mp4', 'Tutoriel pas-à-pas pour créer des flyers promotionnels pour vos événements.', '2026-02-18 14:00:00'),
+('vendredi', '15:30:00', 'Effets de Lumière - Créatifs', 'Tuto Boy', '38 min', 'Intermédiaire', 'Retouche Photo', '/public/assets/videos/[Tuto boy] Comment faire un effet de lumière sur une image sur Photoshop.mp4', 'Effets créatifs avancés pour vos images, ajout de lumière naturelle et synthétique.', '2026-02-18 15:30:00'),
+('samedi', '11:00:00', 'Best Of Design Avancé', 'Tuto Boy', '50 min', 'Avancé', 'Spécial', '/public/assets/videos/[Tuto Boy] Comment faire un dégradé sur un texte dans Photoshop..mp4', 'Compilation de techniques avancées pour utilisateurs confirmés.', '2026-02-18 11:00:00'),
+('dimanche', '19:00:00', 'Best Of - Compilation Spéciale', 'Tuto Boy', '60 min', 'Tous niveaux', 'Spécial', '/public/assets/videos/Tuto Boy  Comment concevoir une affiche sur Photoshop..mp4', 'Compilation des meilleurs extraits et tutoriels de la semaine avec conseils bonus et Q&A.', '2026-02-18 19:00:00');
 
 -- ============================================
 -- INSERTION DES DONNÉES DE PLAYLISTS
@@ -153,6 +153,47 @@ INSERT INTO playlist_songs (playlist_id, song_title, position) VALUES
 (4, 'Concevoir une affiche - Rediffusion', 1),
 (4, 'Montage Flyer - Spécial Événement', 2),
 (4, 'Montage Flyer Professionnel', 3);
+
+-- ============================================
+-- ============================================
+
+-- TABLE MESSAGES (pour API messages)
+CREATE TABLE IF NOT EXISTS messages (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    sender_id INT,
+    recipient_id INT,
+    subject VARCHAR(255),
+    body TEXT,
+    is_read TINYINT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    sender_email VARCHAR(255) NULL,
+    context_type VARCHAR(100) NULL,
+    context_id INT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Exemples de messages
+DELETE FROM messages;
+ALTER TABLE messages AUTO_INCREMENT = 1;
+INSERT INTO messages (sender_id, recipient_id, subject, body, is_read, created_at) VALUES
+(1, 3, 'Test message', 'Bonjour admin, ceci est un message de test.', 0, '2026-02-20 09:15:00'),
+(2, 3, 'Question émission', 'Bonjour, comment participer à l\'émission du lundi ?', 1, '2026-02-19 12:00:00');
+
+-- TABLE PLAYED_LOGS (historique de lecture)
+CREATE TABLE IF NOT EXISTS played_logs (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(255),
+    artist VARCHAR(255),
+    source VARCHAR(1000),
+    duration INT,
+    user_id INT,
+    played_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Exemple d'entrée play log
+DELETE FROM played_logs;
+ALTER TABLE played_logs AUTO_INCREMENT = 1;
+INSERT INTO played_logs (title, artist, source, duration, user_id, played_at) VALUES
+('Concevoir une affiche', 'Tuto Boy', '/assets/audios/example1.mp3', 180, 1, '2026-02-18 10:05:00');
 
 -- ============================================
 -- FIN DU SCRIPT SQL

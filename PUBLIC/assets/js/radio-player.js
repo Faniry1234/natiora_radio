@@ -11,7 +11,9 @@ document.addEventListener('DOMContentLoaded', function(){
 
     if (!mediaEl) return;
 
-    const stream = mediaEl.getAttribute('data-stream') || '';
+    // Prefer an explicit global `window.APP_STREAM` (set from server env),
+    // otherwise fall back to the element's data-stream attribute.
+    const stream = (typeof window.APP_STREAM === 'string' && window.APP_STREAM) ? window.APP_STREAM : (mediaEl.getAttribute('data-stream') || '');
     mediaEl.innerHTML = '';
 
     // Determine whether element is video or audio

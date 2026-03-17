@@ -1,10 +1,10 @@
 <?php
 // Simple image optimization script (GD-based).
 // Usage: php scripts/optimize_images.php
-// It will read PUBLIC/assets/images/oi.jpg and create oi-small.jpg (max width 1200)
+// It will read public/assets/images/oi.jpg and create oi-small.jpg (max width 1200)
 // and oi-small.webp (if PHP supports imagewebp).
 
-$root = __DIR__ . '/../PUBLIC/assets/images';
+$root = __DIR__ . '/../public/assets/images';
 $src = $root . '/oi.jpg';
 $smallJpeg = $root . '/oi-small.jpg';
 $smallWebp = $root . '/oi-small.webp';

@@ -50,13 +50,25 @@ class Playlists {
 
     public function add($playlist){
         if (!$this->db) return false;
-        $stmt = $this->db->prepare("INSERT INTO playlists (title, description, cover) 
-                                   VALUES (:title, :description, :cover)");
-        $stmt->execute([
-            ':title' => $playlist['title'],
-            ':description' => $playlist['desc'] ?? null,
-            ':cover' => $playlist['cover'] ?? null
-        ]);
+        // support optional created_at provided by controller (to assign weekday)
+        if (!empty($playlist['created_at'])) {
+            $stmt = $this->db->prepare("INSERT INTO playlists (title, description, cover, created_at) 
+                                       VALUES (:title, :description, :cover, :created_at)");
+            $stmt->execute([
+                ':title' => $playlist['title'],
+                ':description' => $playlist['desc'] ?? null,
+                ':cover' => $playlist['cover'] ?? null,
+                ':created_at' => $playlist['created_at']
+            ]);
+        } else {
+            $stmt = $this->db->prepare("INSERT INTO playlists (title, description, cover) 
+                                       VALUES (:title, :description, :cover)");
+            $stmt->execute([
+                ':title' => $playlist['title'],
+                ':description' => $playlist['desc'] ?? null,
+                ':cover' => $playlist['cover'] ?? null
+            ]);
+        }
         $playlistId = $this->db->lastInsertId();
         if (!empty($playlist['songs'])) {
             $songStmt = $this->db->prepare("INSERT INTO playlist_songs (playlist_id, song_title, position) 
@@ -74,14 +86,27 @@ class Playlists {
 
     public function update($id, $playlist){
         if (!$this->db) return false;
-        $stmt = $this->db->prepare("UPDATE playlists SET title = :title, description = :description, cover = :cover 
-                                   WHERE id = :id");
-        $success = $stmt->execute([
-            ':id' => $id,
-            ':title' => $playlist['title'],
-            ':description' => $playlist['desc'] ?? null,
-            ':cover' => $playlist['cover'] ?? null
-        ]);
+        // optionally update created_at if provided
+        if (isset($playlist['created_at'])) {
+            $stmt = $this->db->prepare("UPDATE playlists SET title = :title, description = :description, cover = :cover, created_at = :created_at 
+                                       WHERE id = :id");
+            $success = $stmt->execute([
+                ':id' => $id,
+                ':title' => $playlist['title'],
+                ':description' => $playlist['desc'] ?? null,
+                ':cover' => $playlist['cover'] ?? null,
+                ':created_at' => $playlist['created_at']
+            ]);
+        } else {
+            $stmt = $this->db->prepare("UPDATE playlists SET title = :title, description = :description, cover = :cover 
+                                       WHERE id = :id");
+            $success = $stmt->execute([
+                ':id' => $id,
+                ':title' => $playlist['title'],
+                ':description' => $playlist['desc'] ?? null,
+                ':cover' => $playlist['cover'] ?? null
+            ]);
+        }
         if ($success) {
             $delStmt = $this->db->prepare("DELETE FROM playlist_songs WHERE playlist_id = :playlist_id");
             $delStmt->execute([':playlist_id' => $id]);

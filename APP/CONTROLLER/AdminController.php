@@ -137,6 +137,20 @@ class AdminController {
             'total_emissions' => $totalEmissions,
             'total_playlists' => count($allPlaylists)
         ];
+        // Additional user metrics: admins count and new users in last 30 days
+        $adminsCount = 0;
+        $newUsers30 = 0;
+        $now = time();
+        foreach ($allUsers as $u) {
+            $role = is_array($u) ? ($u['role'] ?? '') : ($u->role ?? '');
+            if (strtolower($role) === 'admin') $adminsCount++;
+            $created = null;
+            if (is_array($u) && !empty($u['created_at'])) $created = strtotime($u['created_at']);
+            if (is_object($u) && !empty($u->created_at)) $created = strtotime($u->created_at);
+            if ($created && ($now - $created) <= (30 * 24 * 3600)) $newUsers30++;
+        }
+        $stats['admins_count'] = $adminsCount;
+        $stats['new_users_30d'] = $newUsers30;
         // Préparer quelques éléments récents pour le dashboard
         $recent_playlists = array_slice($allPlaylists, 0, 6);
 
@@ -231,7 +245,7 @@ class AdminController {
         
         if ($videoType === 'file' && !empty($_FILES['src-file']['name'])) {
             // Upload le fichier vidéo
-            $uploadDir = __DIR__ . '/../../PUBLIC/assets/videos/';
+            $uploadDir = __DIR__ . '/../../public/assets/videos/';
             if (!is_dir($uploadDir)) {
                 mkdir($uploadDir, 0755, true);
             }
@@ -241,7 +255,7 @@ class AdminController {
             $filepath = $uploadDir . time() . '_' . $filename;
             
             if (move_uploaded_file($file['tmp_name'], $filepath)) {
-                $src = '/PUBLIC/assets/videos/' . basename($filepath);
+                $src = '/assets/videos/' . basename($filepath);
             }
         } else {
             // Utiliser l'URL
@@ -289,7 +303,7 @@ class AdminController {
         
         if ($videoType === 'file' && !empty($_FILES['src-file']['name'])) {
             // Upload le fichier vidéo
-            $uploadDir = __DIR__ . '/../../PUBLIC/assets/videos/';
+            $uploadDir = __DIR__ . '/../../public/assets/videos/';
             if (!is_dir($uploadDir)) {
                 mkdir($uploadDir, 0755, true);
             }
@@ -299,7 +313,7 @@ class AdminController {
             $filepath = $uploadDir . time() . '_' . $filename;
             
             if (move_uploaded_file($file['tmp_name'], $filepath)) {
-                $src = '/PUBLIC/assets/videos/' . basename($filepath);
+                $src = '/assets/videos/' . basename($filepath);
             }
         } else {
             // Utiliser l'URL
@@ -379,6 +393,38 @@ class AdminController {
         include __DIR__ . '/../../VIEW/admin/playlists.php';
     }
 
+    public function manageTeam(){
+        // Only admin-accessed: GET shows editor, POST saves responsables to DATA/responsables.php
+        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
+            $raw = file_get_contents('php://input');
+            $data = null;
+            // Accept JSON body or form field 'data'
+            if ($raw) {
+                $data = json_decode($raw, true);
+            }
+            if (!$data && isset($_POST['data'])) {
+                $try = json_decode($_POST['data'], true);
+                if (is_array($try)) $data = $try;
+            }
+            header('Content-Type: application/json; charset=utf-8');
+            if (!is_array($data)) { echo json_encode(['ok'=>false,'error'=>'Invalid payload']); exit; }
+            $out = "<?php\nreturn " . var_export($data, true) . ";\n";
+            $file = __DIR__ . '/../../DATA/responsables.php';
+            if (file_put_contents($file, $out, LOCK_EX) === false) { echo json_encode(['ok'=>false,'error'=>'Write failed']); exit; }
+            echo json_encode(['ok'=>true]); exit;
+        }
+
+        $dataFile = __DIR__ . '/../../DATA/responsables.php';
+        $responsables = [];
+        if (file_exists($dataFile)) {
+            $tmp = include $dataFile;
+            if (is_array($tmp)) $responsables = $tmp;
+        }
+        $base = $this->base;
+        $debugMode = (php_sapi_name() === 'cli-server') || (defined('DEV_ADMIN') && DEV_ADMIN) || (defined('DEBUG_ADMIN') && DEBUG_ADMIN);
+        include __DIR__ . '/../../VIEW/admin/team.php';
+    }
+
     public function manageMessages(){
         // Simple admin inbox page
         // Ensure recent datasets are available for dashboard-like sidebar
@@ -400,7 +446,7 @@ class AdminController {
 
         // Handle uploaded audio files
         if (!empty($_FILES['songs_files']) && is_array($_FILES['songs_files']['name'])) {
-            $uploadDir = __DIR__ . '/../../PUBLIC/assets/audios/';
+            $uploadDir = __DIR__ . '/../../public/assets/audios/';
             if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
             foreach ($_FILES['songs_files']['name'] as $idx => $name) {
                 if (empty($name)) continue;
@@ -409,8 +455,8 @@ class AdminController {
                 $destName = time() . '_' . $safe;
                 $destPath = $uploadDir . $destName;
                 if (move_uploaded_file($tmp, $destPath)) {
-                    // store web-accessible path
-                    $songs[] = '/PUBLIC/assets/audios/' . $destName;
+                    // store web-accessible path (no /public prefix)
+                    $songs[] = '/assets/audios/' . $destName;
                 }
             }
         }
@@ -420,12 +466,42 @@ class AdminController {
             return;
         }
 
+        // If admin provided a target day, compute a created_at timestamp matching that weekday
+        $created_at = null;
+        $chosenDay = trim(strtolower($_POST['day'] ?? ''));
+        $frToEng = ['lundi'=>'Monday','mardi'=>'Tuesday','mercredi'=>'Wednesday','jeudi'=>'Thursday','vendredi'=>'Friday','samedi'=>'Saturday','dimanche'=>'Sunday'];
+        if ($chosenDay && isset($frToEng[$chosenDay])) {
+            $eng = $frToEng[$chosenDay];
+            $todayEng = date('l');
+            if (strcasecmp($todayEng, $eng) === 0) {
+                $created_at = date('Y-m-d H:i:s');
+            } else {
+                $created_at = date('Y-m-d H:i:s', strtotime('next ' . $eng));
+            }
+        }
+
         $playlist = [
             'title' => $title,
             'desc' => $desc,
             'cover' => $cover,
             'songs' => $songs
         ];
+
+        // allow updating the assigned day (created_at) from edit form
+        $created_at = null;
+        $chosenDay = trim(strtolower($_POST['day'] ?? ''));
+        $frToEng = ['lundi'=>'Monday','mardi'=>'Tuesday','mercredi'=>'Wednesday','jeudi'=>'Thursday','vendredi'=>'Friday','samedi'=>'Saturday','dimanche'=>'Sunday'];
+        if ($chosenDay && isset($frToEng[$chosenDay])) {
+            $eng = $frToEng[$chosenDay];
+            $todayEng = date('l');
+            if (strcasecmp($todayEng, $eng) === 0) {
+                $created_at = date('Y-m-d H:i:s');
+            } else {
+                $created_at = date('Y-m-d H:i:s', strtotime('next ' . $eng));
+            }
+        }
+        if ($created_at) $playlist['created_at'] = $created_at;
+        if ($created_at) $playlist['created_at'] = $created_at;
 
         $this->playlists->add($playlist);
         $_SESSION['flash'] = ['type' => 'success', 'msg' => 'Playlist ajoutée avec succès.'];
@@ -445,7 +521,7 @@ class AdminController {
 
         // Handle uploaded audio files
         if (!empty($_FILES['songs_files']) && is_array($_FILES['songs_files']['name'])) {
-            $uploadDir = __DIR__ . '/../../PUBLIC/assets/audios/';
+            $uploadDir = __DIR__ . '/../../public/assets/audios/';
             if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
             foreach ($_FILES['songs_files']['name'] as $idx => $name) {
                 if (empty($name)) continue;
@@ -454,7 +530,7 @@ class AdminController {
                 $destName = time() . '_' . $safe;
                 $destPath = $uploadDir . $destName;
                 if (move_uploaded_file($tmp, $destPath)) {
-                    $songs[] = '/PUBLIC/assets/audios/' . $destName;
+                    $songs[] = '/assets/audios/' . $destName;
                 }
             }
         }

@@ -13,9 +13,9 @@ foreach ($it as $f) {
     $ext = strtolower(pathinfo($f->getFilename(), PATHINFO_EXTENSION));
     if (!in_array($ext, ['php','html','js','css'])) continue;
     $content = file_get_contents($f->getPathname());
-    if (strpos($content, '/PUBLIC/assets/') === false) continue;
+    if (strpos($content, '/public/assets/') === false) continue;
     // find all occurrences using a regex that captures the asset path
-    if (preg_match_all('/\/PUBLIC\/assets\/[^
+    if (preg_match_all('/\/public\/assets\/[^
 \s"\'\<\>\(\)]+/', $content, $m)) {
         foreach ($m[0] as $ref) {
             $files[$ref][] = str_replace($root, '', $f->getPathname());
@@ -30,7 +30,7 @@ foreach ($files as $ref => $locs) {
 }
 
 if (empty($missing)) {
-    echo "No missing /PUBLIC/assets references found.\n";
+    echo "No missing /public/assets references found.\n";
     exit(0);
 }
 

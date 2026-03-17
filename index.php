@@ -3,7 +3,26 @@
 define('REQUEST_START', microtime(true));
 session_start();
 
-require_once __DIR__ . '/APP/config.php';
+// Quick static file handler for development when document-root is project root.
+// Serve requests under /assets/, /uploads/ and /public/uploads/ from the public/ directory.
+$reqPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+if ($reqPath && preg_match('#^/(assets|uploads|public/uploads)/#', $reqPath)) {
+    $candidate = realpath(__DIR__ . '/public' . $reqPath);
+    if ($candidate && is_file($candidate)) {
+        $mime = function_exists('mime_content_type') ? mime_content_type($candidate) : 'application/octet-stream';
+        header('Content-Type: ' . $mime);
+        header('Content-Length: ' . filesize($candidate));
+        readfile($candidate);
+        exit;
+    }
+    // try mapping /public/uploads -> public/uploads
+    if (strpos($reqPath, '/public/uploads/') === 0) {
+        $candidate = realpath(__DIR__ . $reqPath);
+        if ($candidate && is_file($candidate)) { header('Content-Type: ' . (function_exists('mime_content_type')?mime_content_type($candidate):'application/octet-stream')); header('Content-Length: ' . filesize($candidate)); readfile($candidate); exit; }
+    }
+}
+
+require_once __DIR__ . '/app/config.php';
 
 // Development helper: allow temporarily forcing an admin session by adding ?dev_admin=1
 if (isset($_GET['dev_admin']) && $_GET['dev_admin'] == '1') {
@@ -48,6 +67,10 @@ switch($route){
     case 'admin/emissions':
         $admin = new AdminController();
         $admin->manageEmissions();
+        break;
+    case 'admin/team':
+        $admin = new AdminController();
+        $admin->manageTeam();
         break;
     case 'admin/playlists':
         $admin = new AdminController();
@@ -171,7 +194,7 @@ switch($route){
             exit;
         }
 
-        // Allow local files under PUBLIC/ or DATA/ or proxy remote http(s) URLs
+        // Allow local files under public/ or DATA/ or proxy remote http(s) URLs
         $root = realpath(__DIR__);
         header('Access-Control-Allow-Origin: *');
         header('X-Proxy-Server: natiora-proxy');
@@ -197,10 +220,15 @@ switch($route){
             exit;
         }
 
-        // sanitize local path: disallow traversal and require PUBLIC/ or DATA/
+        // sanitize local path: disallow traversal and require public/ or DATA/
         $srcClean = ltrim($src, "\/\\");
-        $allowedDirs = [realpath(__DIR__ . '/PUBLIC'), realpath(__DIR__ . '/DATA')];
+        $allowedDirs = [realpath(__DIR__ . '/public'), realpath(__DIR__ . '/DATA')];
+        // Try candidate relative to project root
         $candidate = realpath(__DIR__ . '/' . $srcClean);
+        // If not found or not under allowed dirs, try mapping under public/ (handles /uploads/... paths)
+        if (!$candidate || array_reduce($allowedDirs, function($carry,$d) use ($candidate){ return $carry || ($d && strpos($candidate, $d) === 0); }, false) === false) {
+            $candidate = realpath(__DIR__ . '/public/' . $srcClean);
+        }
         if (!$candidate) { http_response_code(404); echo 'File not found'; exit; }
         $ok = false;
         foreach ($allowedDirs as $d) { if ($d && strpos($candidate, $d) === 0) { $ok = true; break; } }
@@ -229,13 +257,14 @@ switch($route){
             echo json_encode(['ok'=>false,'error'=>'No file uploaded']); exit;
         }
         $u = $_FILES['file'];
-        $uploadsDir = __DIR__ . '/PUBLIC/uploads';
+        $uploadsDir = __DIR__ . '/public/uploads';
         if (!is_dir($uploadsDir)) @mkdir($uploadsDir, 0755, true);
         $name = preg_replace('/[^A-Za-z0-9._-]/', '_', basename($u['name']));
         $target = $uploadsDir . '/' . uniqid('media_') . '_' . $name;
         if (!move_uploaded_file($u['tmp_name'], $target)) { echo json_encode(['ok'=>false,'error'=>'Move failed']); exit; }
-        // Return web-path relative to project root
-        $webPath = '/PUBLIC/uploads/' . basename($target);
+        // Return web-path relative to web root (public directory)
+        // public/uploads/ maps to /uploads/ when the document root is the public/ folder
+        $webPath = '/uploads/' . basename($target);
         echo json_encode(['ok'=>true,'path'=>$webPath]); exit;
 
     // Admin: save playlists data to DATA/playlists.php (accepts JSON body)
@@ -260,7 +289,46 @@ switch($route){
         $out = "<?php\nreturn " . var_export($data, true) . ";\n";
         $file = __DIR__ . '/DATA/emissions.php';
         if (file_put_contents($file, $out, LOCK_EX) === false) { echo json_encode(['ok'=>false,'error'=>'Write failed']); exit; }
-        echo json_encode(['ok'=>true]); exit;
+
+        // Attempt to sync into DB if available to keep views consistent
+        $dbSyncOk = false; $dbError = null;
+        try {
+            $db = Database::getInstance();
+            // ensure tables exist (init will create them when possible)
+            try { $db->init(); } catch (Throwable $e) { /* ignore init errors */ }
+            $pdo = $db->getConnection();
+            if ($pdo instanceof PDO) {
+                $pdo->beginTransaction();
+                // Clear existing emissions and re-insert from payload
+                $pdo->exec("DELETE FROM emissions");
+                $stmt = $pdo->prepare("INSERT INTO emissions (day,time,title,presenter,duration,level,category,src,description) VALUES (:day,:time,:title,:presenter,:duration,:level,:category,:src,:description)");
+                foreach ($data as $day => $items) {
+                    if (!is_array($items)) continue;
+                    foreach ($items as $it) {
+                        $stmt->execute([
+                            ':day' => $day,
+                            ':time' => $it['time'] ?? null,
+                            ':title' => $it['title'] ?? '',
+                            ':presenter' => $it['presenter'] ?? null,
+                            ':duration' => $it['duration'] ?? null,
+                            ':level' => $it['level'] ?? null,
+                            ':category' => $it['category'] ?? null,
+                            ':src' => $it['src'] ?? null,
+                            ':description' => $it['desc'] ?? ($it['description'] ?? null)
+                        ]);
+                    }
+                }
+                $pdo->commit();
+                $dbSyncOk = true;
+            }
+        } catch (Throwable $e) {
+            if (isset($pdo) && $pdo instanceof PDO && $pdo->inTransaction()) {
+                try { $pdo->rollBack(); } catch (Throwable $e2) {}
+            }
+            $dbError = $e->getMessage();
+        }
+
+        echo json_encode(['ok'=>true, 'db_sync' => $dbSyncOk, 'db_error' => $dbError]); exit;
 
     // API: messages - send and list
     case 'api/messages/send':
@@ -285,7 +353,7 @@ switch($route){
                 // try to find any user with role 'admin'
                 $adminId = null;
                 try {
-                    if (!class_exists('User')) require_once __DIR__ . '/APP/MODEL/User.php';
+                    if (!class_exists('User')) require_once __DIR__ . '/app/MODEL/User.php';
                     $um = new User();
                     $admins = $pdo->query("SELECT id FROM users WHERE role = 'admin' LIMIT 1")->fetchAll(PDO::FETCH_COLUMN);
                     if (!empty($admins)) $adminId = (int)$admins[0];
@@ -373,7 +441,7 @@ switch($route){
             $users = [];
             if (!empty($userIds)) {
                 // load User model if available
-                if (!class_exists('User')) require_once __DIR__ . '/APP/MODEL/User.php';
+                if (!class_exists('User')) require_once __DIR__ . '/app/MODEL/User.php';
                 $um = new User();
                 foreach (array_keys($userIds) as $id) {
                     if ($id <= 0) continue;

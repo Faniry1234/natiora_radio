@@ -64,7 +64,7 @@ foreach ($playlists as $pl) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Gestion Playlistes</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="<?php echo $base; ?>/PUBLIC/assets/css/style.css">
+    <link rel="stylesheet" href="<?php echo $base; ?>/public/assets/css/style.css">
     <style>
         * {
             margin: 0;
@@ -87,6 +87,13 @@ foreach ($playlists as $pl) {
                         if (j && j.ok) {
                             // store path on card
                             card.dataset.src = j.path;
+                            // also append uploaded path into the card's data-songs so it will be saved with the playlist
+                            try {
+                                var ds = card.getAttribute('data-songs') || '';
+                                if (!ds) ds = j.path;
+                                else ds = ds + '||' + j.path;
+                                card.setAttribute('data-songs', ds);
+                            } catch(e){}
                             // append audio preview
                             var preview = card.querySelector('.playlist-audio-preview');
                             if (!preview) { preview = document.createElement('div'); preview.className = 'playlist-audio-preview'; card.querySelector('.playlist-info').appendChild(preview); }
@@ -98,6 +105,23 @@ foreach ($playlists as $pl) {
                     }).catch(function(e){ alert('Upload error'); console.error(e); });
                 };
                 inp.click();
+            };
+
+            window.addUrlToPlaylist = function(btn){
+                var card = btn.closest('.playlist-card');
+                if (!card) return alert('Carte introuvable');
+                var url = prompt("Entrez l'URL publique du fichier audio (http(s)://...)");
+                if (!url) return;
+                if (!/^https?:\/\//i.test(url)) { alert('URL invalide — doit commencer par http:// ou https://'); return; }
+                try {
+                    var ds = card.getAttribute('data-songs') || '';
+                    if (!ds) ds = url; else ds = ds + '||' + url;
+                    card.setAttribute('data-songs', ds);
+                } catch(e){}
+                var preview = card.querySelector('.playlist-audio-preview');
+                if (!preview) { preview = document.createElement('div'); preview.className = 'playlist-audio-preview'; card.querySelector('.playlist-info').appendChild(preview); }
+                preview.innerHTML = '<audio controls style="width:100%; max-width:320px;"><source src="' + url + '"></audio>';
+                alert('URL ajoutée: ' + url);
             };
 
             window.saveAllPlaylists = function(){
@@ -607,6 +631,21 @@ foreach ($playlists as $pl) {
                     </div>
 
                     <div class="form-group">
+                        <label>Assigner à un jour</label>
+                        <select name="day">
+                            <option value="">(Aucun — utilisera la date de création)</option>
+                            <option value="lundi">Lundi</option>
+                            <option value="mardi">Mardi</option>
+                            <option value="mercredi">Mercredi</option>
+                            <option value="jeudi">Jeudi</option>
+                            <option value="vendredi">Vendredi</option>
+                            <option value="samedi">Samedi</option>
+                            <option value="dimanche">Dimanche</option>
+                        </select>
+                        <small style="color:#666; display:block; margin-top:6px;">Choisir un jour placera la playlist sur ce jour dans l'affichage public.</small>
+                    </div>
+
+                    <div class="form-group">
                         <label><i class="fas fa-list"></i> Sélectionner les émissions</label>
                         <div class="songs-list" id="songs-list">
                             <?php foreach ($songs_list as $song): ?>
@@ -663,7 +702,7 @@ foreach ($playlists as $pl) {
                             <div class="day-group-title"><i class="fas fa-calendar-day"></i> <?php echo ucfirst($day); ?></div>
                             <div class="playlists-day-list">
                                 <?php foreach ($playlists_by_day[$day] as $pl): ?>
-                                    <div class="playlist-card" data-id="<?php echo $pl['id']; ?>" data-title="<?php echo htmlspecialchars($pl['title']); ?>" data-desc="<?php echo htmlspecialchars($pl['desc'] ?? $pl['description'] ?? ''); ?>" data-cover="<?php echo htmlspecialchars($pl['cover'] ?? ''); ?>" data-songs="<?php echo htmlspecialchars(implode('||', $pl['songs'] ?? [])); ?>">
+                                    <div class="playlist-card" data-id="<?php echo $pl['id']; ?>" data-title="<?php echo htmlspecialchars($pl['title']); ?>" data-desc="<?php echo htmlspecialchars($pl['desc'] ?? $pl['description'] ?? ''); ?>" data-cover="<?php echo htmlspecialchars($pl['cover'] ?? ''); ?>" data-created="<?php echo htmlspecialchars($pl['created_at'] ?? ''); ?>" data-songs="<?php echo htmlspecialchars(implode('||', $pl['songs'] ?? [])); ?>">
                                         <div class="playlist-header">
                                             <div class="playlist-info">
                                                 <h3 class="playlist-title">
@@ -681,6 +720,9 @@ foreach ($playlists as $pl) {
                                                 </button>
                                                 <button class="btn-action" type="button" title="Associer un fichier audio" onclick="uploadForPlaylist(this)">
                                                     <i class="fas fa-upload"></i>
+                                                </button>
+                                                <button class="btn-action" type="button" title="Ajouter une URL audio" onclick="addUrlToPlaylist(this)">
+                                                    <i class="fas fa-link"></i>
                                                 </button>
                                                 <form method="POST" style="display: inline;" onsubmit="return confirm('Supprimer cette playlist ?');">
                                                     <input type="hidden" name="action" value="delete">
@@ -700,7 +742,7 @@ foreach ($playlists as $pl) {
                             <div class="day-group-title"><i class="fas fa-folder-open"></i> Autres</div>
                             <div class="playlists-day-list">
                                 <?php foreach ($playlists_by_day['autres'] as $pl): ?>
-                                    <div class="playlist-card" data-id="<?php echo $pl['id']; ?>" data-title="<?php echo htmlspecialchars($pl['title']); ?>" data-desc="<?php echo htmlspecialchars($pl['desc'] ?? $pl['description'] ?? ''); ?>" data-cover="<?php echo htmlspecialchars($pl['cover'] ?? ''); ?>" data-songs="<?php echo htmlspecialchars(implode('||', $pl['songs'] ?? [])); ?>">
+                                    <div class="playlist-card" data-id="<?php echo $pl['id']; ?>" data-title="<?php echo htmlspecialchars($pl['title']); ?>" data-desc="<?php echo htmlspecialchars($pl['desc'] ?? $pl['description'] ?? ''); ?>" data-cover="<?php echo htmlspecialchars($pl['cover'] ?? ''); ?>" data-created="<?php echo htmlspecialchars($pl['created_at'] ?? ''); ?>" data-songs="<?php echo htmlspecialchars(implode('||', $pl['songs'] ?? [])); ?>">
                                         <div class="playlist-header">
                                             <div class="playlist-info">
                                                 <h3 class="playlist-title">
@@ -715,6 +757,9 @@ foreach ($playlists as $pl) {
                                             <div class="playlist-actions">
                                                 <button class="btn-action btn-edit" type="button" onclick="editPlaylist(<?php echo htmlspecialchars($pl['id']); ?>)">
                                                     <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn-action" type="button" title="Ajouter une URL audio" onclick="addUrlToPlaylist(this)">
+                                                    <i class="fas fa-link"></i>
                                                 </button>
                                                 <form method="POST" style="display: inline;" onsubmit="return confirm('Supprimer cette playlist ?');">
                                                     <input type="hidden" name="action" value="delete">
@@ -892,7 +937,7 @@ foreach ($playlists as $pl) {
                                             <div class="songs-preview-title">Éléments (<?php echo count($pl['songs']); ?>)</div>
                                             <div class="songs-preview-list">
                                                 <?php foreach (array_slice($pl['songs'], 0, 3) as $song): ?>
-                                                    <?php if (preg_match('/\.(mp3|wav|ogg)$/i', $song) || strpos($song, '/PUBLIC/assets/audios/') === 0): ?>
+                                                    <?php if (preg_match('/\.(mp3|wav|ogg)$/i', $song) || strpos($song, '/assets/audios/') === 0): ?>
                                                         <div class="song-preview-item" title="<?php echo htmlspecialchars($song); ?>">
                                                             <audio controls style="width:100%; max-width:240px;">
                                                                 <source src="<?php echo $base . $song; ?>" type="audio/mpeg">
@@ -989,6 +1034,19 @@ foreach ($playlists as $pl) {
                 document.querySelector('input[name="title"]').value = title;
                 document.querySelector('textarea[name="desc"]').value = desc;
                 document.querySelector('input[name="cover"]').value = cover;
+                // preselect assigned day (if any)
+                const created = found.getAttribute('data-created') || '';
+                if (created) {
+                    try {
+                        const dt = new Date(created);
+                        const days = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
+                        const fn = days[dt.getDay()];
+                        const sel = document.querySelector('select[name="day"]');
+                        if (sel) sel.value = fn;
+                    } catch(e) { /* ignore */ }
+                } else {
+                    const sel = document.querySelector('select[name="day"]'); if (sel) sel.value = '';
+                }
 
                 // Uncheck all song checkboxes then check those present in playlist
                 document.querySelectorAll('#songs-list input[type=checkbox]').forEach(cb => cb.checked = false);

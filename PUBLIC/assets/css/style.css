@@ -90,7 +90,7 @@ header .header-inner {
 */
 section#home {
   /* Use a single background image with a light overlay so the photo remains visible */
-  background-image: linear-gradient(rgba(0,0,0,0.18), rgba(0,0,0,0.08)), url("../images/acceuil.jpg");
+  background-image: linear-gradient(rgba(0,0,0,0.18), rgba(0,0,0,0.08)), url("../images/acc.png");
   background-position: center center;
   background-repeat: no-repeat;
   background-size: cover;

@@ -340,7 +340,7 @@
 .card-messages .card-header-messages { border-radius: 10px; padding: 0; }
 
 /* Background image for message panels
-   Save the provided photo as: PUBLIC/assets/images/messages-bg.jpg */
+   Save the provided photo as: public/assets/images/messages-bg.jpg */
 /* Move background image onto each card so the photo appears clearly inside items */
 .card-enhanced.card-messages #conversations-list,
 .card-enhanced.card-messages #messages-list,
@@ -353,10 +353,10 @@
 .card-enhanced.card-messages #messages-list .message-row,
 .card-enhanced.card-messages #conversation-thread {
     /* Fallback first, then prefer optimized images when supported */
-    background-image: url('/PUBLIC/assets/images/oi.jpg') !important;
+    background-image: url('/public/assets/images/oi.jpg') !important;
     /* prefer image-set where supported for smaller/modern formats */
-    @supports (background-image: image-set(url('/PUBLIC/assets/images/oi-small.webp') 1x)) {
-        background-image: image-set(url('/PUBLIC/assets/images/oi-small.webp') 1x, url('/PUBLIC/assets/images/oi-small.jpg') 1x, url('/PUBLIC/assets/images/oi.jpg') 1x) !important;
+    @supports (background-image: image-set(url('/public/assets/images/oi-small.webp') 1x)) {
+        background-image: image-set(url('/public/assets/images/oi-small.webp') 1x, url('/public/assets/images/oi-small.jpg') 1x, url('/public/assets/images/oi.jpg') 1x) !important;
     }
     background-size: cover !important;
     background-position: center !important;
@@ -411,9 +411,9 @@ document.querySelectorAll('.tab-button-enhanced').forEach(button => {
 // Check background images and apply fallback class if none load
 (function(){
     const imgCandidates = [
-        '/PUBLIC/assets/images/oi-small.webp',
-        '/PUBLIC/assets/images/oi-small.jpg',
-        '/PUBLIC/assets/images/oi.jpg'
+        '/public/assets/images/oi-small.webp',
+        '/public/assets/images/oi-small.jpg',
+        '/public/assets/images/oi.jpg'
     ];
     function tryLoad(list, cb){
         if (!list || !list.length) return cb(false);

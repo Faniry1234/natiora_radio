@@ -12,7 +12,7 @@ if ($base === '/' || $base === '\\') $base = '';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Historiques</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="<?php echo $base; ?>/PUBLIC/assets/css/style.css">
+    <link rel="stylesheet" href="<?php echo $base; ?>/public/assets/css/style.css">
     <style>
         .admin-main { margin-left:260px; padding:30px; }
         .hist-table { width:100%; border-collapse:collapse; }

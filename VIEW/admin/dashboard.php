@@ -26,7 +26,7 @@ if ((defined('DEBUG_ADMIN') && DEBUG_ADMIN) || (defined('DEV_ADMIN') && DEV_ADMI
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Tableau de Bord</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="<?php echo $base; ?>/PUBLIC/assets/css/style.css">
+    <link rel="stylesheet" href="<?php echo $base; ?>/public/assets/css/style.css">
     <style>
         * {
             margin: 0;
@@ -676,6 +676,11 @@ if ((defined('DEBUG_ADMIN') && DEBUG_ADMIN) || (defined('DEV_ADMIN') && DEV_ADMI
                 </div>
                 <div class="stat-number"><?php echo $stats['total_users'] ?? 0; ?></div>
                 <div class="stat-description">Utilisateurs actifs</div>
+                <div style="margin-top:8px;color:var(--muted);font-size:0.95em;">
+                    <?php echo isset($stats['new_users_30d']) ? ('Nouveaux (30j): ' . intval($stats['new_users_30d'])) : ''; ?>
+                    &nbsp;•&nbsp;
+                    <?php echo isset($stats['admins_count']) ? ('Admins: ' . intval($stats['admins_count'])) : ''; ?>
+                </div>
             </div>
 
             <div class="stat-card emissions">

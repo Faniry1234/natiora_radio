@@ -21,7 +21,7 @@ try {
     <div class="admin-messages-container">
     <div class="page-header">
         <a href="<?php echo $base; ?>/index.php?route=admin" class="btn-ghost" style="margin-right:8px;padding:6px 10px;border-radius:8px;">← Retour</a>
-        <img src="<?php echo $base ?? ''; ?>/PUBLIC/assets/images/LOGO%20RADIO.jpg" alt="logo" style="width:64px;height:64px;border-radius:12px;object-fit:cover;border:3px solid rgba(255,255,255,0.12);">
+        <img src="<?php echo $base ?? ''; ?>/public/assets/images/LOGO%20RADIO.jpg" alt="logo" style="width:64px;height:64px;border-radius:12px;object-fit:cover;border:3px solid rgba(255,255,255,0.12);">
         <div style="flex:1;">
             <div style="font-size:1.35rem;font-weight:700;line-height:1">Boîte de réception <span style="font-size:1.1rem;margin-left:6px;">✉️💬</span></div>
             <div style="opacity:0.95;margin-top:4px;font-size:0.95rem">Messages reçus et envoyés — gérez rapidement vos conversations</div>
@@ -229,14 +229,14 @@ try {
 .admin-message-item::before{
     content:''; position:absolute; inset:0; z-index:0; border-radius:8px; pointer-events:none;
     /* Allow per-item override via --admin-bg CSS variable, fallback to default image */
-    background-image: var(--admin-bg, url('/PUBLIC/assets/images/oi.jpg'));
+    background-image: var(--admin-bg, url('/public/assets/images/oi.jpg'));
     background-size:cover; background-position:center; background-repeat:no-repeat;
     opacity:0.12; filter:contrast(1.03) saturate(1.02);
 }
 /* prefer optimized image-set where supported; still allow per-item override */
-@supports (background-image: image-set(url('/PUBLIC/assets/images/oi-small.webp') 1x)) {
+@supports (background-image: image-set(url('/public/assets/images/oi-small.webp') 1x)) {
     .admin-message-item::before{
-        background-image: var(--admin-bg, image-set(url('/PUBLIC/assets/images/oi-small.webp') 1x, url('/PUBLIC/assets/images/oi-small.jpg') 1x, url('/PUBLIC/assets/images/oi.jpg') 1x));
+        background-image: var(--admin-bg, image-set(url('/public/assets/images/oi-small.webp') 1x, url('/public/assets/images/oi-small.jpg') 1x, url('/public/assets/images/oi.jpg') 1x));
     }
 }
 .admin-message-item .avatar, .admin-message-item .meta { position:relative; z-index:2 }
@@ -244,9 +244,9 @@ try {
 .admin-message-item.selected{ outline:2px solid rgba(107,91,222,0.14); box-shadow:0 8px 22px rgba(16,24,40,0.06); }
 
 .message-detail{ position:relative; z-index:1 }
-.message-detail::before{ content:''; position:absolute; inset:0; z-index:0; border-radius:10px; pointer-events:none; background-image: var(--detail-bg, url('/PUBLIC/assets/images/oi.jpg')); background-size:cover; background-position:center; background-repeat:no-repeat; opacity:0.06; filter:contrast(1.04) }
-@supports (background-image: image-set(url('/PUBLIC/assets/images/oi-small.webp') 1x)) {
-    .message-detail::before{ background-image: var(--detail-bg, image-set(url('/PUBLIC/assets/images/oi-small.webp') 1x, url('/PUBLIC/assets/images/oi-small.jpg') 1x, url('/PUBLIC/assets/images/oi.jpg') 1x)); }
+.message-detail::before{ content:''; position:absolute; inset:0; z-index:0; border-radius:10px; pointer-events:none; background-image: var(--detail-bg, url('/public/assets/images/oi.jpg')); background-size:cover; background-position:center; background-repeat:no-repeat; opacity:0.06; filter:contrast(1.04) }
+@supports (background-image: image-set(url('/public/assets/images/oi-small.webp') 1x)) {
+    .message-detail::before{ background-image: var(--detail-bg, image-set(url('/public/assets/images/oi-small.webp') 1x, url('/public/assets/images/oi-small.jpg') 1x, url('/public/assets/images/oi.jpg') 1x)); }
 }
 
 /* Fallback when background image assets fail to load */
@@ -488,9 +488,9 @@ document.getElementById('refresh-admin-messages').addEventListener('click', load
     function probeAdminBackgrounds() {
         try {
             var imgs = [
-                '/PUBLIC/assets/images/oi-small.webp',
-                '/PUBLIC/assets/images/oi-small.jpg',
-                '/PUBLIC/assets/images/oi.jpg'
+                '/public/assets/images/oi-small.webp',
+                '/public/assets/images/oi-small.jpg',
+                '/public/assets/images/oi.jpg'
             ];
             var loaded = false;
             var checks = imgs.map(function(src){

@@ -11,7 +11,6 @@ if (!class_exists('Playlists')) require_once __DIR__ . '/../../APP/MODEL/Playlis
 
 $plModel = new Playlists();
 $playlists = $plModel->getAll();
-
 // Group playlists by weekday (French) using created_at when available
 $days = ['lundi','mardi','mercredi','jeudi','vendredi','samedi','dimanche'];
 $playlists_by_day = array_fill_keys($days, []);
@@ -62,7 +61,7 @@ foreach ($playlists as $pl) {
 </style>
 
 <?php
-$bg = $base . '/PUBLIC/assets/images/playliste1.jpg';
+$bg = $base . '/assets/images/playliste1.jpg';
 ?>
 <section id="playlist" class="playlist-hero" style="background-image: linear-gradient(180deg, rgba(6,12,34,0.35), rgba(6,12,34,0.6)), url('<?php echo htmlspecialchars($bg); ?>');">
         <div class="hero-content">
@@ -100,6 +99,19 @@ $bg = $base . '/PUBLIC/assets/images/playliste1.jpg';
                         ];
                         if (!empty($p['songs']) && is_array($p['songs'])){
                             foreach ($p['songs'] as $s) {
+                                // If it's an external absolute URL, keep as-is
+                                if (preg_match('#^https?://#i', $s) || strpos($s, '//') === 0) {
+                                    $entry['songs'][] = $s;
+                                    continue;
+                                }
+                                // Normalize stored paths: remove leading /public if present
+                                if (strpos($s, '/public/') === 0) {
+                                    $s = substr($s, strlen('/public'));
+                                }
+                                // Ensure path starts with '/'
+                                if (strpos($s, '/') !== 0) {
+                                    $s = '/' . ltrim($s, '/');
+                                }
                                 $entry['songs'][] = $base . $s;
                             }
                         }
@@ -126,10 +138,10 @@ $bg = $base . '/PUBLIC/assets/images/playliste1.jpg';
                     const li = document.createElement('li');
                     li.className = 'video-item';
                     let audios = '';
-                    if (Array.isArray(item.songs)){
-                        audios = item.songs.map(s => `\n                        <audio controls style="width:100%; margin-top:8px;">\n                            <source src="${s}" type="audio/mpeg">\n                            Votre navigateur ne supporte pas l'audio.\n                        </audio>`).join('');
-                    }
-                    li.innerHTML = `
+                        // If songs look like playable URLs, let the history player handle them via play-playlist-btn.
+                        // For simple titles (non-URLs) the player will fallback to TTS.
+                        console.log(item.songs);
+                        li.innerHTML = `
                         <div class="emission-header">
                             <div class="emission-time">
                                 <i class="fas fa-music"></i> ${item.tracks} piste(s)
@@ -139,11 +151,21 @@ $bg = $base . '/PUBLIC/assets/images/playliste1.jpg';
                                 <span class="meta-badge duration"><i class="fas fa-clock"></i> ${item.created_at || ''}</span>
                             </div>
                         </div>
-                        ${audios}
+                            <div class="emission-actions" style="margin-top:8px"></div>
                         <div class="emission-details">
                             <p class="desc">${item.desc || ''}</p>
                         </div>
                     `;
+                        // create play button that uses radio-player.js playlist playback
+                        if (Array.isArray(item.songs) && item.songs.length) {
+                            const actions = li.querySelector('.emission-actions');
+                            const btn = document.createElement('button');
+                            btn.className = 'play-playlist-btn btn-primary';
+                            btn.type = 'button';
+                            btn.textContent = '▶ Écouter la playlist';
+                            try { btn.dataset.songs = JSON.stringify(item.songs || []); } catch(e){ btn.dataset.songs = '[]'; }
+                            actions.appendChild(btn);
+                        }
                     listEl.appendChild(li);
                 });
                 if(arr.length===0){

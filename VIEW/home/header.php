@@ -1,7 +1,7 @@
 <header>
     <div class="header-inner">
         <div class="brand">
-            <img src="/PUBLIC/assets/images/LOGO%20RADIO.jpg" alt="Natiora Logo" class="logo">
+            <img src="/public/assets/images/LOGO%20RADIO.jpg" alt="Natiora Logo" class="logo">
             <h1> Natiora Radio <span>98.2</span></h1>
         </div>
         <nav class="main-nav" aria-label="Main navigation">
