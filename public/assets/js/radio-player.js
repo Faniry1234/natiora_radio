@@ -23,61 +23,72 @@ document.addEventListener('DOMContentLoaded', function(){
 
         if (!stream){ setStatus('Aucun flux configuré (data-stream manquant)'); }
         else {
-            // attach source and set src directly
-            const src = document.createElement('source');
-            src.src = stream;
-            src.type = mimeType;
-            mediaEl.appendChild(src);
-            try { mediaEl.pause(); mediaEl.src = stream; if (typeof mediaEl.load === 'function') mediaEl.load(); } catch(e){ console.warn('Could not set media src', e); }
-            setStatus('Flux configuré (' + mimeType + ')');
-
-            let playPromise = null;
-            function togglePlay(){
-                if (!mediaEl || !mediaEl.src) { setStatus('Flux non configuré'); return; }
-                if (mediaEl.paused){
-                    if (playBtn) playBtn.disabled = true; if (altBtn) altBtn.disabled = true;
-                    playPromise = mediaEl.play();
-                    playPromise && playPromise.catch(err=>{
-                        if (err && err.name === 'AbortError') return;
-                        if (err && err.name === 'NotAllowedError') setStatus('Lecture bloquée — interaction requise');
-                        else if (err && err.name === 'NotSupportedError') setStatus('Format non supporté');
-                        else { console.error('Play failed', err); setStatus('Impossible de lire — voir console'); }
-                    }).finally(()=>{ if (playBtn) playBtn.disabled = false; if (altBtn) altBtn.disabled = false; updateButtons(); });
-                } else {
-                    mediaEl.pause();
+            // Guard against mixed-content: don't load http:// sources on an https page
+            if (window.location.protocol === 'https:' && /^http:\/\//i.test(stream)) {
+                console.warn('Blocked insecure stream on HTTPS page:', stream);
+                setStatus('Flux HTTP bloqué sur page HTTPS — ouvrez le flux dans un nouvel onglet');
+                if (openVlcBtn) {
+                    openVlcBtn.style.display = '';
+                    try {
+                        openVlcBtn.addEventListener('click', function(){ window.open(stream, '_blank'); setStatus('Ouverture du flux dans un nouvel onglet'); });
+                    } catch(e) { /* ignore */ }
                 }
+            } else {
+                // attach source and set src directly
+                const src = document.createElement('source');
+                src.src = stream;
+                src.type = mimeType;
+                mediaEl.appendChild(src);
+                try { mediaEl.pause(); mediaEl.src = stream; if (typeof mediaEl.load === 'function') mediaEl.load(); } catch(e){ console.warn('Could not set media src', e); }
+                setStatus('Flux configuré (' + mimeType + ')');
+
+                let playPromise = null;
+                function togglePlay(){
+                    if (!mediaEl || !mediaEl.src) { setStatus('Flux non configuré'); return; }
+                    if (mediaEl.paused){
+                        if (playBtn) playBtn.disabled = true; if (altBtn) altBtn.disabled = true;
+                        playPromise = mediaEl.play();
+                        playPromise && playPromise.catch(err=>{
+                            if (err && err.name === 'AbortError') return;
+                            if (err && err.name === 'NotAllowedError') setStatus('Lecture bloquée — interaction requise');
+                            else if (err && err.name === 'NotSupportedError') setStatus('Format non supporté');
+                            else { console.error('Play failed', err); setStatus('Impossible de lire — voir console'); }
+                        }).finally(()=>{ if (playBtn) playBtn.disabled = false; if (altBtn) altBtn.disabled = false; updateButtons(); });
+                    } else {
+                        mediaEl.pause();
+                    }
+                }
+
+                if (playBtn) playBtn.addEventListener('click', function(){ togglePlay(); updateButtons(); });
+                if (altBtn) altBtn.addEventListener('click', function(){ togglePlay(); updateButtons(); });
+
+                if (openVlcBtn) openVlcBtn.addEventListener('click', function(){
+                    try { window.open(stream, '_blank'); setStatus('Ouverture du flux dans un nouvel onglet'); }
+                    catch(e){ console.error(e); setStatus('Impossible d\'ouvrir le flux'); }
+                });
+
+                mediaEl.addEventListener('play', function(){ updateButtons(); setStatus('Lecture en cours'); });
+                // Log the playback start to the server for history (best-effort)
+                mediaEl.addEventListener('play', function(){
+                    try {
+                        var payload = {
+                            title: document.querySelector('.station-title') ? document.querySelector('.station-title').textContent.trim() : '',
+                            artist: '',
+                            source: stream,
+                            played_at: new Date().toISOString()
+                        };
+                        fetch((window.APP_BASE || '') + '/index.php?route=api/log_play', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        }).then(function(res){ return res.json(); }).then(function(res){ if (!res.ok) console.warn('log_play failed', res); }).catch(function(err){ console.warn('log_play error', err); });
+                    } catch(e){ console.warn('log_play exception', e); }
+                });
+                mediaEl.addEventListener('pause', function(){ updateButtons(); setStatus('En pause'); });
+                mediaEl.addEventListener('error', function(){ setStatus('Erreur média — voir console'); });
+
+                updateButtons();
             }
-
-            if (playBtn) playBtn.addEventListener('click', function(){ togglePlay(); updateButtons(); });
-            if (altBtn) altBtn.addEventListener('click', function(){ togglePlay(); updateButtons(); });
-
-            if (openVlcBtn) openVlcBtn.addEventListener('click', function(){
-                // open stream in new tab (user can open in VLC from URL)
-                try { window.open(stream, '_blank'); setStatus('Ouverture du flux dans un nouvel onglet'); }
-                catch(e){ console.error(e); setStatus('Impossible d\'ouvrir le flux'); }
-            });
-
-            mediaEl.addEventListener('play', function(){ updateButtons(); setStatus('Lecture en cours'); });
-            // Log the playback start to the server for history (best-effort)
-            mediaEl.addEventListener('play', function(){
-                try {
-                    var payload = {
-                        title: document.querySelector('.station-title') ? document.querySelector('.station-title').textContent.trim() : '',
-                        artist: '',
-                        source: stream,
-                        played_at: new Date().toISOString()
-                    };
-                    fetch((window.APP_BASE || '') + '/index.php?route=api/log_play', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    }).then(function(res){ return res.json(); }).then(function(res){ if (!res.ok) console.warn('log_play failed', res); }).catch(function(err){ console.warn('log_play error', err); });
-                } catch(e){ console.warn('log_play exception', e); }
-            });
-            mediaEl.addEventListener('pause', function(){ updateButtons(); setStatus('En pause'); });
-            mediaEl.addEventListener('error', function(){ setStatus('Erreur média — voir console'); });
-
-            updateButtons();
         }
     }
 

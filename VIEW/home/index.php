@@ -17,7 +17,7 @@
                 </div>
             </div>
             <!-- Audio stream element (used as audio/video element for cross-browser) -->
-            <?php $streamUrl = getenv('STREAM_URL') ?: 'http://ukfreenew.listen2myradio.com'; ?>
+            <?php $streamUrl = getenv('STREAM_URL') ?: 'https://natioraradiomg.radio12345.com/'; ?>
             <video id="radio" data-stream="<?php echo htmlspecialchars($streamUrl); ?>" preload="none" playsinline webkit-playsinline style="display:none"></video>
             <div id="playerStatus" style="margin-top:10px;color:var(--accent);font-weight:700"></div>
         </div>

@@ -3,7 +3,7 @@
 // Usage: /radio.php?mount=%3Bstream.mp3
 set_time_limit(0);
 // Upstream host (IP:port) - set to local stream for testing
-$UPSTREAM_BASE = 'http://192.168.1.102:8000';
+$UPSTREAM_BASE = 'https://natioraradiomg.radio12345.com';
 
 // Get requested mount (default to ";stream.mp3")
 $mount = isset($_GET['mount']) && $_GET['mount'] !== '' ? $_GET['mount'] : '/;stream.mp3';
