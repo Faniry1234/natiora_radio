@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 400" width="1600" height="400">
+  <defs>
+    <linearGradient id="ag" x1="0" x2="1"><stop offset="0" stop-color="#0f172a"/><stop offset="1" stop-color="#0ea5a5"/></linearGradient>
+  </defs>
+  <rect width="1600" height="400" fill="url(#ag)" />
+  <g transform="translate(60,60)">
+    <rect width="1480" height="280" rx="14" fill="rgba(255,255,255,0.02)" />
+    <text x="80" y="120" font-family="Inter,Segoe UI,Roboto" font-size="44" fill="#fff" font-weight="700">Administration</text>
+    <text x="80" y="164" font-family="Inter,Segoe UI,Roboto" font-size="16" fill="#e6fbfb">Gestion: émissions, playlists, messages</text>
+  </g>
+</svg>

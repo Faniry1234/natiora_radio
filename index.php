@@ -274,9 +274,109 @@ switch($route){
         $data = json_decode($input, true);
         header('Content-Type: application/json; charset=utf-8');
         if (!is_array($data)) { echo json_encode(['ok'=>false,'error'=>'Invalid JSON']); exit; }
+        // AUTO-MATCH: attempt to convert plain song titles into uploaded files under /uploads/
+        $uploadsDir = realpath(__DIR__ . '/public/uploads');
+        $uploadsMap = [];
+        if ($uploadsDir && is_dir($uploadsDir)) {
+            $files = scandir($uploadsDir);
+            foreach ($files as $f) {
+                if ($f === '.' || $f === '..') continue;
+                $full = $uploadsDir . DIRECTORY_SEPARATOR . $f;
+                if (!is_file($full)) continue;
+                $key = strtolower(preg_replace('/[^a-z0-9]+/i','', pathinfo($f, PATHINFO_FILENAME)));
+                $uploadsMap[$key] = '/uploads/' . $f;
+            }
+        }
+
+        // Helper: try to find an upload match for a song string
+        $tryMatchUpload = function($s) use ($uploadsMap) {
+            $s2 = strtolower(trim(preg_replace('/[^a-z0-9]+/i','', $s)));
+            if ($s2 === '') return null;
+            // direct key match
+            if (isset($uploadsMap[$s2])) return $uploadsMap[$s2];
+            // contains or contained match
+            foreach ($uploadsMap as $k => $p) {
+                if (strpos($k, $s2) !== false || strpos($s2, $k) !== false) return $p;
+            }
+            return null;
+        };
+
+        // Replace plain song titles with matched uploads when possible
+        foreach ($data as $pi => $pl) {
+            if (!is_array($pl)) continue;
+            $songs = is_array($pl['songs'] ?? []) ? $pl['songs'] : [];
+            foreach ($songs as $si => $s) {
+                if (!is_string($s) || $s === '') continue;
+                $t = trim($s);
+                if (preg_match('#^https?://#i', $t)) continue;
+                if (strpos($t, '/') === 0) continue; // already a path
+                $match = $tryMatchUpload($t);
+                if ($match) {
+                    $data[$pi]['songs'][$si] = $match;
+                }
+            }
+        }
+
+        // Server-side validation: ensure each song is either an absolute URL or a file under /uploads/ or /public/
+        $invalid = [];
+        foreach ($data as $pl) {
+            if (!is_array($pl)) continue;
+            $songs = is_array($pl['songs'] ?? []) ? $pl['songs'] : [];
+            foreach ($songs as $s) {
+                if (!is_string($s) || $s === '') { $invalid[] = ['playlist'=> $pl['title'] ?? '(untitled)', 'song' => $s]; continue; }
+                $sTrim = trim($s);
+                if (preg_match('#^https?://#i', $sTrim)) continue;
+                // allow uploads and public paths
+                if (strpos($sTrim, '/uploads/') === 0 || strpos($sTrim, '/public/') === 0) continue;
+                // allow root-relative files under public that actually exist
+                if (preg_match('#^/.*\.(mp3|m4a|ogg|wav|mp4)(\?|$)#i', $sTrim)) {
+                    $candidate = realpath(__DIR__ . $sTrim);
+                    if ($candidate && strpos($candidate, realpath(__DIR__ . '/public')) === 0 && is_file($candidate)) continue;
+                }
+                $invalid[] = ['playlist'=> $pl['title'] ?? '(untitled)', 'song' => $sTrim];
+            }
+        }
+        if (!empty($invalid)) {
+            header('Content-Type: application/json; charset=utf-8');
+            echo json_encode(['ok'=>false,'error'=>'Invalid songs detected','details'=>$invalid]);
+            exit;
+        }
         $out = "<?php\nreturn " . var_export($data, true) . ";\n";
         $file = __DIR__ . '/DATA/playlists.php';
         if (file_put_contents($file, $out, LOCK_EX) === false) { echo json_encode(['ok'=>false,'error'=>'Write failed']); exit; }
+        // Attempt to sync into DB if available so Playlists::getAll (DB-backed) sees the changes
+        try {
+            $db = Database::getInstance();
+            try { $db->init(); } catch (Throwable $e) { /* ignore */ }
+            $pdo = $db->getConnection();
+            if ($pdo instanceof PDO) {
+                $pdo->beginTransaction();
+                // Clear existing playlists and songs
+                $pdo->exec("DELETE FROM playlist_songs");
+                $pdo->exec("DELETE FROM playlists");
+                $stmtPl = $pdo->prepare("INSERT INTO playlists (title, description, cover, created_at) VALUES (:title,:description,:cover,:created_at)");
+                $stmtSong = $pdo->prepare("INSERT INTO playlist_songs (playlist_id, song_title, position) VALUES (:playlist_id, :song_title, :position)");
+                foreach ($data as $pl) {
+                    $title = $pl['title'] ?? '';
+                    $desc = $pl['desc'] ?? ($pl['description'] ?? null);
+                    $cover = $pl['cover'] ?? null;
+                    $created_at = $pl['created_at'] ?? null;
+                    $stmtPl->execute([':title'=>$title, ':description'=>$desc, ':cover'=>$cover, ':created_at'=>$created_at]);
+                    $newId = $pdo->lastInsertId();
+                    $songs = is_array($pl['songs'] ?? []) ? $pl['songs'] : [];
+                    $pos = 1;
+                    foreach ($songs as $s) {
+                        $stmtSong->execute([':playlist_id'=>$newId, ':song_title'=>$s, ':position'=>$pos]);
+                        $pos++;
+                    }
+                }
+                $pdo->commit();
+            }
+        } catch (Throwable $ex) {
+            // ignore DB sync errors but log
+            error_log('save_playlists db sync: ' . $ex->getMessage());
+            if (isset($pdo) && $pdo instanceof PDO) { try { $pdo->rollBack(); } catch(Throwable $_) {} }
+        }
         echo json_encode(['ok'=>true]); exit;
 
     // Admin: save emissions data to DATA/emissions.php (accepts JSON body)

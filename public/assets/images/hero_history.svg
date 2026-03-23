@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="400" viewBox="0 0 1600 400">
+  <defs>
+    <linearGradient id="h1" x1="0" x2="1"><stop offset="0" stop-color="#43e97b"/><stop offset="1" stop-color="#38f9d7"/></linearGradient>
+  </defs>
+  <rect width="1600" height="400" fill="url(#h1)" />
+  <g transform="translate(60,60)">
+    <rect width="1480" height="280" rx="14" fill="rgba(0,0,0,0.04)" />
+    <text x="80" y="100" font-family="Segoe UI, Roboto, Arial" font-size="44" fill="#04241b" font-weight="700">Historique</text>
+    <text x="80" y="140" font-family="Segoe UI, Roboto, Arial" font-size="18" fill="#08382c">Consultez vos actions et lectures récentes</text>
+  </g>
+</svg>

@@ -54,6 +54,11 @@ foreach ($playlists as $pl) {
     }
     .playlist-hero .hero-content{ position:relative; z-index:1; }
     .playlist-container{ margin-top:18px; }
+    .play-playlist-btn.playing{ background:#e74c3c; color:#fff }
+    .play-playlist-btn .btn-icon{ margin-right:8px; }
+    .track-list{ list-style:none; margin:8px 0 0; padding:0; }
+    .track-list li{ display:flex; align-items:center; gap:8px; padding:6px 8px; border-radius:6px; background: rgba(255,255,255,0.02); margin-bottom:6px }
+    .track-list .track-title{ flex:1; font-size:0.95rem; color:rgba(255,255,255,0.95) }
     .playlist-list .video-item{ background: rgba(255,255,255,0.06); padding:12px; border-radius:10px; margin-bottom:12px; color:#fff }
     .day-tabs .day-btn.active{ background: rgba(255,255,255,0.12); color:#fff }
     .empty-state{ color: rgba(255,255,255,0.9); padding:24px; text-align:center }
@@ -162,9 +167,30 @@ $bg = $base . '/assets/images/playliste1.jpg';
                             const btn = document.createElement('button');
                             btn.className = 'play-playlist-btn btn-primary';
                             btn.type = 'button';
-                            btn.textContent = '▶ Écouter la playlist';
+                            btn.innerHTML = '<span class="btn-icon">▶</span><span class="btn-label">Écouter la playlist</span>';
                             try { btn.dataset.songs = JSON.stringify(item.songs || []); } catch(e){ btn.dataset.songs = '[]'; }
                             actions.appendChild(btn);
+
+                            // Render track list with individual play buttons
+                            const details = li.querySelector('.emission-details');
+                            const tracksEl = document.createElement('ol');
+                            tracksEl.className = 'track-list';
+                            (item.songs || []).forEach((s, idx)=>{
+                                const tLi = document.createElement('li');
+                                const tBtn = document.createElement('button');
+                                tBtn.type = 'button';
+                                tBtn.className = 'play-item-btn';
+                                tBtn.dataset.src = s;
+                                tBtn.setAttribute('aria-label','Écouter piste ' + (idx+1));
+                                tBtn.textContent = '▶';
+                                const span = document.createElement('span');
+                                span.className = 'track-title';
+                                span.textContent = (typeof s === 'string' ? s : String(s));
+                                tLi.appendChild(tBtn);
+                                tLi.appendChild(span);
+                                tracksEl.appendChild(tLi);
+                            });
+                            details.appendChild(tracksEl);
                         }
                     listEl.appendChild(li);
                 });

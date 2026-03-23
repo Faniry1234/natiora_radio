@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 400" width="1600" height="400">
+  <defs>
+    <linearGradient id="epg" x1="0" x2="1"><stop offset="0" stop-color="#ff7a18"/><stop offset="1" stop-color="#af0017"/></linearGradient>
+  </defs>
+  <rect width="1600" height="400" fill="url(#epg)" />
+  <g transform="translate(70,50)">
+    <rect width="1460" height="300" rx="16" fill="rgba(255,255,255,0.04)" />
+    <g transform="translate(40,30)">
+      <!-- studio microphone icon -->
+      <g transform="translate(18,10)">
+        <rect x="0" y="0" width="120" height="120" rx="12" fill="#fff" opacity="0.04" />
+        <g transform="translate(30,18)">
+          <rect x="18" y="6" width="20" height="56" rx="10" fill="#fff" />
+          <ellipse cx="28" cy="-2" rx="28" ry="20" fill="#fff" opacity="0.12" />
+          <rect x="12" y="66" width="44" height="8" rx="4" fill="#fff" opacity="0.06" />
+        </g>
+      </g>
+      <text x="260" y="60" font-family="Inter,Segoe UI,Roboto" font-size="34" fill="#111" font-weight="700">Émissions</text>
+      <text x="260" y="96" font-family="Inter,Segoe UI,Roboto" font-size="16" fill="#222">Studio, animateurs et programmes</text>
+    </g>
+  </g>
+</svg>

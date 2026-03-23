@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="400" viewBox="0 0 1600 400">
+  <defs>
+    <linearGradient id="e1" x1="0" x2="1">
+      <stop offset="0" stop-color="#ff9a9e"/>
+      <stop offset="1" stop-color="#fad0c4"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="400" fill="url(#e1)" />
+  <g transform="translate(70,50)">
+    <rect width="1460" height="300" rx="14" fill="rgba(0,0,0,0.04)" />
+    <g transform="translate(40,30)">
+      <polygon points="0,0 120,0 180,60 120,120 0,120" fill="#fff" opacity="0.08" />
+      <text x="260" y="60" font-family="Segoe UI, Roboto, Arial" font-size="34" fill="#111" font-weight="700">Émissions</text>
+      <text x="260" y="96" font-family="Segoe UI, Roboto, Arial" font-size="16" fill="#333">Programme de la semaine et animateurs</text>
+    </g>
+  </g>
+</svg>

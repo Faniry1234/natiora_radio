@@ -138,7 +138,31 @@ foreach ($playlists as $pl) {
                     var src = c.dataset.src || '';
                     payload.push({ id: id ? parseInt(id,10) : null, title: title, desc: desc, cover: cover, songs: songs, created_at: null, src: src });
                 });
-                fetch(BASE_URL + '/index.php?route=admin/save_playlists', { method: 'POST', headers: { 'Content-Type':'application/json' }, body: JSON.stringify(payload) }).then(r=>r.json()).then(j=>{ if (j && j.ok) { alert('Playlists enregistrées'); location.reload(); } else { alert('Save failed'); console.error(j); } }).catch(e=>{ alert('Save error'); console.error(e); });
+                // Client-side validation: each song must be an absolute URL or an uploaded file under /uploads/
+                function isValidSong(s){
+                    if (!s || typeof s !== 'string') return false;
+                    s = s.trim();
+                    if (/^https?:\/\//i.test(s)) return true;
+                    if (s.indexOf('/uploads/') === 0) return true;
+                    if (s.indexOf('/public/') === 0) return true;
+                    // allow root-relative paths to public
+                    if (/^\/.+\.(mp3|m4a|ogg|wav|mp4)(\?|$)/i.test(s)) return true;
+                    return false;
+                }
+
+                var invalid = [];
+                payload.forEach(function(pl){
+                    (pl.songs || []).forEach(function(s){ if (!isValidSong(s)) invalid.push({playlist: pl.title || '(untitled)', song: s}); });
+                });
+                if (invalid.length) {
+                    var msg = 'La sauvegarde a été annulée. Pistes non valides détectées:\n';
+                    invalid.slice(0,10).forEach(function(it){ msg += '\n- ' + (it.playlist || '') + ': ' + it.song; });
+                    if (invalid.length > 10) msg += '\n... et ' + (invalid.length-10) + ' autres';
+                    alert(msg);
+                    return;
+                }
+
+                fetch(BASE_URL + '/index.php?route=admin/save_playlists', { method: 'POST', headers: { 'Content-Type':'application/json' }, body: JSON.stringify(payload) }).then(r=>r.json()).then(j=>{ if (j && j.ok) { alert('Playlists enregistrées'); location.reload(); } else { alert('Save failed: ' + (j && j.error ? j.error : 'unknown')); console.error(j); } }).catch(e=>{ alert('Save error'); console.error(e); });
             };
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             min-height: 100vh;

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1">
+      <stop offset="0" stop-color="#667eea"/>
+      <stop offset="1" stop-color="#00c2a8"/>
+    </linearGradient>
+  </defs>
+  <rect width="100%" height="100%" rx="12" fill="#0b1220" />
+  <g transform="translate(36,36)" fill="#fff" font-family="Arial, Helvetica, sans-serif">
+    <circle cx="72" cy="72" r="56" fill="url(#g)"/>
+    <text x="72" y="84" font-size="42" font-weight="700" text-anchor="middle" fill="#001219">☎</text>
+    <text x="160" y="58" font-size="20" font-weight="700">Contact Natiora</text>
+    <text x="160" y="88" font-size="14" fill="#cfeff3">Assistance & partenariats</text>
+    <text x="160" y="132" font-size="16" fill="#e6f9f6">Tel: +261 34 12 34 567</text>
+    <text x="160" y="156" font-size="16" fill="#e6f9f6">WhatsApp: +261 34 12 34 567</text>
+  </g>
+</svg>

@@ -432,5 +432,6 @@ if ($base === '/' || $base === '\\') $base = '';
         main { min-height: 60vh; }
         footer { color: var(--muted); }
     </style>
+    <script src="<?php echo htmlspecialchars($assetBase); ?>/js/radio-player.js"></script>
 </body>
 </html>
