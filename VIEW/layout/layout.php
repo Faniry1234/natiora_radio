@@ -342,7 +342,13 @@ if ($base === '/' || $base === '\\') $base = '';
         // Application base path for JS (useful when app runs in a subfolder)
         window.APP_BASE = '<?php echo $base; ?>';
         // Optional live stream URL from environment (useful when running in Docker)
-        window.APP_STREAM = <?php echo json_encode(getenv('STREAM_URL') ?: null); ?>;
+        // Expose a proxy URL for the client to use (ensures CORS and format consistency)
+        window.APP_STREAM = <?php echo json_encode((getenv('STREAM_URL') ? '/radio.php?src=' . urlencode(getenv('STREAM_URL')) . '&raw=1' : null)); ?>;
+        // Helper to build proxy urls for arbitrary sources
+        window.getProxyUrl = function(url){
+            if (!url) return null;
+            try { return (window.APP_BASE || '') + '/radio.php?src=' + encodeURIComponent(url) + '&raw=1'; } catch(e) { return null; }
+        };
             // Theme: read saved preference or system preference and apply class to <body>
         (function(){
             const toggle = document.getElementById('themeToggle');

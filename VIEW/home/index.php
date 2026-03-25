@@ -19,6 +19,27 @@
             <!-- Audio stream element (used as audio/video element for cross-browser) -->
             <?php $streamUrl = getenv('STREAM_URL') ?: 'https://uk24freenew.listen2myradio.com/live.mp3?typeportmount=s1_26912_stream_657428790'; ?>
            <audio id="radio" data-stream="<?php echo htmlspecialchars($streamUrl); ?>" preload="none" style="display:none"></audio>
+            <!-- Visible test player: utilise le proxy pour éviter les problèmes CORS et garantir compatibilité mobile -->
+            <div style="margin-top:12px;">
+                <label style="color:#e6f9f6;display:block;margin-bottom:6px">Test lecteur (si lecture bloquée, utilisez ce contrôle)</label>
+                <audio controls preload="none" style="width:100%;max-width:520px;">
+                    <source src="<?php echo htmlspecialchars('/radio.php?src=' . urlencode($streamUrl) . '&raw=1'); ?>" type="audio/mpeg">
+                    Votre navigateur ne supporte pas la lecture audio.
+                </audio>
+            </div>
+            <!-- Multi-format test player: MP3 (proxy), OGG, M4A. Replace URLs as needed. -->
+            <div style="margin-top:14px;">
+                <label style="color:#e6f9f6;display:block;margin-bottom:6px">Test multi-format</label>
+                <audio controls preload="none" style="width:100%;max-width:520px;">
+                    <!-- MP3 via proxy -->
+                    <source src="<?php echo htmlspecialchars('/radio.php?src=' . urlencode($streamUrl) . '&raw=1'); ?>" type="audio/mpeg">
+                    <!-- Example OGG and M4A sources (replace with your files if available) -->
+                    <source src="/public/assets/audios/test.ogg" type="audio/ogg">
+                    <source src="/public/assets/audios/test.m4a" type="audio/mp4">
+                    Votre navigateur ne supporte pas la lecture audio multi-format.
+                </audio>
+                <div style="color:#aaa;font-size:0.9rem;margin-top:8px">Remplacez les URLs OGG/M4A par des fichiers existants dans <strong>public/assets/audios/</strong> pour tester d'autres formats.</div>
+            </div>
             <div id="playerStatus" style="margin-top:10px;color:var(--accent);font-weight:700"></div>
         </div>
         <div class="hero-right">
@@ -38,8 +59,8 @@
 <!-- External audio player script: injecte la source depuis l'attribut data-stream et gère play/pause -->
     <script src="<?php echo htmlspecialchars($assetBase); ?>/js/radio-player.js"></script>
 
-    <!-- Optional: local preview sound for the play button (can be remote) -->
-    <audio id="localSound" src="https://uk24freenew.listen2myradio.com/live.mp3?typeportmount=s1_26912_stream_657428790" preload="auto"></audio>
+    <!-- Optional: local preview sound for the play button (served via proxy to avoid CORS/format issues) -->
+    <audio id="localSound" src="<?php echo '/radio.php?src=' . urlencode($streamUrl) . '&raw=1'; ?>" preload="auto"></audio>
 
 <!-- Team / Responsables -->
 <section id="team" style="margin-top:36px;">

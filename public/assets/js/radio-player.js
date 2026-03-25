@@ -243,8 +243,15 @@ document.addEventListener('DOMContentLoaded', function(){
 
             // Probe proxy with HEAD to verify Content-Type before attaching to <audio>
             fetch(proxy, { method: 'HEAD', cache: 'no-cache' }).then(function(headResp){
-                var ct = headResp.headers.get('content-type') || '';
-                if (headResp.ok && /audio\//i.test(ct) || /mpeg/i.test(ct)) {
+                var ct = (headResp && headResp.headers) ? (headResp.headers.get('content-type') || '') : '';
+                // If the proxy returns an HLS playlist, use hls.js (or native HLS on Safari)
+                var looksLikeHls = /application\/vnd\.apple\.mpegurl|application\/x-mpegurl|audio\/mpegurl|mpegurl|vnd\.apple\.mpegurl|\.m3u8(\?|$)/i.test(ct + proxy);
+                if (looksLikeHls) {
+                    attachHlsAndPlay(player, proxy);
+                    return;
+                }
+
+                if (headResp.ok && (/audio\//i.test(ct) || /mpeg/i.test(ct) || ct === 'application/octet-stream')) {
                     // Good: attach and play via proxy
                     attachProxyAndPlay(player, proxy);
                 } else {
@@ -257,23 +264,6 @@ document.addEventListener('DOMContentLoaded', function(){
                 // fallback: attempt to attach anyway
                 attachProxyAndPlay(player, proxy);
             });
-            return;
-            try {
-                try { player.removeAttribute('src'); } catch(e){}
-                player.innerHTML = '';
-                player.crossOrigin = 'anonymous';
-                player.src = proxy;
-                player.dataset._proxied = '1';
-                try { player.load(); } catch(e){}
-
-                // Wait for the player to be able to play before calling play(), to avoid AbortError
-                var played = false;
-                function doPlay(){ if (played) return; played = true; player.play().then(function(){ setHistoryStatus('Lecture via proxy'); }).catch(function(err){ console.warn('Proxy playback failed', err); setHistoryStatus('Lecture impossible (proxy)'); }); }
-                player.addEventListener('canplay', doPlay, { once: true });
-                player.addEventListener('canplaythrough', doPlay, { once: true });
-                // Fallback timeout: try to play after 2s even if canplay didn't fire
-                setTimeout(doPlay, 2000);
-            } catch(e) { console.error('tryProxyFallback error', e); }
         } catch(e){ console.error('tryProxyFallback error', e); }
     }
 
@@ -306,6 +296,63 @@ document.addEventListener('DOMContentLoaded', function(){
             player.addEventListener('canplaythrough', doPlay, { once: true });
             setTimeout(doPlay, 2000);
         } catch(e) { console.error('attachProxyAndPlay error', e); }
+    }
+
+    // Attach HLS (m3u8) stream via hls.js when necessary.
+    function attachHlsAndPlay(player, proxy) {
+        try {
+            // Safari supports HLS natively in <audio>/<video>
+            var isNativeHls = (player.canPlayType && player.canPlayType('application/vnd.apple.mpegurl'));
+            if (isNativeHls) {
+                // Use native playback
+                try { player.removeAttribute('src'); } catch(e){}
+                player.innerHTML = '';
+                player.crossOrigin = 'anonymous';
+                player.src = proxy;
+                player.dataset._proxied = '1';
+                try { player.load(); } catch(e){}
+                player.play().then(function(){ setHistoryStatus('Lecture HLS (native)'); }).catch(function(err){ console.warn('Native HLS play failed', err); setHistoryStatus('Lecture HLS impossible'); });
+                return;
+            }
+
+            // Load hls.js dynamically if not present
+            function loadScript(url) {
+                return new Promise(function(resolve, reject){
+                    if (window.Hls) return resolve(window.Hls);
+                    var s = document.createElement('script'); s.src = url; s.async = true;
+                    s.onload = function(){ resolve(window.Hls); };
+                    s.onerror = function(e){ reject(new Error('Failed loading script ' + url)); };
+                    document.head.appendChild(s);
+                });
+            }
+
+            var CDN = 'https://cdn.jsdelivr.net/npm/hls.js@1/dist/hls.min.js';
+            loadScript(CDN).then(function(HlsLib){
+                var HlsClass = window.Hls || HlsLib;
+                if (!HlsClass) throw new Error('hls.js not available');
+                // detach any previous hls instance on this player
+                try { if (player._hls && player._hls.destroy) player._hls.destroy(); } catch(e){}
+                var hls = new HlsClass();
+                player._hls = hls;
+                hls.attachMedia(player);
+                hls.on(HlsClass.Events.MEDIA_ATTACHED, function(){
+                    hls.loadSource(proxy);
+                    setHistoryStatus('Lecture HLS via hls.js');
+                });
+                hls.on(HlsClass.Events.ERROR, function(event, data){
+                    console.warn('hls.js error', event, data);
+                    if (data && data.fatal) {
+                        try { hls.destroy(); } catch(e){}
+                        setHistoryStatus('Erreur HLS');
+                    }
+                });
+            }).catch(function(err){
+                console.warn('Failed to load hls.js', err);
+                // last resort: open in new tab
+                try { window.open(proxy, '_blank'); } catch(e){}
+                setHistoryStatus('Impossible de lire HLS (ouvrir dans un nouvel onglet)');
+            });
+        } catch(e) { console.error('attachHlsAndPlay error', e); }
     }
 
     // Fetch resource as ArrayBuffer, create blob URL and play it (useful for static audio files)

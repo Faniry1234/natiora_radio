@@ -50,6 +50,21 @@ function log_msg($msg) {
 
 // If client sent HEAD, fetch headers only
 $isHead = isset($_SERVER['REQUEST_METHOD']) && strtoupper($_SERVER['REQUEST_METHOD']) === 'HEAD';
+// If the client accepts HTML and didn't request raw audio, show a simple player page
+$accept = $_SERVER['HTTP_ACCEPT'] ?? '';
+$wantHtml = (stripos($accept, 'text/html') !== false) && !isset($_GET['raw']);
+if (!$isHead && $wantHtml) {
+    $playerUrl = htmlspecialchars((isset($_SERVER['REQUEST_SCHEME']) ? $_SERVER['REQUEST_SCHEME'] : (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? 'https' : 'http')) . '://' . ($_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME']) . $_SERVER['REQUEST_URI']);
+    // ensure raw=1 is present to fetch the audio stream body
+    $rawUrl = $playerUrl . (strpos($playerUrl, '?') === false ? '?raw=1' : '&raw=1');
+    // If src present, build direct raw url with same params
+    echo "<!doctype html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>Lecture flux</title></head><body style=\"background:#111;color:#eee;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;margin:0;\">";
+    echo "<h2 style=\"margin-bottom:8px\">Flux audio</h2>";
+    echo "<p style=\"opacity:0.8;margin:0 0 12px 0;max-width:90%\">Si la lecture ne démarre pas automatiquement, appuyez sur le bouton Lecture.</p>";
+    echo "<audio controls style=\"width:90%;max-width:420px;\"><source src=\"" . htmlspecialchars((isset($_GET['src'])? $_GET['src'] : $upstream) ) . "&raw=1\" type=\"audio/mpeg\">Votre navigateur ne supporte pas la lecture audio.</audio>";
+    echo "</body></html>";
+    exit;
+}
 // Create context for fopen with headers
 $opts = [
     'http' => [
