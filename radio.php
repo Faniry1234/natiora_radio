@@ -18,6 +18,9 @@ if (isset($_GET['src']) && filter_var($_GET['src'], FILTER_VALIDATE_URL)) {
     $upstream = $UPSTREAM_BASE . $mount;
 }
 
+// Quick detection for MP3 live mounts so we can force streaming headers for clients
+$forceMp3 = preg_match('#\.mp3($|\?)#i', $upstream) || stripos($upstream, 'live.mp3') !== false;
+
 // Disable output buffering so we can stream
 if (function_exists('apache_setenv')) { @apache_setenv('no-gzip', '1'); }
 while (ob_get_level()) { ob_end_flush(); }
@@ -26,6 +29,14 @@ ob_implicit_flush(1);
 // Basic response headers for client
 header('Access-Control-Allow-Origin: *');
 header('Cache-Control: no-cache');
+// If upstream is MP3/live, force streaming-friendly headers for broad device compatibility
+if (!headers_sent() && !empty($forceMp3) && $forceMp3) {
+    header('Content-Type: audio/mpeg');
+    header('Transfer-Encoding: chunked');
+    header('Connection: keep-alive');
+    // Disable proxy buffering (useful on some hosts like Nginx) to stream immediately
+    header('X-Accel-Buffering: no');
+}
 
 // Prepare logging
 $logDir = __DIR__ . '/storage/logs';
