@@ -1,0 +1,50 @@
+-----
+Time: 2026-03-25T06:23:27+00:00
+Upstream: https://uk24freenew.listen2myradio.com/live.mp3?typeportmount=s1_26912_stream_657428790
+Curl Error: (none)
+HTTP Code: 200
+Info: Array
+(
+    [url] => https://uk24freenew.listen2myradio.com/live.mp3?typeportmount=s1_26912_stream_657428790
+    [content_type] => text/html; charset=UTF-8
+    [http_code] => 200
+    [header_size] => 345
+    [request_size] => 165
+    [filetime] => -1
+    [ssl_verify_result] => 0
+    [redirect_count] => 0
+    [total_time] => 1.468329
+    [namelookup_time] => 0.050917
+    [connect_time] => 0.359893
+    [pretransfer_time] => 1.056516
+    [size_upload] => 0
+    [size_download] => 1
+    [speed_download] => 0
+    [speed_upload] => 0
+    [download_content_length] => 1
+    [upload_content_length] => 0
+    [starttransfer_time] => 1.466
+    [redirect_time] => 0
+    [redirect_url] => 
+    [primary_ip] => 37.157.242.105
+    [certinfo] => Array
+        (
+        )
+
+    [primary_port] => 443
+    [local_ip] => 192.168.1.131
+    [local_port] => 55018
+    [http_version] => 2
+    [protocol] => 2
+    [ssl_verifyresult] => 0
+    [scheme] => HTTPS
+    [appconnect_time_us] => 1056229
+    [connect_time_us] => 359893
+    [namelookup_time_us] => 50917
+    [pretransfer_time_us] => 1056516
+    [redirect_time_us] => 0
+    [starttransfer_time_us] => 1466000
+    [total_time_us] => 1468329
+)
+
+FOPEN failed for https://uk24freenew.listen2myradio.com/live.mp3?typeportmount=s1_26912_stream_657428790, trying cURL fallback

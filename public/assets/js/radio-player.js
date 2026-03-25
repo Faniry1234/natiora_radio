@@ -1,13 +1,68 @@
 document.addEventListener('DOMContentLoaded', function(){
     const mediaEl = document.getElementById('radio');
-    const playBtn = document.getElementById('playBtn');
-    const altBtn = document.getElementById('playBtnAlt');
+    let playBtn = document.getElementById('playBtn');
+    let altBtn = document.getElementById('playBtnAlt');
     const openVlcBtn = document.getElementById('openVlcBtn');
     const statusEl = document.getElementById('playerStatus');
+    const localSound = document.getElementById('localSound');
 
     function setStatus(msg){ if(statusEl) statusEl.textContent = msg; else console.log(msg); }
-    function isPlaying(){ return mediaEl && !mediaEl.paused; }
-    function updateButtons(){ if (playBtn) playBtn.textContent = isPlaying() ? '⏸ Pause' : '▶ Play'; if (altBtn) altBtn.textContent = isPlaying() ? '⏸ Pause' : '▶ Écouter'; }
+    function isPlaying(){
+        if (mediaEl && mediaEl.src) return !mediaEl.paused;
+        if (localSound) return !localSound.paused;
+        return false;
+    }
+    function updateButtons(){
+        var playing = isPlaying();
+        if (playBtn) playBtn.textContent = playing ? '⏸ Pause' : '▶ Play';
+        if (altBtn) altBtn.textContent = playing ? '⏸ Pause' : '▶ Écouter';
+    }
+
+    // Unified toggle that always targets the main media element when available,
+    // otherwise falls back to the local preview. Attach via `onclick` to avoid
+    // duplicate event listeners capturing or being overridden elsewhere.
+    function unifiedToggle() {
+        try {
+            if (mediaEl) {
+                // If no src is set yet but a stream is configured, attach it first
+                if (!(mediaEl.currentSrc || mediaEl.src) && typeof stream === 'string' && stream) {
+                    try { mediaEl.src = stream; if (typeof mediaEl.load === 'function') mediaEl.load(); } catch(e){ console.warn('Could not set media src in unifiedToggle', e); }
+                }
+
+                if (mediaEl.currentSrc || mediaEl.src) {
+                    if (mediaEl.paused) {
+                        mediaEl.play().catch(function(err){
+                            console.warn('unifiedToggle play failed', err);
+                                if (err && err.name === 'NotSupportedError') {
+                                    setStatus('Format non supporté — tentative via proxy');
+                                    try {
+                                        if (stream && !(mediaEl.dataset && mediaEl.dataset._proxied === '1')) {
+                                            tryProxyFallback(stream, mediaEl);
+                                        }
+                                    } catch(e) { console.error('Proxy fallback error', e); }
+                            } else if (err && err.name === 'NotAllowedError') {
+                                setStatus('Lecture bloquée — interaction requise');
+                            } else {
+                                setStatus('Lecture bloquée — tentative via proxy');
+                            }
+                        }).finally(function(){ updateButtons(); });
+                    } else {
+                        mediaEl.pause();
+                    }
+                    updateButtons();
+                    return;
+                }
+            }
+            // fallback to local preview
+            if (localSound) {
+                if (localSound.paused) localSound.play().catch(function(err){ console.warn('localSound play failed', err); setStatus('Lecture bloquée — interaction requise'); });
+                else localSound.pause();
+                return;
+            }
+            setStatus('Aucun lecteur disponible');
+        } catch (e) { console.error('unifiedToggle error', e); }
+        updateButtons();
+    }
 
     // --- Live stream initialization (optional) ---
     var stream = '';
@@ -52,15 +107,22 @@ document.addEventListener('DOMContentLoaded', function(){
                             if (err && err.name === 'AbortError') return;
                             if (err && err.name === 'NotAllowedError') setStatus('Lecture bloquée — interaction requise');
                             else if (err && err.name === 'NotSupportedError') setStatus('Format non supporté');
-                            else { console.error('Play failed', err); setStatus('Impossible de lire — voir console'); }
+                            else { console.error('Play failed', err); setStatus('Impossible de lire — tentative via proxy'); }
+
+                            // Try a single proxy fallback if play failed (avoid loops)
+                            try {
+                                    if (mediaEl && stream && !(mediaEl.dataset && mediaEl.dataset._proxied === '1')) {
+                                        tryProxyFallback(stream, mediaEl);
+                                    }
+                            } catch(e) { console.error('Proxy fallback error', e); }
                         }).finally(()=>{ if (playBtn) playBtn.disabled = false; if (altBtn) altBtn.disabled = false; updateButtons(); });
                     } else {
                         mediaEl.pause();
                     }
                 }
 
-                if (playBtn) playBtn.addEventListener('click', function(){ togglePlay(); updateButtons(); });
-                if (altBtn) altBtn.addEventListener('click', function(){ togglePlay(); updateButtons(); });
+                // expose togglePlay so unifiedToggle uses the same logic and avoids duplicate handlers
+                window.playLive = togglePlay;
 
                 if (openVlcBtn) openVlcBtn.addEventListener('click', function(){
                     try { window.open(stream, '_blank'); setStatus('Ouverture du flux dans un nouvel onglet'); }
@@ -91,6 +153,47 @@ document.addEventListener('DOMContentLoaded', function(){
             }
         }
     }
+
+    // If a local preview sound exists, keep its state in sync with buttons
+    if (localSound) {
+        localSound.addEventListener('play', function(){ updateButtons(); setStatus('Pré-écoute en cours'); });
+        localSound.addEventListener('pause', function(){ updateButtons(); setStatus('Pré-écoute en pause'); });
+        localSound.addEventListener('ended', function(){ updateButtons(); setStatus('Pré-écoute terminée'); });
+        localSound.addEventListener('error', function(){ updateButtons(); setStatus('Erreur pré-écoute'); console.error(localSound.error); });
+    }
+
+    // Fallback: if main media isn't configured, make play buttons toggle the localSound
+    function toggleLocalPreview(){
+        if (!localSound) { setStatus('Aucun son local disponible'); return; }
+        if (localSound.paused) {
+            localSound.currentTime = 0;
+            localSound.play().catch(function(err){ console.warn('localSound play failed', err); setStatus('Lecture bloquée — interaction requise'); });
+        } else {
+            localSound.pause();
+        }
+    }
+    // Attach fallback listeners only if mediaEl has no src or is not configured
+    if ((!mediaEl || !mediaEl.src) && (playBtn || altBtn)) {
+        if (playBtn) playBtn.addEventListener('click', function(){ toggleLocalPreview(); updateButtons(); });
+        if (altBtn) altBtn.addEventListener('click', function(){ toggleLocalPreview(); updateButtons(); });
+    }
+
+    // Ensure buttons use the unified toggle handler (clear previous listeners by cloning the nodes)
+    function replaceAndBind(btn, handler){
+        if (!btn) return btn;
+        try {
+            var clone = btn.cloneNode(true);
+            btn.parentNode.replaceChild(clone, btn);
+            clone.onclick = handler;
+            return clone;
+        } catch(e){
+            try { btn.onclick = handler; } catch(e2){}
+            return btn;
+        }
+    }
+
+    if (playBtn) playBtn = replaceAndBind(playBtn, function(e){ e.preventDefault(); unifiedToggle(); updateButtons(); });
+    if (altBtn) altBtn = replaceAndBind(altBtn, function(e){ e.preventDefault(); unifiedToggle(); updateButtons(); });
 
     // --- History replay support ---
     // Create a shared history player (audio element) for replaying past items
@@ -134,17 +237,97 @@ document.addEventListener('DOMContentLoaded', function(){
                     proxySrc = proxySrc.slice(base.length);
                 }
             } catch(e) { /* ignore */ }
-            var proxy = (window.APP_BASE || '') + '/index.php?route=api/proxy_replay&src=' + encodeURIComponent(proxySrc);
+            // Use radio.php as a same-origin proxy endpoint
+            var proxy = (window.APP_BASE || '') + '/radio.php?src=' + encodeURIComponent(proxySrc);
             console.info('Attempting proxy fallback for', src, '->', proxy);
-            player.pause();
+
+            // Probe proxy with HEAD to verify Content-Type before attaching to <audio>
+            fetch(proxy, { method: 'HEAD', cache: 'no-cache' }).then(function(headResp){
+                var ct = headResp.headers.get('content-type') || '';
+                if (headResp.ok && /audio\//i.test(ct) || /mpeg/i.test(ct)) {
+                    // Good: attach and play via proxy
+                    attachProxyAndPlay(player, proxy);
+                } else {
+                    console.warn('Proxy HEAD returned unexpected Content-Type:', ct, headResp.status);
+                    setHistoryStatus('Proxy non audio (' + (ct||'unknown') + '). Ouverture dans un nouvel onglet.');
+                    try { window.open(proxy, '_blank'); } catch(e){}
+                }
+            }).catch(function(err){
+                console.warn('Proxy HEAD failed', err);
+                // fallback: attempt to attach anyway
+                attachProxyAndPlay(player, proxy);
+            });
+            return;
+            try {
+                try { player.removeAttribute('src'); } catch(e){}
+                player.innerHTML = '';
+                player.crossOrigin = 'anonymous';
+                player.src = proxy;
+                player.dataset._proxied = '1';
+                try { player.load(); } catch(e){}
+
+                // Wait for the player to be able to play before calling play(), to avoid AbortError
+                var played = false;
+                function doPlay(){ if (played) return; played = true; player.play().then(function(){ setHistoryStatus('Lecture via proxy'); }).catch(function(err){ console.warn('Proxy playback failed', err); setHistoryStatus('Lecture impossible (proxy)'); }); }
+                player.addEventListener('canplay', doPlay, { once: true });
+                player.addEventListener('canplaythrough', doPlay, { once: true });
+                // Fallback timeout: try to play after 2s even if canplay didn't fire
+                setTimeout(doPlay, 2000);
+            } catch(e) { console.error('tryProxyFallback error', e); }
+        } catch(e){ console.error('tryProxyFallback error', e); }
+    }
+
+    function attachProxyAndPlay(player, proxy) {
+        try {
             try { player.removeAttribute('src'); } catch(e){}
             player.innerHTML = '';
             player.crossOrigin = 'anonymous';
             player.src = proxy;
             player.dataset._proxied = '1';
             try { player.load(); } catch(e){}
-            player.play().then(function(){ setHistoryStatus('Lecture via proxy'); }).catch(function(err){ console.warn('Proxy playback failed', err); setHistoryStatus('Lecture impossible (proxy)'); });
-        } catch(e){ console.error('tryProxyFallback error', e); }
+
+            // Wait for canplay or timeout then try play
+            var played = false;
+            function doPlay(){ if (played) return; played = true; player.play().then(function(){ setHistoryStatus('Lecture via proxy'); }).catch(function(err){
+                    console.warn('Proxy playback failed', err);
+                    // If browser can't play the proxied stream directly, try fetching as blob (works for regular files)
+                    if (err && err.name === 'NotSupportedError') {
+                        setHistoryStatus('Format non supporté — tentative via blob');
+                        fetchAndPlayBlob(player, proxy).catch(function(err2){
+                            console.warn('Blob fallback failed', err2);
+                            setHistoryStatus('Impossible de lire (proxy)');
+                            try { window.open(proxy, '_blank'); } catch(e){}
+                        });
+                    } else {
+                        setHistoryStatus('Lecture impossible (proxy)');
+                    }
+                }); }
+            player.addEventListener('canplay', doPlay, { once: true });
+            player.addEventListener('canplaythrough', doPlay, { once: true });
+            setTimeout(doPlay, 2000);
+        } catch(e) { console.error('attachProxyAndPlay error', e); }
+    }
+
+    // Fetch resource as ArrayBuffer, create blob URL and play it (useful for static audio files)
+    function fetchAndPlayBlob(player, url) {
+        return new Promise(function(resolve, reject){
+            fetch(url, { method: 'GET', cache: 'no-cache' }).then(function(resp){
+                if (!resp.ok) return reject(new Error('HTTP ' + resp.status));
+                return resp.arrayBuffer();
+            }).then(function(buffer){
+                try {
+                    var contentType = 'audio/mpeg';
+                    var blob = new Blob([buffer], { type: contentType });
+                    var blobUrl = URL.createObjectURL(blob);
+                    try { player.removeAttribute('src'); } catch(e){}
+                    player.innerHTML = '';
+                    player.src = blobUrl;
+                    player.dataset._proxied = '1';
+                    try { player.load(); } catch(e){}
+                    player.play().then(function(){ setHistoryStatus('Lecture via blob'); resolve(); }).catch(function(playErr){ reject(playErr); });
+                } catch(e) { reject(e); }
+            }).catch(function(err){ reject(err); });
+        });
     }
 
     // Helper to play a given source (used by replay and play-item buttons)

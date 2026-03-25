@@ -7,7 +7,7 @@ return [
         'whatsapp' => '261341234567',
         'facebook' => 'https://facebook.com/rakoto',
         'instagram' => 'https://instagram.com/rakoto',
-        'img' => '/assets/images/responsable1.jpg'
+        'img' => '/assets/images/contact.jpg'
     ],
     [
         'name' => 'Rasoa Lala',
@@ -16,7 +16,7 @@ return [
         'whatsapp' => '261339876543',
         'facebook' => 'https://facebook.com/rasoa',
         'instagram' => 'https://instagram.com/rasoa',
-        'img' => '/assets/images/responsable2.jpg'
+        'img' => '/assets/images/contact.jpg'
     ],
     [
         'name' => 'Jeanine Mamy',
@@ -25,6 +25,6 @@ return [
         'whatsapp' => '261327654321',
         'facebook' => 'https://facebook.com/jeanine',
         'instagram' => 'https://instagram.com/jeanine',
-        'img' => '/assets/images/responsable3.jpg'
+        'img' => '/assets/images/contact.jpg'
     ]
 ];

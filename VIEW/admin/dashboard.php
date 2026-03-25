@@ -25,7 +25,7 @@ if ((defined('DEBUG_ADMIN') && DEBUG_ADMIN) || (defined('DEV_ADMIN') && DEV_ADMI
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Tableau de Bord</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="<?php echo htmlspecialchars($assetBase); ?>/fontawesome/css/all.min.css">
     <link rel="stylesheet" href="<?php echo $base; ?>/public/assets/css/style.css">
     <style>
         * {

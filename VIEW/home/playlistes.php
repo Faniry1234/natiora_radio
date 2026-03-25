@@ -185,7 +185,28 @@ $bg = $base . '/assets/images/playliste1.jpg';
                                 tBtn.textContent = '▶';
                                 const span = document.createElement('span');
                                 span.className = 'track-title';
-                                span.textContent = (typeof s === 'string' ? s : String(s));
+                                // Derive a human-friendly title from the source URL/path
+                                function titleFromSrc(src){
+                                    try{
+                                        if (!src) return '';
+                                        var p = src;
+                                        // If absolute URL, use URL parser
+                                        if (/^https?:\/\//i.test(p) || p.indexOf('//') === 0){
+                                            try { p = (new URL(p, location.href)).pathname; } catch(e){ /* ignore */ }
+                                        }
+                                        // Remove query/string after ?
+                                        p = p.split('?')[0];
+                                        // Extract last path segment
+                                        var name = p.split('/').filter(Boolean).pop() || p;
+                                        // Remove file extension
+                                        name = name.replace(/\.[a-z0-9]{1,6}$/i, '');
+                                        // Decode URI and replace separators
+                                        try { name = decodeURIComponent(name); } catch(e){}
+                                        name = name.replace(/[_\-]+/g, ' ').trim();
+                                        return name || src;
+                                    } catch(e){ return src; }
+                                }
+                                span.textContent = (typeof s === 'string' ? titleFromSrc(s) : String(s));
                                 tLi.appendChild(tBtn);
                                 tLi.appendChild(span);
                                 tracksEl.appendChild(tLi);

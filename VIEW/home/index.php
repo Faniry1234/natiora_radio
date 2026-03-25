@@ -17,8 +17,8 @@
                 </div>
             </div>
             <!-- Audio stream element (used as audio/video element for cross-browser) -->
-            <?php $streamUrl = getenv('STREAM_URL') ?: 'https://natioraradiomg.radio12345.com/'; ?>
-            <video id="radio" data-stream="<?php echo htmlspecialchars($streamUrl); ?>" preload="none" playsinline webkit-playsinline style="display:none"></video>
+            <?php $streamUrl = getenv('STREAM_URL') ?: 'https://uk24freenew.listen2myradio.com/live.mp3?typeportmount=s1_26912_stream_657428790'; ?>
+           <audio id="radio" data-stream="<?php echo htmlspecialchars($streamUrl); ?>" preload="none" style="display:none"></audio>
             <div id="playerStatus" style="margin-top:10px;color:var(--accent);font-weight:700"></div>
         </div>
         <div class="hero-right">
@@ -37,6 +37,9 @@
 
 <!-- External audio player script: injecte la source depuis l'attribut data-stream et gère play/pause -->
     <script src="<?php echo htmlspecialchars($assetBase); ?>/js/radio-player.js"></script>
+
+    <!-- Optional: local preview sound for the play button (can be remote) -->
+    <audio id="localSound" src="https://uk24freenew.listen2myradio.com/live.mp3?typeportmount=s1_26912_stream_657428790" preload="auto"></audio>
 
 <!-- Team / Responsables -->
 <section id="team" style="margin-top:36px;">

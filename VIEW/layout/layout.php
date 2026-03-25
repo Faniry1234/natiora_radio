@@ -41,7 +41,7 @@ if ($base === '/' || $base === '\\') $base = '';
     <meta charset="UTF-8">
     <title><?= isset($pageTitle) ? $pageTitle : 'Natiora_Radio_98.2' ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="<?php echo htmlspecialchars($assetBase); ?>/fontawesome/css/all.min.css" rel="stylesheet">
     <?php
     // Determine correct public asset path so CSS loads whether the server
     // has DocumentRoot set to project root or to the `public/` folder.
