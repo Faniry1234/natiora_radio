@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: natiora-radio
+    env: docker
+    branch: main
+    dockerfilePath: Dockerfile
+    autoDeploy: true
+    instanceCount: 1
+    # health check path (HTTP) - Render will probe this
+    healthCheckPath: "/"
+    envVars:
+      - key: STREAM_URL
+        # Leave empty here; set on Render dashboard to your actual HTTPS stream URL
+        value: ""
+      - key: APP_ENV
+        value: production
+    # Optional: choose a plan or leave to Render defaults
+    # plan: free

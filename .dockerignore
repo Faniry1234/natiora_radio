@@ -1,6 +1,15 @@
 .git
 node_modules
 vendor
+storage/logs
+mysql-data
+.env
+docker/**/node_modules
+*.log
+*.sql
+*.zip.git
+node_modules
+vendor
 .env
 Dockerfile
 docker-compose.yml

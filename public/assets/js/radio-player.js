@@ -4,12 +4,17 @@ document.addEventListener('DOMContentLoaded', function(){
     let altBtn = document.getElementById('playBtnAlt');
     const openVlcBtn = document.getElementById('openVlcBtn');
     const statusEl = document.getElementById('playerStatus');
-    const localSound = document.getElementById('localSound');
+    
 
     function setStatus(msg){ if(statusEl) statusEl.textContent = msg; else console.log(msg); }
+
+    // If the page uses the new simplified player (`#player`), skip legacy initialization
+    if (!mediaEl && document.getElementById('player')) {
+        console.info('radio-player.js: detected #player; skipping legacy player init');
+        return;
+    }
     function isPlaying(){
-        if (mediaEl && mediaEl.src) return !mediaEl.paused;
-        if (localSound) return !localSound.paused;
+        if (mediaEl && (mediaEl.currentSrc || mediaEl.src)) return !mediaEl.paused;
         return false;
     }
     function updateButtons(){
@@ -53,12 +58,7 @@ document.addEventListener('DOMContentLoaded', function(){
                     return;
                 }
             }
-            // fallback to local preview
-            if (localSound) {
-                if (localSound.paused) localSound.play().catch(function(err){ console.warn('localSound play failed', err); setStatus('Lecture bloquée — interaction requise'); });
-                else localSound.pause();
-                return;
-            }
+            setStatus('Aucun lecteur disponible');
             setStatus('Aucun lecteur disponible');
         } catch (e) { console.error('unifiedToggle error', e); }
         updateButtons();
@@ -78,105 +78,53 @@ document.addEventListener('DOMContentLoaded', function(){
 
         if (!stream){ setStatus('Aucun flux configuré (data-stream manquant)'); }
         else {
-            // Guard against mixed-content: don't load http:// sources on an https page
-            if (window.location.protocol === 'https:' && /^http:\/\//i.test(stream)) {
-                console.warn('Blocked insecure stream on HTTPS page:', stream);
-                setStatus('Flux HTTP bloqué sur page HTTPS — ouvrez le flux dans un nouvel onglet');
-                if (openVlcBtn) {
-                    openVlcBtn.style.display = '';
-                    try {
-                        openVlcBtn.addEventListener('click', function(){ window.open(stream, '_blank'); setStatus('Ouverture du flux dans un nouvel onglet'); });
-                    } catch(e) { /* ignore */ }
-                }
-            } else {
-                // attach source and set src directly
-                const src = document.createElement('source');
-                src.src = stream;
-                src.type = mimeType;
-                mediaEl.appendChild(src);
-                try { mediaEl.pause(); mediaEl.src = stream; if (typeof mediaEl.load === 'function') mediaEl.load(); } catch(e){ console.warn('Could not set media src', e); }
-                setStatus('Flux configuré (' + mimeType + ')');
+            // Always use the same-origin proxy for live streams to avoid mixed-content
+            try {
+                var proxyBase = (window.APP_BASE || '') + '/radio.php?src=' + encodeURIComponent(stream);
+                // prefer raw=1 to stream bytes through unmodified when possible
+                proxyBase += (proxyBase.indexOf('?') === -1 ? '?raw=1' : '&raw=1');
+                // attach proxied source
+                try { mediaEl.removeAttribute('src'); } catch(e){}
+                mediaEl.innerHTML = '';
+                mediaEl.crossOrigin = 'anonymous';
+                mediaEl.dataset._proxied = '1';
+                mediaEl.src = proxyBase;
+                try { if (typeof mediaEl.load === 'function') mediaEl.load(); } catch(e){}
+                setStatus('Flux configuré (via proxy)');
 
-                let playPromise = null;
-                function togglePlay(){
+                function togglePlay() {
                     if (!mediaEl || !mediaEl.src) { setStatus('Flux non configuré'); return; }
-                    if (mediaEl.paused){
-                        if (playBtn) playBtn.disabled = true; if (altBtn) altBtn.disabled = true;
-                        playPromise = mediaEl.play();
-                        playPromise && playPromise.catch(err=>{
-                            if (err && err.name === 'AbortError') return;
+                    if (mediaEl.paused) {
+                        var playPromise = mediaEl.play();
+                        playPromise && playPromise.catch(function(err){
+                            console.warn('Proxy play failed', err);
                             if (err && err.name === 'NotAllowedError') setStatus('Lecture bloquée — interaction requise');
                             else if (err && err.name === 'NotSupportedError') setStatus('Format non supporté');
-                            else { console.error('Play failed', err); setStatus('Impossible de lire — tentative via proxy'); }
-
-                            // Try a single proxy fallback if play failed (avoid loops)
-                            try {
-                                    if (mediaEl && stream && !(mediaEl.dataset && mediaEl.dataset._proxied === '1')) {
-                                        tryProxyFallback(stream, mediaEl);
-                                    }
-                            } catch(e) { console.error('Proxy fallback error', e); }
-                        }).finally(()=>{ if (playBtn) playBtn.disabled = false; if (altBtn) altBtn.disabled = false; updateButtons(); });
+                            else setStatus('Impossible de lire le flux');
+                        }).finally(updateButtons);
                     } else {
                         mediaEl.pause();
                     }
+                    updateButtons();
                 }
 
-                // expose togglePlay so unifiedToggle uses the same logic and avoids duplicate handlers
                 window.playLive = togglePlay;
 
-                if (openVlcBtn) openVlcBtn.addEventListener('click', function(){
-                    try { window.open(stream, '_blank'); setStatus('Ouverture du flux dans un nouvel onglet'); }
-                    catch(e){ console.error(e); setStatus('Impossible d\'ouvrir le flux'); }
-                });
+                if (openVlcBtn) {
+                    // Open the proxied stream in a new tab/window (safer, same-origin)
+                    try { openVlcBtn.addEventListener('click', function(){ window.open(proxyBase, '_blank'); setStatus('Ouverture du flux (proxy)'); }); } catch(e){}
+                }
 
                 mediaEl.addEventListener('play', function(){ updateButtons(); setStatus('Lecture en cours'); });
-                // Log the playback start to the server for history (best-effort)
-                mediaEl.addEventListener('play', function(){
-                    try {
-                        var payload = {
-                            title: document.querySelector('.station-title') ? document.querySelector('.station-title').textContent.trim() : '',
-                            artist: '',
-                            source: stream,
-                            played_at: new Date().toISOString()
-                        };
-                        fetch((window.APP_BASE || '') + '/index.php?route=api/log_play', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(payload)
-                        }).then(function(res){ return res.json(); }).then(function(res){ if (!res.ok) console.warn('log_play failed', res); }).catch(function(err){ console.warn('log_play error', err); });
-                    } catch(e){ console.warn('log_play exception', e); }
-                });
                 mediaEl.addEventListener('pause', function(){ updateButtons(); setStatus('En pause'); });
                 mediaEl.addEventListener('error', function(){ setStatus('Erreur média — voir console'); });
 
                 updateButtons();
-            }
+            } catch(e) { console.error('stream attach error', e); setStatus('Erreur configuration flux'); }
         }
     }
 
-    // If a local preview sound exists, keep its state in sync with buttons
-    if (localSound) {
-        localSound.addEventListener('play', function(){ updateButtons(); setStatus('Pré-écoute en cours'); });
-        localSound.addEventListener('pause', function(){ updateButtons(); setStatus('Pré-écoute en pause'); });
-        localSound.addEventListener('ended', function(){ updateButtons(); setStatus('Pré-écoute terminée'); });
-        localSound.addEventListener('error', function(){ updateButtons(); setStatus('Erreur pré-écoute'); console.error(localSound.error); });
-    }
-
-    // Fallback: if main media isn't configured, make play buttons toggle the localSound
-    function toggleLocalPreview(){
-        if (!localSound) { setStatus('Aucun son local disponible'); return; }
-        if (localSound.paused) {
-            localSound.currentTime = 0;
-            localSound.play().catch(function(err){ console.warn('localSound play failed', err); setStatus('Lecture bloquée — interaction requise'); });
-        } else {
-            localSound.pause();
-        }
-    }
-    // Attach fallback listeners only if mediaEl has no src or is not configured
-    if ((!mediaEl || !mediaEl.src) && (playBtn || altBtn)) {
-        if (playBtn) playBtn.addEventListener('click', function(){ toggleLocalPreview(); updateButtons(); });
-        if (altBtn) altBtn.addEventListener('click', function(){ toggleLocalPreview(); updateButtons(); });
-    }
+    // No local preview fallback; buttons act on the main media element only.
 
     // Ensure buttons use the unified toggle handler (clear previous listeners by cloning the nodes)
     function replaceAndBind(btn, handler){

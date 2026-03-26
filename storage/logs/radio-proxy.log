@@ -48,3 +48,33 @@ Info: Array
 )
 
 FOPEN failed for https://uk24freenew.listen2myradio.com/live.mp3?typeportmount=s1_26912_stream_657428790, trying cURL fallback
+HEAD/FOPEN -> Upstream: https://uk24freenew.listen2myradio.com/live.mp3?typeportmount=s1_26912_stream_657428790 | Status: 200 | Content-Type: text/html; charset=UTF-8
+HEAD/FOPEN -> Upstream: https://uk24freenew.listen2myradio.com/live.mp3?typeportmount=s1_26912_stream_657428790 | Status: 200 | Content-Type: text/html; charset=UTF-8
+HEAD/FOPEN -> Upstream: https://uk24freenew.listen2myradio.com/live.mp3?typeportmount=s1_26912_stream_657428790 | Status: 200 | Content-Type: text/html; charset=UTF-8
+HEAD/FOPEN -> Upstream: https://uk24freenew.listen2myradio.com/live.mp3?typeportmount=s1_26912_stream_657428790 | Status: 200 | Content-Type: text/html; charset=UTF-8
+HEAD/FOPEN -> Upstream: https://uk24freenew.listen2myradio.com/live.mp3?typeportmount=s1_26912_stream_657428790 | Status: 200 | Content-Type: text/html; charset=UTF-8
+HEAD/FOPEN -> Upstream: https://uk24freenew.listen2myradio.com/live.mp3?typeportmount=s1_26912_stream_657428790 | Status: 200 | Content-Type: text/html; charset=UTF-8
+HEAD/FOPEN -> Upstream: https://uk24freenew.listen2myradio.com/live.mp3?typeportmount=s1_26912_stream_657428790 | Status: 200 | Content-Type: text/html; charset=UTF-8
+HEAD/FOPEN -> Upstream: https://uk24freenew.listen2myradio.com/live.mp3?typeportmount=s1_26912_stream_657428790 | Status: 200 | Content-Type: text/html; charset=UTF-8
+HEAD/FOPEN -> Upstream: https://uk24freenew.listen2myradio.com/live.mp3?typeportmount=s1_26912_stream_657428790 | Status: 200 | Content-Type: text/html; charset=UTF-8
+HEAD/FOPEN -> Upstream: https://uk24freenew.listen2myradio.com/live.mp3?typeportmount=s1_26912_stream_657428790 | Status: 206 | Content-Type: text/html; charset=UTF-8
+HEAD/FOPEN -> Upstream: https://uk24freenew.listen2myradio.com/live.mp3?typeportmount=s1_26912_stream_657428790 | Status: 206 | Content-Type: text/html; charset=UTF-8
+HEAD/FOPEN -> Upstream: https://uk24freenew.listen2myradio.com/live.mp3?typeportmount=s1_26912_stream_657428790 | Status: 200 | Content-Type: text/html; charset=UTF-8
+HEAD/FOPEN -> Upstream: https://uk24freenew.listen2myradio.com/live.mp3?typeportmount=s1_26912_stream_657428790 | Status: 206 | Content-Type: text/html; charset=UTF-8
+HEAD/FOPEN -> Upstream: https://uk24freenew.listen2myradio.com/live.mp3?typeportmount=s1_26912_stream_657428790 | Status: 206 | Content-Type: text/html; charset=UTF-8
+HEAD/FOPEN -> Upstream: https://uk24freenew.listen2myradio.com/live.mp3?typeportmount=s1_26912_stream_657428790 | Status: 200 | Content-Type: text/html; charset=UTF-8
+HEAD/FOPEN -> Upstream: https://uk24freenew.listen2myradio.com/live.mp3?typeportmount=s1_26912_stream_657428790 | Status: 206 | Content-Type: text/html; charset=UTF-8
+HEAD/FOPEN -> Upstream: https://uk24freenew.listen2myradio.com/live.mp3?typeportmount=s1_26912_stream_657428790 | Status: 200 | Content-Type: text/html; charset=UTF-8
+HEAD/FOPEN -> Upstream: https://uk24freenew.listen2myradio.com/live.mp3?typeportmount=s1_26912_stream_657428790 | Status: 206 | Content-Type: text/html; charset=UTF-8
+HEAD/FOPEN -> Upstream: https://uk24freenew.listen2myradio.com/live.mp3?typeportmount=s1_26912_stream_657428790 | Status: 200 | Content-Type: text/html; charset=UTF-8
+HEAD/FOPEN -> Upstream: https://uk24freenew.listen2myradio.com/live.mp3?typeportmount=s1_26912_stream_657428790 | Status: 200 | Content-Type: text/html; charset=UTF-8
+HEAD/FOPEN -> Upstream: https://uk24freenew.listen2myradio.com/live.mp3?typeportmount=s1_26912_stream_657428790 | Status: 200 | Content-Type: text/html; charset=UTF-8
+FOPEN not used or failed for https://uk24freenew.listen2myradio.com/live.mp3?typeportmount=s1_26912_stream_657428790, trying cURL fallback
+cURL result for https://uk24freenew.listen2myradio.com/live.mp3?typeportmount=s1_26912_stream_657428790 | err=(none) | http=200
+HEAD/FOPEN -> Upstream: http://ice1.somafm.com/groovesalad-128-mp3 | Status: 200 | Content-Type: audio/mpeg
+HEAD/FOPEN -> Upstream: http://ice1.somafm.com/groovesalad-128-mp3 | Status: 200 | Content-Type: audio/mpeg
+UPSTREAM NOT AUDIO -> https://uk24freenew.listen2myradio.com/live.mp3?typeportmount=s1_26912_stream_657428790
+UPSTREAM NOT AUDIO -> https://uk24freenew.listen2myradio.com/live.mp3?typeportmount=s1_26912_stream_657428790
+UPSTREAM NOT AUDIO -> https://uk24freenew.listen2myradio.com/live.mp3?typeportmount=s1_26912_stream_657428790
+UPSTREAM NOT AUDIO -> https://uk24freenew.listen2myradio.com/live.mp3?typeportmount=s1_26912_stream_657428790
+UPSTREAM NOT AUDIO -> https://uk24freenew.listen2myradio.com/live.mp3?typeportmount=s1_26912_stream_657428790

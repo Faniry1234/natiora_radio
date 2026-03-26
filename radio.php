@@ -2,6 +2,11 @@
 // Simple streaming proxy to relay an upstream radio mountpoint to clients.
 // Usage: /radio.php?mount=%3Bstream.mp3
 set_time_limit(0);
+// Prevent PHP from printing warnings or compressing output which would corrupt audio stream
+@ini_set('display_errors', '0');
+@error_reporting(0);
+@ini_set('zlib.output_compression', '0');
+@ignore_user_abort(true);
 // Upstream host (IP:port) - set to the public listen2myradio mount
 $UPSTREAM_BASE = 'https://uk24freenew.listen2myradio.com';
 
@@ -32,7 +37,13 @@ header('Cache-Control: no-cache');
 // If upstream is MP3/live, force streaming-friendly headers for broad device compatibility
 if (!headers_sent() && !empty($forceMp3) && $forceMp3) {
     header('Content-Type: audio/mpeg');
-    header('Transfer-Encoding: chunked');
+        // The built-in PHP dev server (php -S) doesn't reliably support chunked responses
+        // and can produce ERR_INVALID_CHUNKED_ENCODING in browsers. Avoid sending
+        // Transfer-Encoding when running under the CLI server. Production (Apache/Nginx)
+        // can still use chunked encoding.
+        if (php_sapi_name() !== 'cli-server') {
+            header('Transfer-Encoding: chunked');
+        }
     header('Connection: keep-alive');
     // Disable proxy buffering (useful on some hosts like Nginx) to stream immediately
     header('X-Accel-Buffering: no');
@@ -65,19 +76,65 @@ if (!$isHead && $wantHtml) {
     echo "</body></html>";
     exit;
 }
-// Create context for fopen with headers
+// Client Range header (may be null). For live mounts (MP3) forwarding Range
+// often breaks the upstream (some stream providers don't support Range);
+// avoid forwarding Range for live MP3 mounts.
+$clientRange = $_SERVER['HTTP_RANGE'] ?? null;
+$forwardRange = $clientRange && !$forceMp3;
+// Create context for fopen with headers (include Range if client requested partial content)
+$headers = "Icy-MetaData: 1\r\nUser-Agent: natiora-proxy/1.0\r\n";
+if ($forwardRange) { $headers .= 'Range: ' . $clientRange . "\r\n"; }
 $opts = [
     'http' => [
         'method' => $isHead ? 'HEAD' : 'GET',
-        'header' => "Icy-MetaData: 1\r\nUser-Agent: natiora-proxy/1.0\r\n",
+        'header' => $headers,
         'timeout' => 10,
         'ignore_errors' => true
     ]
 ];
 $ctx = stream_context_create($opts);
 
-// Try fopen wrapper first (may be simpler than cURL on some hosts)
-@$fp = @fopen($upstream, 'rb', false, $ctx);
+// Quick HEAD-check helper: ensure upstream returns an audio Content-Type
+function upstream_is_audio($url) {
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_NOBODY, true);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
+    curl_setopt($ch, CURLOPT_USERAGENT, 'natiora-proxy/1.0');
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+    curl_exec($ch);
+    $ct = curl_getinfo($ch, CURLINFO_CONTENT_TYPE) ?: '';
+    $code = intval(curl_getinfo($ch, CURLINFO_HTTP_CODE) ?: 0);
+    curl_close($ch);
+    // treat audio/*, application/octet-stream, m3u8 playlist types as acceptable
+    if ($code >= 200 && $code < 300) {
+        if (preg_match('#^(audio/|application/octet-stream)#i', $ct)) return true;
+        if (preg_match('#m3u8|mpegurl|vnd\.apple\.mpegurl|mpegurl#i', $ct)) return true;
+    }
+    return false;
+}
+
+// If upstream clearly returns HTML or non-audio, abort early with 502
+if (!upstream_is_audio($upstream)) {
+    log_msg("UPSTREAM NOT AUDIO -> $upstream");
+    http_response_code(502);
+    header('Content-Type: text/plain; charset=utf-8');
+    echo "Upstream stream did not return audio content. Please verify the stream URL or provider.\n";
+    exit;
+}
+
+// Prefer cURL for HTTPS upstreams (some providers require TLS and streaming
+// behavior that fopen wrappers don't handle reliably). Use fopen only for
+// non-HTTPS upstreams when available.
+$useFopen = (stripos($upstream, 'https://') !== 0) && function_exists('fopen');
+$fp = null;
+if ($useFopen) {
+    @$fp = @fopen($upstream, 'rb', false, $ctx);
+}
+// Try fopen wrapper first when allowed
 if ($fp) {
     // examine response headers
     $headers = $http_response_header ?? [];
@@ -89,7 +146,22 @@ if ($fp) {
     log_msg("HEAD/FOPEN -> Upstream: $upstream | Status: $status | Content-Type: $contentType");
     if ($isHead) {
         if ($contentType) header('Content-Type: ' . $contentType);
+        // forward other useful headers from upstream for HEAD requests
+        foreach ($headers as $h) {
+            if (stripos($h, 'content-range:') === 0 || stripos($h, 'accept-ranges:') === 0 || stripos($h, 'content-length:') === 0 || preg_match('#^icy-#i', $h)) {
+                header($h, false);
+            }
+        }
+        if ($status) { http_response_code($status); }
         exit;
+    }
+
+    // Propagate upstream status and useful headers (Content-Range, Accept-Ranges, Content-Length, icy-*)
+    if ($status) { http_response_code($status); }
+    foreach ($headers as $h) {
+        if (stripos($h, 'content-range:') === 0 || stripos($h, 'accept-ranges:') === 0 || stripos($h, 'content-length:') === 0 || preg_match('#^icy-#i', $h)) {
+            header($h, false);
+        }
     }
 
     // If upstream didn't provide a content-type or it's not audio, force audio/mpeg
@@ -114,7 +186,7 @@ if ($fp) {
 }
 
 // fopen failed; fallback to cURL streaming (as previous implementation)
-log_msg("FOPEN failed for $upstream, trying cURL fallback");
+    log_msg("FOPEN not used or failed for $upstream, trying cURL fallback");
 
 $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, $upstream);
@@ -127,16 +199,23 @@ curl_setopt($ch, CURLOPT_TIMEOUT, 0);
 if (defined('CURL_HTTP_VERSION_1_0')) {
     curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_0);
 }
-curl_setopt($ch, CURLOPT_HTTPHEADER, [ 'Icy-MetaData: 1', 'User-Agent: natiora-proxy/1.0' ]);
+ $curlHeaders = [ 'Icy-MetaData: 1', 'User-Agent: natiora-proxy/1.0' ];
+ if ($forwardRange) { $curlHeaders[] = 'Range: ' . $clientRange; }
+ curl_setopt($ch, CURLOPT_HTTPHEADER, $curlHeaders);
 
 $contentTypeFromUpstream = null;
 curl_setopt($ch, CURLOPT_HEADERFUNCTION, function($ch, $header) use (&$contentTypeFromUpstream) {
     $h = trim($header);
     if ($h === '') return strlen($header);
+    // Propagate status code from upstream (e.g., 206 Partial Content)
+    if (preg_match('#^HTTP/\d\.\d\s+(\d+)#i', $h, $m)) {
+        http_response_code((int)$m[1]);
+        return strlen($header);
+    }
     if (stripos($h, 'content-type:') === 0) {
         $contentTypeFromUpstream = trim(substr($h, 13));
         header('Content-Type: ' . $contentTypeFromUpstream, true);
-    } elseif (preg_match('#^(Content-Length|icy-metaint|icy-br|icy-name):#i', $h)) {
+    } elseif (preg_match('#^(Content-Length|Content-Range|Accept-Ranges|icy-metaint|icy-br|icy-name):#i', $h)) {
         header($h, false);
     }
     return strlen($header);

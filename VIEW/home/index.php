@@ -18,28 +18,7 @@
             </div>
             <!-- Audio stream element (used as audio/video element for cross-browser) -->
             <?php $streamUrl = getenv('STREAM_URL') ?: 'https://uk24freenew.listen2myradio.com/live.mp3?typeportmount=s1_26912_stream_657428790'; ?>
-           <audio id="radio" data-stream="<?php echo htmlspecialchars($streamUrl); ?>" preload="none" style="display:none"></audio>
-            <!-- Visible test player: utilise le proxy pour éviter les problèmes CORS et garantir compatibilité mobile -->
-            <div style="margin-top:12px;">
-                <label style="color:#e6f9f6;display:block;margin-bottom:6px">Test lecteur (si lecture bloquée, utilisez ce contrôle)</label>
-                <audio controls preload="none" style="width:100%;max-width:520px;">
-                    <source src="<?php echo htmlspecialchars('/radio.php?src=' . urlencode($streamUrl) . '&raw=1'); ?>" type="audio/mpeg">
-                    Votre navigateur ne supporte pas la lecture audio.
-                </audio>
-            </div>
-            <!-- Multi-format test player: MP3 (proxy), OGG, M4A. Replace URLs as needed. -->
-            <div style="margin-top:14px;">
-                <label style="color:#e6f9f6;display:block;margin-bottom:6px">Test multi-format</label>
-                <audio controls preload="none" style="width:100%;max-width:520px;">
-                    <!-- MP3 via proxy -->
-                    <source src="<?php echo htmlspecialchars('/radio.php?src=' . urlencode($streamUrl) . '&raw=1'); ?>" type="audio/mpeg">
-                    <!-- Example OGG and M4A sources (replace with your files if available) -->
-                    <source src="/public/assets/audios/test.ogg" type="audio/ogg">
-                    <source src="/public/assets/audios/test.m4a" type="audio/mp4">
-                    Votre navigateur ne supporte pas la lecture audio multi-format.
-                </audio>
-                <div style="color:#aaa;font-size:0.9rem;margin-top:8px">Remplacez les URLs OGG/M4A par des fichiers existants dans <strong>public/assets/audios/</strong> pour tester d'autres formats.</div>
-            </div>
+            <!-- Le lecteur utilise désormais uniquement le flux configuré via STREAM_URL (proxy /radio.php). -->
             <div id="playerStatus" style="margin-top:10px;color:var(--accent);font-weight:700"></div>
         </div>
         <div class="hero-right">
@@ -56,11 +35,68 @@
     </div>
 </section>
 
-<!-- External audio player script: injecte la source depuis l'attribut data-stream et gère play/pause -->
-    <script src="<?php echo htmlspecialchars($assetBase); ?>/js/radio-player.js"></script>
+<!-- Simple mobile-friendly player: remplace le lecteur complexe par un toggle léger -->
+    <audio id="player" preload="none" style="display:none">
+        Votre navigateur ne supporte pas le streaming.
+    </audio>
 
-    <!-- Optional: local preview sound for the play button (served via proxy to avoid CORS/format issues) -->
-    <audio id="localSound" src="<?php echo '/radio.php?src=' . urlencode($streamUrl) . '&raw=1'; ?>" preload="auto"></audio>
+    <script>
+    (function(){
+        // Determine the stream base: prefer the proxy-exposed APP_STREAM, otherwise use server env
+        var serverStream = <?php echo json_encode(getenv('STREAM_URL') ?: 'https://uk24freenew.listen2myradio.com/live.mp3?typeportmount=s1_26912_stream_657428790'); ?>;
+        var streamBaseRaw = (typeof window.APP_STREAM === 'string' && window.APP_STREAM) ? window.APP_STREAM : serverStream;
+        // If streamBaseRaw is an absolute upstream URL (starts with http), convert to same-origin proxy URL
+        var streamBase = streamBaseRaw;
+        try {
+            if (/^https?:\/\//i.test(streamBaseRaw)) {
+                streamBase = (window.APP_BASE || '') + '/radio.php?src=' + encodeURIComponent(streamBaseRaw) + '&raw=1';
+            }
+        } catch(e) { streamBase = streamBaseRaw; }
+        var audio = document.getElementById('player');
+        var playBtn = document.getElementById('playBtn');
+        var altBtn = document.getElementById('playBtnAlt');
+
+        function updateButtons(){
+            var playing = !!(audio && !audio.paused && audio.currentTime > 0 && !audio.ended);
+            if (playBtn) playBtn.textContent = playing ? '⏸ Pause' : '▶ Play';
+            if (altBtn) altBtn.textContent = playing ? '⏸ Pause' : '▶ Écouter';
+        }
+
+        function togglePlay(){
+            try {
+                if (!audio) return;
+                if (audio.paused){
+                    // Build URL and add cache-busting param to force mobile clients to treat it as fresh
+                    if (!streamBase) return console.warn('Aucun flux configuré');
+                    var sep = streamBase.indexOf('?') !== -1 ? '&' : '?';
+                    audio.src = streamBase + sep + 'v=' + Date.now();
+                    // Ensure the element loads the new source on mobile
+                    try { audio.load(); } catch(e){}
+                    var p = audio.play();
+                    if (p !== undefined) {
+                        p.catch(function(err){ console.warn('Lecture bloquée :', err); });
+                    }
+                } else {
+                    audio.pause();
+                    try { audio.removeAttribute('src'); audio.load(); } catch(e){}
+                }
+            } catch(e){ console.error(e); }
+            updateButtons();
+        }
+
+        // Bind UI buttons
+        if (playBtn) playBtn.addEventListener('click', function(e){ e.preventDefault(); togglePlay(); });
+        if (altBtn) altBtn.addEventListener('click', function(e){ e.preventDefault(); togglePlay(); });
+
+        // Keep buttons state in sync with media events
+        if (audio) {
+            audio.addEventListener('play', updateButtons);
+            audio.addEventListener('pause', updateButtons);
+            audio.addEventListener('ended', updateButtons);
+            audio.addEventListener('error', function(){ console.warn('Erreur média', audio.error); updateButtons(); });
+        }
+    })();
+    </script>
 
 <!-- Team / Responsables -->
 <section id="team" style="margin-top:36px;">

@@ -110,9 +110,9 @@ foreach ($playlists as $pl) {
             window.addUrlToPlaylist = function(btn){
                 var card = btn.closest('.playlist-card');
                 if (!card) return alert('Carte introuvable');
-                var url = prompt("Entrez l'URL publique du fichier audio (http(s)://...)");
+                var url = prompt("Entrez l'URL publique du fichier audio (https://...)");
                 if (!url) return;
-                if (!/^https?:\/\//i.test(url)) { alert('URL invalide — doit commencer par http:// ou https://'); return; }
+                if (!/^https:\/\//i.test(url)) { alert('URL invalide — doit commencer par https://'); return; }
                 try {
                     var ds = card.getAttribute('data-songs') || '';
                     if (!ds) ds = url; else ds = ds + '||' + url;
@@ -142,7 +142,7 @@ foreach ($playlists as $pl) {
                 function isValidSong(s){
                     if (!s || typeof s !== 'string') return false;
                     s = s.trim();
-                    if (/^https?:\/\//i.test(s)) return true;
+                    if (/^https:\/\//i.test(s)) return true;
                     if (s.indexOf('/uploads/') === 0) return true;
                     if (s.indexOf('/public/') === 0) return true;
                     // allow root-relative paths to public
