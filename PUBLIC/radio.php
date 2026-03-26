@@ -1,15 +1,34 @@
 <?php
-// Public-facing proxy wrapper that delegates to the application-level radio proxy.
-// This file exists so the webserver can serve a proxy from the public document root.
-// It simply includes the app-level `radio.php`.
+set_time_limit(0); // Désactive la limite de temps pour le streaming
+// radio.php
+header('Content-Type: audio/mpeg');
+header('Access-Control-Allow-Origin: *'); // Autorise la lecture cross-browser
 
-// Ensure path resolves to project root radio.php
-$rootRadio = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'radio.php';
-if (file_exists($rootRadio)) {
-    require $rootRadio;
-    exit;
+$stream_url = $_GET['src'] ?? '';
+
+if (empty($stream_url)) {
+    die("Aucun flux spécifié.");
 }
-http_response_code(404);
-header('Content-Type: text/plain; charset=utf-8');
-echo "Proxy wrapper not found: expected file at $rootRadio";
-exit;
+
+// Nettoyage de l'URL pour éviter les failles
+$stream_url = filter_var($stream_url, FILTER_SANITIZE_URL);
+
+// On ouvre le flux distant et on le retransmet bit par bit
+$handle = fopen($stream_url, "rb");
+
+if ($handle) {
+    // Désactive la compression qui pourrait bloquer le flux
+    if (function_exists('apache_setenv')) { @apache_setenv('no-gzip', 1); }
+    @ini_set('zlib.output_compression', 0);
+
+    while (!feof($handle) && connection_status() == 0) {
+        echo fread($handle, 8192);
+        flush();
+        ob_flush(); // Ajout de ob_flush pour vider tous les types de buffers
+    }
+    fclose($handle);
+} else {
+    header("HTTP/1.1 502 Bad Gateway");
+    echo "Impossible de se connecter au flux source.";
+}
+?>
