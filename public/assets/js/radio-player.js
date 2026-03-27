@@ -78,29 +78,27 @@ document.addEventListener('DOMContentLoaded', function(){
 
         if (!stream){ setStatus('Aucun flux configuré (data-stream manquant)'); }
         else {
-            // Always use the same-origin proxy for live streams to avoid mixed-content
+            // Attach the upstream stream URL directly to the media element.
             try {
-                var proxyBase = (window.APP_BASE || '') + '/radio.php?src=' + encodeURIComponent(stream);
-                // prefer raw=1 to stream bytes through unmodified when possible
-                proxyBase += (proxyBase.indexOf('?') === -1 ? '?raw=1' : '&raw=1');
-                // attach proxied source
                 try { mediaEl.removeAttribute('src'); } catch(e){}
                 mediaEl.innerHTML = '';
                 mediaEl.crossOrigin = 'anonymous';
-                mediaEl.dataset._proxied = '1';
-                mediaEl.src = proxyBase;
+                mediaEl.dataset._proxied = '0';
+                mediaEl.src = stream;
                 try { if (typeof mediaEl.load === 'function') mediaEl.load(); } catch(e){}
-                setStatus('Flux configuré (via proxy)');
+                setStatus('Flux configuré (direct)');
 
                 function togglePlay() {
                     if (!mediaEl || !mediaEl.src) { setStatus('Flux non configuré'); return; }
                     if (mediaEl.paused) {
                         var playPromise = mediaEl.play();
                         playPromise && playPromise.catch(function(err){
-                            console.warn('Proxy play failed', err);
+                            console.warn('Direct play failed', err);
                             if (err && err.name === 'NotAllowedError') setStatus('Lecture bloquée — interaction requise');
                             else if (err && err.name === 'NotSupportedError') setStatus('Format non supporté');
                             else setStatus('Impossible de lire le flux');
+                            // Attempt proxy fallback if direct play fails
+                            tryProxyFallback(stream, mediaEl);
                         }).finally(updateButtons);
                     } else {
                         mediaEl.pause();
@@ -111,8 +109,7 @@ document.addEventListener('DOMContentLoaded', function(){
                 window.playLive = togglePlay;
 
                 if (openVlcBtn) {
-                    // Open the proxied stream in a new tab/window (safer, same-origin)
-                    try { openVlcBtn.addEventListener('click', function(){ window.open(proxyBase, '_blank'); setStatus('Ouverture du flux (proxy)'); }); } catch(e){}
+                    try { openVlcBtn.addEventListener('click', function(){ window.open(stream, '_blank'); setStatus('Ouverture du flux'); }); } catch(e){}
                 }
 
                 mediaEl.addEventListener('play', function(){ updateButtons(); setStatus('Lecture en cours'); });
@@ -175,43 +172,11 @@ document.addEventListener('DOMContentLoaded', function(){
     function tryProxyFallback(src, player) {
         try {
             if (!src) return;
-            // Don't loop repeatedly to proxy
-            if (player.dataset && player.dataset._proxied === '1') { console.warn('Already proxied, aborting fallback'); return; }
-            // If the app is hosted in a subfolder, proxy expects a path relative to the project
-            var proxySrc = src;
-            try {
-                var base = (window.APP_BASE || '') + '';
-                if (base && proxySrc.indexOf(base) === 0) {
-                    proxySrc = proxySrc.slice(base.length);
-                }
-            } catch(e) { /* ignore */ }
-            // Use radio.php as a same-origin proxy endpoint
-            var proxy = (window.APP_BASE || '') + '/radio.php?src=' + encodeURIComponent(proxySrc);
-            console.info('Attempting proxy fallback for', src, '->', proxy);
-
-            // Probe proxy with HEAD to verify Content-Type before attaching to <audio>
-            fetch(proxy, { method: 'HEAD', cache: 'no-cache' }).then(function(headResp){
-                var ct = (headResp && headResp.headers) ? (headResp.headers.get('content-type') || '') : '';
-                // If the proxy returns an HLS playlist, use hls.js (or native HLS on Safari)
-                var looksLikeHls = /application\/vnd\.apple\.mpegurl|application\/x-mpegurl|audio\/mpegurl|mpegurl|vnd\.apple\.mpegurl|\.m3u8(\?|$)/i.test(ct + proxy);
-                if (looksLikeHls) {
-                    attachHlsAndPlay(player, proxy);
-                    return;
-                }
-
-                if (headResp.ok && (/audio\//i.test(ct) || /mpeg/i.test(ct) || ct === 'application/octet-stream')) {
-                    // Good: attach and play via proxy
-                    attachProxyAndPlay(player, proxy);
-                } else {
-                    console.warn('Proxy HEAD returned unexpected Content-Type:', ct, headResp.status);
-                    setHistoryStatus('Proxy non audio (' + (ct||'unknown') + '). Ouverture dans un nouvel onglet.');
-                    try { window.open(proxy, '_blank'); } catch(e){}
-                }
-            }).catch(function(err){
-                console.warn('Proxy HEAD failed', err);
-                // fallback: attempt to attach anyway
-                attachProxyAndPlay(player, proxy);
-            });
+            // We no longer proxy on the server side. As a fallback, open the
+            // upstream stream in a new tab so the browser can handle it directly.
+            console.info('Direct play failed — opening stream in new tab', src);
+            try { window.open(src, '_blank'); } catch (e) { console.warn('Failed to open stream in new tab', e); }
+            try { if (player && player.dataset) player.dataset._proxied = '0'; } catch(e){}
         } catch(e){ console.error('tryProxyFallback error', e); }
     }
 

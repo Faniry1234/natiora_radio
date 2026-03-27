@@ -16,11 +16,31 @@
                     </div>
                 </div>
             </div>
-            <!-- Audio stream element (used as audio/video element for cross-browser) -->
-            <?php $streamUrl = getenv('STREAM_URL') ?: 'https://uk24freenew.listen2myradio.com/live.mp3?typeportmount=s1_26912_stream_657428790'; ?>
-            <!-- Le lecteur utilise désormais uniquement le flux configuré via STREAM_URL (proxy /radio.php). -->
-            <div id="playerStatus" style="margin-top:10px;color:var(--accent);font-weight:700"></div>
-        </div>
+           <div class="player-wrapper" style="text-align: center; padding: 20px;">
+    <!-- Manual play button: avoids autoplay restrictions on mobile -->
+    <button id="manualPlayBtn" class="play-button" onclick="playRadio()">▶️ Écouter</button>
+
+    <?php $streamUrl = getenv('STREAM_URL') ?: 'https://uk24freenew.listen2myradio.com/live.mp3?typeportmount=s1_26912_stream_657428790'; ?>
+    <audio id="radio" controls preload="none" style="margin-top:10px;">
+        <source src="<?php echo htmlspecialchars($streamUrl); ?>" type="audio/mpeg">
+        Votre navigateur ne supporte pas l'écoute en ligne.
+    </audio>
+
+    <div id="playerStatus" style="margin-top:10px; color:var(--accent); font-weight:700">Arrêté</div>
+</div>
+
+<script>
+function playRadio(){
+    var a = document.getElementById('radio');
+    if (!a) return console.warn('Lecteur introuvable');
+    a.play().then(function(){
+        try{ document.getElementById('playerStatus').textContent = 'Lecture en cours'; }catch(e){}
+    }).catch(function(err){
+        console.warn('Lecture impossible', err);
+        try{ document.getElementById('playerStatus').textContent = 'Lecture bloquée — interaction requise'; }catch(e){}
+    });
+}
+</script>
         <div class="hero-right">
             <div class="station-badge">LIVE • <strong>98.2 FM</strong></div>
             <h2 class="station-title">Natiora Radio</h2>
@@ -45,13 +65,8 @@
         // Determine the stream base: prefer the proxy-exposed APP_STREAM, otherwise use server env
         var serverStream = <?php echo json_encode(getenv('STREAM_URL') ?: 'https://uk24freenew.listen2myradio.com/live.mp3?typeportmount=s1_26912_stream_657428790'); ?>;
         var streamBaseRaw = (typeof window.APP_STREAM === 'string' && window.APP_STREAM) ? window.APP_STREAM : serverStream;
-        // If streamBaseRaw is an absolute upstream URL (starts with http), convert to same-origin proxy URL
+        // Use the upstream stream URL directly (no same-origin proxy)
         var streamBase = streamBaseRaw;
-        try {
-            if (/^https?:\/\//i.test(streamBaseRaw)) {
-                streamBase = (window.APP_BASE || '') + '/radio.php?src=' + encodeURIComponent(streamBaseRaw) + '&raw=1';
-            }
-        } catch(e) { streamBase = streamBaseRaw; }
         var audio = document.getElementById('player');
         var playBtn = document.getElementById('playBtn');
         var altBtn = document.getElementById('playBtnAlt');
