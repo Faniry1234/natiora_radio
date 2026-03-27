@@ -4,7 +4,11 @@ set_time_limit(0); // Désactive la limite de temps pour le streaming
 header('Content-Type: audio/mpeg');
 header('Access-Control-Allow-Origin: *'); // Autorise la lecture cross-browser
 
+// Prefer explicit `src` query param, otherwise fall back to environment variable STREAM_URL
 $stream_url = $_GET['src'] ?? '';
+if (empty($stream_url)) {
+    $stream_url = getenv('STREAM_URL') ?: '';
+}
 
 if (empty($stream_url)) {
     die("Aucun flux spécifié.");
