@@ -4,21 +4,16 @@ define('REQUEST_START', microtime(true));
 session_start();
 
 // Quick static file handler for development when document-root is project root.
-// Serve requests under /assets/, /uploads/ and /public/uploads/ from the public/ directory.
+// Serve any file under /public/ directory, except PHP and .htaccess for security.
 $reqPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-if ($reqPath && preg_match('#^/(assets|uploads|public/uploads)/#', $reqPath)) {
+if ($reqPath && $reqPath !== '/' && !preg_match('/\.(php|htaccess)$/i', $reqPath)) {
     $candidate = realpath(__DIR__ . '/public' . $reqPath);
-    if ($candidate && is_file($candidate)) {
+    if ($candidate && is_file($candidate) && strpos($candidate, realpath(__DIR__ . '/public') . DIRECTORY_SEPARATOR) === 0) {
         $mime = function_exists('mime_content_type') ? mime_content_type($candidate) : 'application/octet-stream';
         header('Content-Type: ' . $mime);
         header('Content-Length: ' . filesize($candidate));
         readfile($candidate);
         exit;
-    }
-    // try mapping /public/uploads -> public/uploads
-    if (strpos($reqPath, '/public/uploads/') === 0) {
-        $candidate = realpath(__DIR__ . $reqPath);
-        if ($candidate && is_file($candidate)) { header('Content-Type: ' . (function_exists('mime_content_type')?mime_content_type($candidate):'application/octet-stream')); header('Content-Length: ' . filesize($candidate)); readfile($candidate); exit; }
     }
 }
 

@@ -120,7 +120,7 @@
                                     <span class="action-details"><?php echo htmlspecialchars($action['details']); ?></span>
                                 </div>
                                 <div class="history-info">
-                                    <small><i class="fas fa-clock"></i> <?php echo date('d/m/Y à H:i:s', strtotime($action['timestamp'])); ?></small>
+                                    <small><i class="fas fa-clock"></i> <?php echo date('d/m/Y à H:i:s', strtotime($action['created_at'] ?? 'now')); ?></small>
                                     <span class="separator">•</span>
                                     <small><i class="fas fa-globe"></i> <?php echo htmlspecialchars($action['ip']); ?></small>
                                 </div>

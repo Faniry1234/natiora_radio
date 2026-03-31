@@ -1,11 +1,11 @@
 <section id="home" class="player">
     <div class="home-hero">
         <div class="hero-left">
-            <div class="poster" aria-hidden="false">
+            <div class="poster" aria-hidden="false" onclick="playRadio()" style="cursor:pointer;">
                 <div style="display:flex;align-items:center;gap:18px;">
                     <img src="<?php echo htmlspecialchars($assetBase); ?>/images/LOGO%20RADIO.jpg" alt="Natiora logo" class="poster-img" style="width:110px;border-radius:50%">
                     <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
-                        <button id="playBtn" class="play-btn" aria-label="Play">▶</button>
+                        <button class="play-btn" aria-label="Play">▶</button>
                         <div class="audio-visualizer paused" aria-hidden="true">
                             <div class="bar"></div>
                             <div class="bar"></div>
@@ -20,98 +20,29 @@
     <!-- Manual play button: avoids autoplay restrictions on mobile -->
     <button id="manualPlayBtn" class="play-button" onclick="playRadio()">▶️ Écouter</button>
 
-    <?php $streamUrl = getenv('STREAM_URL') ?: 'https://uk24freenew.listen2myradio.com/live.mp3?typeportmount=s1_26912_stream_657428790'; ?>
-    <audio id="radio" controls preload="none" style="margin-top:10px;">
-        <source src="<?php echo htmlspecialchars($streamUrl); ?>" type="audio/mpeg">
-        Votre navigateur ne supporte pas l'écoute en ligne.
-    </audio>
-
     <div id="playerStatus" style="margin-top:10px; color:var(--accent); font-weight:700">Arrêté</div>
+
 </div>
 
 <script>
 function playRadio(){
-    var a = document.getElementById('radio');
-    if (!a) return console.warn('Lecteur introuvable');
-    a.play().then(function(){
-        try{ document.getElementById('playerStatus').textContent = 'Lecture en cours'; }catch(e){}
-    }).catch(function(err){
-        console.warn('Lecture impossible', err);
-        try{ document.getElementById('playerStatus').textContent = 'Lecture bloquée — interaction requise'; }catch(e){}
-    });
+    window.open('http://p.onlineradiobox.com/mg/natiora/player/?cs=mg.natiora&played=1', 'playerPopup', 'width=400,height=300,scrollbars=no,resizable=yes,popup=yes');
 }
 </script>
+
         <div class="hero-right">
             <div class="station-badge">LIVE • <strong>98.2 FM</strong></div>
             <h2 class="station-title">Natiora Radio</h2>
             <p class="station-frequency">98.2 FM — Madagascar</p>
             <p class="station-desc">Écoutez les meilleurs hits, émissions locales et tutoriels créatifs. Direct 24/7 — rejoignez la communauté.</p>
             <div class="hero-actions">
-                <button id="playBtnAlt" class="btn-primary">▶ Écouter</button>
+                <button id="playBtnAlt" class="btn-primary" onclick="playRadio()">▶ Écouter</button>
                 <button id="openVlcBtn" class="btn-secondary">Ouvrir dans VLC</button>
                 <a href="/index.php?route=playlistes" class="btn-secondary">Voir la playlist</a>
             </div>
         </div>
     </div>
 </section>
-
-<!-- Simple mobile-friendly player: remplace le lecteur complexe par un toggle léger -->
-    <audio id="player" preload="none" style="display:none">
-        Votre navigateur ne supporte pas le streaming.
-    </audio>
-
-    <script>
-    (function(){
-        // Determine the stream base: prefer the proxy-exposed APP_STREAM, otherwise use server env
-        var serverStream = <?php echo json_encode(getenv('STREAM_URL') ?: 'https://uk24freenew.listen2myradio.com/live.mp3?typeportmount=s1_26912_stream_657428790'); ?>;
-        var streamBaseRaw = (typeof window.APP_STREAM === 'string' && window.APP_STREAM) ? window.APP_STREAM : serverStream;
-        // Use the upstream stream URL directly (no same-origin proxy)
-        var streamBase = streamBaseRaw;
-        var audio = document.getElementById('player');
-        var playBtn = document.getElementById('playBtn');
-        var altBtn = document.getElementById('playBtnAlt');
-
-        function updateButtons(){
-            var playing = !!(audio && !audio.paused && audio.currentTime > 0 && !audio.ended);
-            if (playBtn) playBtn.textContent = playing ? '⏸ Pause' : '▶ Play';
-            if (altBtn) altBtn.textContent = playing ? '⏸ Pause' : '▶ Écouter';
-        }
-
-        function togglePlay(){
-            try {
-                if (!audio) return;
-                if (audio.paused){
-                    // Build URL and add cache-busting param to force mobile clients to treat it as fresh
-                    if (!streamBase) return console.warn('Aucun flux configuré');
-                    var sep = streamBase.indexOf('?') !== -1 ? '&' : '?';
-                    audio.src = streamBase + sep + 'v=' + Date.now();
-                    // Ensure the element loads the new source on mobile
-                    try { audio.load(); } catch(e){}
-                    var p = audio.play();
-                    if (p !== undefined) {
-                        p.catch(function(err){ console.warn('Lecture bloquée :', err); });
-                    }
-                } else {
-                    audio.pause();
-                    try { audio.removeAttribute('src'); audio.load(); } catch(e){}
-                }
-            } catch(e){ console.error(e); }
-            updateButtons();
-        }
-
-        // Bind UI buttons
-        if (playBtn) playBtn.addEventListener('click', function(e){ e.preventDefault(); togglePlay(); });
-        if (altBtn) altBtn.addEventListener('click', function(e){ e.preventDefault(); togglePlay(); });
-
-        // Keep buttons state in sync with media events
-        if (audio) {
-            audio.addEventListener('play', updateButtons);
-            audio.addEventListener('pause', updateButtons);
-            audio.addEventListener('ended', updateButtons);
-            audio.addEventListener('error', function(){ console.warn('Erreur média', audio.error); updateButtons(); });
-        }
-    })();
-    </script>
 
 <!-- Team / Responsables -->
 <section id="team" style="margin-top:36px;">
@@ -128,9 +59,9 @@ function playRadio(){
             }
             if (empty($responsables)) {
                 $responsables = [
-                    ['name'=>'Rakoto Andry','role'=>'Responsable programmation','phone'=>'+261341234567','whatsapp'=>'261341234567','facebook'=>'https://facebook.com/rakoto','instagram'=>'https://instagram.com/rakoto','img'=>$assetBase . '/images/contact.jpg'],
-                    ['name'=>'Rasoa Lala','role'=>'Responsable communication','phone'=>'+261339876543','whatsapp'=>'261339876543','facebook'=>'https://facebook.com/rasoa','instagram'=>'https://instagram.com/rasoa','img'=>$assetBase . '/images/contact.jpg'],
-                    ['name'=>'Jeanine Mamy','role'=>'Responsable technique','phone'=>'+261327654321','whatsapp'=>'261327654321','facebook'=>'https://facebook.com/jeanine','instagram'=>'https://instagram.com/jeanine','img'=>$assetBase . '/images/contact.jpg']
+                    ['name'=>'Mr Hossea','role'=>'Responsable programmation','phone'=>'+261386363474','whatsapp'=>'261386363474','email'=>'hossea@natiora.mg','facebook'=>'https://facebook.com/rakoto','instagram'=>'https://instagram.com/rakoto','img'=>$assetBase . '/images/contact.jpg'],
+                    ['name'=>'Rasoa Lala','role'=>'Responsable communication','phone'=>'+261339876543','whatsapp'=>'261339876543','email'=>'rasoa@natiora.mg','facebook'=>'https://facebook.com/rasoa','instagram'=>'https://instagram.com/rasoa','img'=>$assetBase . '/images/contact.jpg'],
+                    ['name'=>'Jeanine Mamy','role'=>'Responsable technique','phone'=>'+261327654321','whatsapp'=>'261327654321','email'=>'jeanine@natiora.mg','facebook'=>'https://facebook.com/jeanine','instagram'=>'https://instagram.com/jeanine','img'=>$assetBase . '/images/contact.jpg']
                 ];
             }
             foreach ($responsables as $r):
@@ -151,14 +82,15 @@ function playRadio(){
                     $imgUrl = $assetBase . '/images/contact.jpg';
                 }
             ?>
-            <div class="team-card" data-name="<?php echo htmlspecialchars($r['name'] ?? '') ?>" data-role="<?php echo htmlspecialchars($r['role'] ?? '') ?>" data-phone="<?php echo htmlspecialchars($r['phone'] ?? '') ?>" data-whatsapp="<?php echo htmlspecialchars($r['whatsapp'] ?? '') ?>" data-facebook="<?php echo htmlspecialchars($r['facebook'] ?? '') ?>" data-instagram="<?php echo htmlspecialchars($r['instagram'] ?? '') ?>" data-img="<?php echo htmlspecialchars($imgUrl) ?>">
+            <div class="team-card" data-name="<?php echo htmlspecialchars($r['name'] ?? '') ?>" data-role="<?php echo htmlspecialchars($r['role'] ?? '') ?>" data-phone="<?php echo htmlspecialchars($r['phone'] ?? '') ?>" data-whatsapp="<?php echo htmlspecialchars($r['whatsapp'] ?? '') ?>" data-facebook="<?php echo htmlspecialchars($r['facebook'] ?? '') ?>" data-instagram="<?php echo htmlspecialchars($r['instagram'] ?? '') ?>" data-email="<?php echo htmlspecialchars($r['email'] ?? '') ?>" data-img="<?php echo htmlspecialchars($imgUrl) ?>">
                 <img src="<?php echo htmlspecialchars($imgUrl); ?>" alt="Responsable" class="team-avatar">
                 <div class="team-info">
                     <div class="team-name"><?php echo htmlspecialchars($r['name'] ?? ''); ?></div>
                     <div class="team-role"><?php echo htmlspecialchars($r['role'] ?? ''); ?></div>
                     <div class="team-contacts">
-                        <?php if (!empty($r['phone'])): ?><a href="tel:<?php echo htmlspecialchars($r['phone']); ?>"><?php echo htmlspecialchars($r['phone']); ?></a><?php endif; ?>
-                        <?php if (!empty($r['whatsapp'])): ?><a href="https://wa.me/<?php echo htmlspecialchars($r['whatsapp']); ?>" target="_blank" rel="noopener">WhatsApp</a><?php endif; ?>
+                        <?php if (!empty($r['phone'])): ?><a href="tel:<?php echo htmlspecialchars($r['phone']); ?>" title="Téléphone"><i class="fas fa-phone"></i> <?php echo htmlspecialchars($r['phone']); ?></a><?php endif; ?>
+                        <?php if (!empty($r['whatsapp'])): ?><a href="https://wa.me/<?php echo htmlspecialchars($r['whatsapp']); ?>" target="_blank" rel="noopener" title="WhatsApp"><i class="fab fa-whatsapp"></i></a><?php endif; ?>
+                        <?php if (!empty($r['email'])): ?><a href="mailto:<?php echo htmlspecialchars($r['email']); ?>" title="Email"><i class="fas fa-envelope"></i></a><?php endif; ?>
                     </div>
                     <div class="team-socials">
                         <?php if (!empty($r['facebook'])): ?><a href="<?php echo htmlspecialchars($r['facebook']); ?>" target="_blank" rel="noopener"><i class="fab fa-facebook-f"></i></a><?php endif; ?>
@@ -171,15 +103,18 @@ function playRadio(){
 
         <!-- Contact card placed below responsables -->
         <div style="max-width:1100px;margin:18px auto 60px;padding:0 18px;">
-            <div class="contact-card" style="margin-top:18px;display:flex;gap:12px;align-items:center;">
+            <div class="contact-card" data-name="Contact central" data-phone="+261341234567" data-whatsapp="261341234567" data-email="contact@natiora.mg" data-facebook="https://facebook.com/natiora" data-instagram="https://instagram.com/natiora" data-img="<?php echo htmlspecialchars($assetBase); ?>/images/contact.jpg">
                 <img src="<?php echo htmlspecialchars($assetBase); ?>/images/contact.jpg" alt="Contact Natiora" class="contact-img" style="width:120px;height:120px;border-radius:12px;object-fit:cover;">
                 <div class="contact-details" style="text-align:left;">
                     <div class="contact-title">Contact central</div>
                     <div class="contact-line">Tel: <a href="tel:+261341234567">+261 34 12 34 567</a></div>
-                    <div class="contact-line">WhatsApp: <a href="https://wa.me/261341234567" target="_blank" rel="noopener">+261 34 12 34 567</a></div>
+                    <div class="contact-line">
+                        <a href="https://wa.me/261341234567" target="_blank" rel="noopener" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                        <a href="mailto:contact@natiora.mg" title="Email"><i class="fas fa-envelope"></i></a>
+                    </div>
                     <div class="contact-socials" style="margin-top:8px;">
-                        <a href="https://facebook.com/natiora" target="_blank" rel="noopener" class="social">Facebook</a>
-                        <a href="https://instagram.com/natiora" target="_blank" rel="noopener" class="social">Instagram</a>
+                        <a href="https://facebook.com/natiora" target="_blank" rel="noopener" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="https://instagram.com/natiora" target="_blank" rel="noopener" title="Instagram"><i class="fab fa-instagram"></i></a>
                     </div>
                 </div>
             </div>
@@ -196,6 +131,7 @@ function playRadio(){
                         <div id="teamModalRole" style="margin-bottom:10px;opacity:0.9"></div>
                         <div id="teamModalPhone" style="margin-bottom:8px"></div>
                         <div id="teamModalWhats" style="margin-bottom:8px"></div>
+                        <div id="teamModalEmail" style="margin-bottom:8px"></div>
                         <div id="teamModalSocials" style="display:flex;gap:8px"></div>
                     </div>
                 </div>
@@ -205,48 +141,107 @@ function playRadio(){
     </div>
 </section>
 
+<style>
+@media (max-width: 768px) {
+    .team-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 18px;
+    }
+}
+.player-modal-content {
+    max-width: 600px;
+    width: 90%;
+}
+/* Modal styles */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.7);
+    display: none;
+    z-index: 1200;
+    align-items: center;
+    justify-content: center;
+}
+.modal.show {
+    display: flex;
+}
+.modal-content {
+    background: var(--card);
+    color: var(--text);
+    padding: 20px;
+    border-radius: 12px;
+    max-width: 500px;
+    width: 90%;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+.modal .close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 1.5em;
+    color: var(--text);
+    cursor: pointer;
+    opacity: 0.7;
+}
+.modal .close:hover {
+    opacity: 1;
+}
+</style>
+
 <script>
 document.addEventListener('DOMContentLoaded', function(){
-    const modal = document.getElementById('teamModal');
-    const closeBtn = document.getElementById('teamModalClose');
-    const img = document.getElementById('teamModalImg');
-    const title = document.getElementById('teamModalTitle');
-    const role = document.getElementById('teamModalRole');
-    const phone = document.getElementById('teamModalPhone');
-    const whats = document.getElementById('teamModalWhats');
-    const socials = document.getElementById('teamModalSocials');
+    // Existing team modal code
+    const teamModal = document.getElementById('teamModal');
+    const teamCloseBtn = document.getElementById('teamModalClose');
+    const teamImg = document.getElementById('teamModalImg');
+    const teamTitle = document.getElementById('teamModalTitle');
+    const teamRole = document.getElementById('teamModalRole');
+    const teamPhone = document.getElementById('teamModalPhone');
+    const teamWhats = document.getElementById('teamModalWhats');
+    const teamEmail = document.getElementById('teamModalEmail');
+    const teamSocials = document.getElementById('teamModalSocials');
 
-    function openModal(data){
-        img.src = data.img || '<?php echo htmlspecialchars($assetBase); ?>/images/contact.jpg';
-        title.textContent = data.name || '';
-        role.textContent = data.role || '';
-        phone.innerHTML = data.phone ? ('Tel: <a href="tel:'+data.phone+'">'+data.phone+'</a>') : '';
-        whats.innerHTML = data.whatsapp ? ('WhatsApp: <a href="https://wa.me/'+data.whatsapp+'" target="_blank" rel="noopener">'+data.whatsapp+'</a>') : '';
-        socials.innerHTML = '';
-        if (data.facebook) { const a = document.createElement('a'); a.href = data.facebook; a.target='_blank'; a.rel='noopener'; a.innerHTML = '<i class="fab fa-facebook-f"></i>'; socials.appendChild(a); }
-        if (data.instagram) { const a = document.createElement('a'); a.href = data.instagram; a.target='_blank'; a.rel='noopener'; a.innerHTML = '<i class="fab fa-instagram"></i>'; socials.appendChild(a); }
-        modal.classList.add('show'); modal.setAttribute('aria-hidden','false');
+    function openTeamModal(data){
+        teamImg.src = data.img || '<?php echo htmlspecialchars($assetBase); ?>/images/contact.jpg';
+        teamTitle.textContent = data.name || '';
+        teamRole.textContent = data.role || '';
+        teamRole.style.display = data.role ? 'block' : 'none';
+        teamPhone.innerHTML = data.phone ? ('Tel: <a href="tel:'+data.phone+'" title="Téléphone"><i class="fas fa-phone"></i> '+data.phone+'</a>') : '';
+        teamWhats.innerHTML = data.whatsapp ? ('<a href="https://wa.me/'+data.whatsapp+'" target="_blank" rel="noopener" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>') : '';
+        teamEmail.innerHTML = data.email ? ('<a href="mailto:'+data.email+'" title="Email"><i class="fas fa-envelope"></i></a>') : '';
+        teamSocials.innerHTML = '';
+        if (data.facebook) { const a = document.createElement('a'); a.href = data.facebook; a.target='_blank'; a.rel='noopener'; a.innerHTML = '<i class="fab fa-facebook-f"></i>'; teamSocials.appendChild(a); }
+        if (data.instagram) { const a = document.createElement('a'); a.href = data.instagram; a.target='_blank'; a.rel='noopener'; a.innerHTML = '<i class="fab fa-instagram"></i>'; teamSocials.appendChild(a); }
+        teamModal.classList.add('show'); teamModal.setAttribute('aria-hidden','false');
     }
-    function closeModal(){ modal.classList.remove('show'); modal.setAttribute('aria-hidden','true'); }
+    function closeTeamModal(){ teamModal.classList.remove('show'); teamModal.setAttribute('aria-hidden','true'); }
 
-    document.querySelectorAll('.team-card').forEach(function(card){
+    document.querySelectorAll('.team-card, .contact-card').forEach(function(card){
         card.addEventListener('click', function(){
             const data = {
                 name: card.dataset.name,
-                role: card.dataset.role,
+                role: card.dataset.role || '', // for contact central, no role
                 phone: card.dataset.phone,
                 whatsapp: card.dataset.whatsapp,
+                email: card.dataset.email,
                 facebook: card.dataset.facebook,
                 instagram: card.dataset.instagram,
                 img: card.dataset.img
             };
-            openModal(data);
+            openTeamModal(data);
         });
     });
 
-    closeBtn.addEventListener('click', closeModal);
-    modal.addEventListener('click', function(e){ if (e.target === modal) closeModal(); });
-    document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeModal(); });
+    teamCloseBtn.addEventListener('click', closeTeamModal);
+    teamModal.addEventListener('click', function(e){ if (e.target === teamModal) closeTeamModal(); });
+    document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeTeamModal(); });
 });
 </script>
     // Play handling is delegated to /assets/js/radio-player.js to avoid duplicate listeners

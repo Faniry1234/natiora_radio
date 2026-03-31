@@ -172,11 +172,18 @@ document.addEventListener('DOMContentLoaded', function(){
     function tryProxyFallback(src, player) {
         try {
             if (!src) return;
-            // We no longer proxy on the server side. As a fallback, open the
-            // upstream stream in a new tab so the browser can handle it directly.
-            console.info('Direct play failed — opening stream in new tab', src);
-            try { window.open(src, '_blank'); } catch (e) { console.warn('Failed to open stream in new tab', e); }
-            try { if (player && player.dataset) player.dataset._proxied = '0'; } catch(e){}
+            var proxyUrl = '/radio.php?src=' + encodeURIComponent(src);
+            player.pause();
+            try { player.removeAttribute('src'); } catch(e){}
+            player.innerHTML = '';
+            player.crossOrigin = 'anonymous';
+            player.src = proxyUrl;
+            player.dataset._proxied = '1';
+            try { player.load(); } catch(e){}
+            player.play().then(function(){ setHistoryStatus('Lecture via proxy'); }).catch(function(err){
+                console.warn('Proxy playback failed', err);
+                setHistoryStatus('Erreur lecture');
+            });
         } catch(e){ console.error('tryProxyFallback error', e); }
     }
 
@@ -345,14 +352,9 @@ document.addEventListener('DOMContentLoaded', function(){
             historyPlayer.innerHTML = '';
             historyPlayer.crossOrigin = 'anonymous';
             historyPlayer.dataset._proxied = '0';
-            historyPlayer.src = abs;
-            try { historyPlayer.load(); } catch(ex){ /* ignore */ }
+            // Instead of direct src, always use proxy for playlists
+            tryProxyFallback(src, historyPlayer);
             if (historyContainer) historyContainer.style.display = 'block'; else historyPlayer.style.display = 'block';
-            historyPlayer.play().then(function(){ setHistoryStatus('Lecture: ' + abs); }).catch(function(err){
-                console.warn('history play failed, attempting proxy', err);
-                setHistoryStatus('Lecture bloquée — tentative via proxy');
-                tryProxyFallback(src, historyPlayer);
-            });
             if (historyContainer) historyContainer.scrollIntoView({behavior:'smooth', block:'center'});
         } catch (err) { console.warn(err); setHistoryStatus('Erreur lecture'); }
     }

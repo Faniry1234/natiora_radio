@@ -8,19 +8,41 @@ set_time_limit(0);
 @ini_set('zlib.output_compression', '0');
 @ignore_user_abort(true);
 // Upstream host (IP:port) - set to the public listen2myradio mount
-$UPSTREAM_BASE = 'https://uk24freenew.listen2myradio.com';
-
-// Allow full upstream URL via ?src= for proxying arbitrary remote streams (used as CORS fallback)
+$UPSTREAM_BASE = 'http://p.onlineradiobox.com/mg/natiora/player/?cs=mg.natiora&played=1';
 // Otherwise use the configured upstream base + mount parameter (default to the live mount)
 $upstream = '';
-if (isset($_GET['src']) && filter_var($_GET['src'], FILTER_VALIDATE_URL)) {
-    $upstream = $_GET['src'];
-} else {
+if (isset($_GET['src'])) {
+    $src = $_GET['src'];
+    if (filter_var($src, FILTER_VALIDATE_URL) || strpos($src, '/') === 0) {
+        $upstream = $src;
+    }
+}
+if (!$upstream) {
     // Get requested mount (default to the new live mount)
     $mount = isset($_GET['mount']) && $_GET['mount'] !== '' ? $_GET['mount'] : '/live.mp3?typeportmount=s1_26912_stream_657428790';
     // Ensure mount begins with /
     if ($mount[0] !== '/') { $mount = '/' . $mount; }
     $upstream = $UPSTREAM_BASE . $mount;
+}
+
+// Handle local files
+if (strpos($upstream, '/') === 0) {
+    $localPath = realpath(__DIR__ . '/public' . $upstream);
+    if ($localPath && file_exists($localPath) && strpos($localPath, realpath(__DIR__ . '/public') . DIRECTORY_SEPARATOR) === 0) {
+        $ext = strtolower(pathinfo($localPath, PATHINFO_EXTENSION));
+        $mime = 'application/octet-stream';
+        if ($ext === 'mp3') $mime = 'audio/mpeg';
+        elseif ($ext === 'wav') $mime = 'audio/wav';
+        elseif ($ext === 'ogg') $mime = 'audio/ogg';
+        elseif ($ext === 'm4a') $mime = 'audio/mp4';
+        header('Content-Type: ' . $mime);
+        header('Content-Length: ' . filesize($localPath));
+        readfile($localPath);
+        exit;
+    } else {
+        http_response_code(404);
+        exit;
+    }
 }
 
 // Quick detection for MP3 live mounts so we can force streaming headers for clients

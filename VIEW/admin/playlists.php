@@ -950,7 +950,7 @@ foreach ($playlists as $pl) {
                                     <h3 class="playlist-title-view">
                                         <i class="fas fa-music"></i> <?php echo htmlspecialchars($pl['title']); ?>
                                     </h3>
-                                    <?php if (!empty($pl['desc'] || $pl['description'])): ?>
+                                    <?php if (!empty($pl['desc'] ?? $pl['description'])): ?>
                                         <p class="playlist-desc-view">
                                             <?php echo htmlspecialchars($pl['desc'] ?? $pl['description']); ?>
                                         </p>

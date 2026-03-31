@@ -56,7 +56,7 @@ try {
                                 <?php
                                     $isUnread = ($m['is_read'] == 0);
                                     $name = $m['sender_name'] ?? ('User ' . ($m['sender_id'] ?? '?'));
-                                    $avatarText = $m['sender_name'] ? implode('', array_slice(array_map(function($p){return $p[0];}, explode(' ', $m['sender_name'])),0,2)) : (isset($m['sender_email']) ? strtoupper($m['sender_email'][0]) : '?');
+                                    $avatarText = !empty($m['sender_name']) ? implode('', array_slice(array_map(function($p){return $p[0];}, explode(' ', $m['sender_name'])),0,2)) : (!empty($m['sender_email']) ? strtoupper($m['sender_email'][0]) : '?');
                                     $created = $m['created_at'] ?? '';
                                 ?>
                                 <div class="admin-message-item<?php echo $isUnread ? ' unread' : ''; ?>" data-id="<?php echo (int)$m['id']; ?>">
@@ -183,13 +183,13 @@ try {
 .chat-wrap.left{ justify-content:flex-start }
 .chat-wrap.right{ justify-content:flex-end }
 .chat-bubble{ max-width:85%; padding:10px 14px; border-radius:14px; position:relative; box-shadow:0 2px 10px rgba(12,14,20,0.06); white-space:pre-wrap }
-.chat-bubble.user{ background:#f6f8fa; color:#111; border:1px solid rgba(15,23,36,0.04) }
-.chat-bubble.admin{ background:linear-gradient(90deg,#667eea,#764ba2); color:#fff }
-.chat-bubble .ts{ display:block; font-size:0.75em; margin-top:8px; opacity:0.8; text-align:right; color:rgba(255,255,255,0.85) }
+.chat-bubble.user{ background:linear-gradient(90deg,#2c3e50,#34495e); color:#111; border:1px solid rgba(44,62,80,0.3) }
+.chat-bubble.admin{ background:linear-gradient(90deg,#2c3e50,#34495e); color:#111 }
+.chat-bubble .ts{ display:block; font-size:0.75em; margin-top:8px; opacity:0.8; text-align:right; color:rgba(0,0,0,0.85) }
 /* tail for bubbles */
 .chat-bubble::after{ content:''; position:absolute; bottom:8px; width:12px; height:12px; transform:rotate(45deg); }
-.chat-wrap.left .chat-bubble::after{ left:-6px; background:#f6f8fa; border-left:1px solid rgba(15,23,36,0.04); border-bottom:1px solid rgba(15,23,36,0.04) }
-.chat-wrap.right .chat-bubble::after{ right:-6px; background:linear-gradient(90deg,#667eea,#764ba2); box-shadow:none }
+.chat-wrap.left .chat-bubble::after{ left:-6px; background:linear-gradient(90deg,#2c3e50,#34495e); border-left:1px solid rgba(44,62,80,0.3); border-bottom:1px solid rgba(44,62,80,0.3) }
+.chat-wrap.right .chat-bubble::after{ right:-6px; background:linear-gradient(90deg,#2c3e50,#34495e); box-shadow:none }
 
 /* Chat animations */
 @keyframes slideUpFade {
@@ -347,6 +347,18 @@ function renderAdminMessages(list){
         return;
     }
     list.forEach((m, idx) => {
+        // Validate and sanitize message data
+        if (!m || typeof m !== 'object') {
+            console.warn('Invalid message at index', idx, m);
+            return; // Skip invalid messages
+        }
+
+        // Sanitize text fields to prevent HTML injection but keep readable characters
+        const safeSubject = (m.subject || '').toString().replace(/[<>]/g, '').substring(0, 100);
+        const safeBody = (m.body || '').toString().replace(/[<>]/g, '').substring(0, 200);
+        const safeSenderName = (m.sender_name || '').toString().replace(/[<>]/g, '').substring(0, 50);
+        const safeSenderEmail = (m.sender_email || '').toString().replace(/[<>]/g, '').substring(0, 100);
+
         const el = document.createElement('div');
         el.className = 'admin-message-item' + (m.is_read == 0 ? ' unread' : '');
         // animate in with a slight stagger
@@ -362,9 +374,9 @@ function renderAdminMessages(list){
             var borderClr = 'hsl(' + hue + ' 72% 44%)';
             el.style.setProperty('--admin-border', borderClr);
         }catch(e){}
-        const name = m.sender_name || ('User ' + (m.sender_id || '?'));
+        const name = safeSenderName || ('User ' + (m.sender_id || '?'));
         const nameWithId = name + ' (id:' + (m.sender_id || '') + ')';
-        const avatarText = (m.sender_name ? m.sender_name.split(' ').map(p=>p[0]).slice(0,2).join('') : (m.sender_email ? m.sender_email[0].toUpperCase() : '?'));
+        const avatarText = (safeSenderName ? safeSenderName.split(' ').map(p=>p[0]).slice(0,2).join('') : (safeSenderEmail ? safeSenderEmail[0].toUpperCase() : '?'));
         // format date
         let timeText = '';
         try{ timeText = m.created_at ? (new Date(m.created_at).toLocaleString()) : ''; }catch(e){ timeText = m.created_at || ''; }
@@ -378,13 +390,71 @@ function renderAdminMessages(list){
                 ctxHtml = '<div style="font-size:0.8em;color:#777;margin-top:6px">Contexte: <a href="'+link+'" style="color:var(--muted)">'+ (m.context_type + (m.context_id ? (' #' + m.context_id) : '')) + '</a></div>';
             }
         }catch(e){ console.error(e); }
-        el.innerHTML = '<div style="display:flex;gap:12px;align-items:flex-start"><div class="avatar">' + avatarText + '</div><div class="meta"><div class="row"><div class="subject">' + (m.subject||'Sans sujet') + '</div><div class="time">' + timeText + '</div></div><div class="snippet">' + (m.body||'') + '</div><div style="font-size:0.8em;color:#888;margin-top:8px">From: ' + nameWithId + '</div>' + ctxHtml + '</div></div>';
+        // Create DOM elements instead of using innerHTML to avoid encoding issues
+        const container = document.createElement('div');
+        container.style.display = 'flex';
+        container.style.gap = '12px';
+        container.style.alignItems = 'flex-start';
+
+        const avatar = document.createElement('div');
+        avatar.className = 'avatar';
+        avatar.textContent = avatarText;
+
+        const meta = document.createElement('div');
+        meta.className = 'meta';
+
+        const row = document.createElement('div');
+        row.className = 'row';
+
+        const subject = document.createElement('div');
+        subject.className = 'subject';
+        subject.textContent = safeSubject;
+
+        const time = document.createElement('div');
+        time.className = 'time';
+        time.textContent = timeText;
+
+        const snippet = document.createElement('div');
+        snippet.className = 'snippet';
+        snippet.textContent = safeBody;
+
+        const from = document.createElement('div');
+        from.style.fontSize = '0.8em';
+        from.style.color = '#888';
+        from.style.marginTop = '8px';
+        from.textContent = 'From: ' + nameWithId;
+
+        row.appendChild(subject);
+        row.appendChild(time);
+        meta.appendChild(row);
+        meta.appendChild(snippet);
+        meta.appendChild(from);
+
+        if (ctxHtml) {
+            const ctxDiv = document.createElement('div');
+            ctxDiv.innerHTML = ctxHtml; // ctxHtml is already sanitized
+            meta.appendChild(ctxDiv);
+        }
+
+        container.appendChild(avatar);
+        container.appendChild(meta);
+        el.appendChild(container);
         el.addEventListener('click', function(){ showMessageDetail(m, el); });
         c.appendChild(el);
     });
 }
 
 async function showMessageDetail(m, el){
+    // Validate and sanitize message data
+    if (!m || typeof m !== 'object') {
+        console.warn('Invalid message for detail view', m);
+        return;
+    }
+
+    // Sanitize text fields
+    const safeSubject = (m.subject || '').toString().replace(/[<>]/g, '').substring(0, 200);
+    const safeSenderEmail = (m.sender_email || '').toString().replace(/[<>]/g, '').substring(0, 100);
+
     currentMessage = m;
     const empty = document.getElementById('detail-empty');
     const cont = document.getElementById('detail-content');
@@ -400,10 +470,10 @@ async function showMessageDetail(m, el){
     }).sort((a,b)=> new Date(a.created_at) - new Date(b.created_at));
 
     // header
-    document.getElementById('detail-subject').textContent = m.subject || 'Conversation';
+    document.getElementById('detail-subject').textContent = safeSubject || 'Conversation';
     let createdText = m.created_at || '';
     try{ createdText = m.created_at ? (new Date(m.created_at).toLocaleString()) : createdText; }catch(e){}
-    document.getElementById('detail-meta').textContent = (m.sender_email? m.sender_email + ' • ' : '') + createdText;
+    document.getElementById('detail-meta').textContent = (safeSenderEmail ? safeSenderEmail + ' • ' : '') + createdText;
 
     // render thread as chat bubbles
     const bodyEl = document.getElementById('detail-body');
@@ -411,6 +481,11 @@ async function showMessageDetail(m, el){
     bodyEl.style.flexDirection = 'column';
     bodyEl.innerHTML = '';
     thread.forEach((msg, tindex) => {
+        // Sanitize message content
+        const safeMsgBody = (msg.body || '').toString().replace(/[<>]/g, '').substring(0, 2000);
+        const safeSenderName = (msg.sender_name || '').toString().replace(/[<>]/g, '').substring(0, 50);
+        const safeSenderEmail = (msg.sender_email || '').toString().replace(/[<>]/g, '').substring(0, 100);
+
         const isAdmin = (parseInt(msg.sender_id||0,10) === adminId);
         const wrapper = document.createElement('div');
         wrapper.className = 'chat-wrap ' + (isAdmin ? 'right' : 'left');
@@ -420,14 +495,29 @@ async function showMessageDetail(m, el){
         bubble.classList.add('animate-pop');
         bubble.style.animationDelay = (tindex * 60) + 'ms';
         const dateTxt = msg.created_at ? (new Date(msg.created_at).toLocaleString()) : '';
-        const senderLabel = isAdmin ? 'Vous' : ((msg.sender_name || msg.sender_email || ('User '+msg.sender_id)) + ' (id:' + (msg.sender_id||'') + ')');
-        bubble.innerHTML = '<div style="font-weight:600;margin-bottom:6px">' + senderLabel + '</div><div>' + (msg.body || '') + '</div><span class="ts">' + dateTxt + '</span>';
+        const senderLabel = isAdmin ? 'Vous' : ((safeSenderName || safeSenderEmail || ('User '+msg.sender_id)) + ' (id:' + (msg.sender_id||'') + ')');
+        // Create bubble content using DOM elements instead of innerHTML
+        const senderDiv = document.createElement('div');
+        senderDiv.style.fontWeight = '600';
+        senderDiv.style.marginBottom = '6px';
+        senderDiv.textContent = senderLabel;
+
+        const bodyDiv = document.createElement('div');
+        bodyDiv.textContent = safeMsgBody;
+
+        const timeSpan = document.createElement('span');
+        timeSpan.className = 'ts';
+        timeSpan.textContent = dateTxt;
+
+        bubble.appendChild(senderDiv);
+        bubble.appendChild(bodyDiv);
+        bubble.appendChild(timeSpan);
         wrapper.appendChild(bubble);
         bodyEl.appendChild(wrapper);
     });
 
     document.getElementById('reply-recipient').value = counterpart || '';
-    document.getElementById('reply-subject').value = 'Re: ' + (m.subject || '');
+    document.getElementById('reply-subject').value = 'Re: ' + safeSubject;
     document.getElementById('reply-body').value = '';
 
     // mark as read if unread

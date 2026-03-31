@@ -41,7 +41,7 @@ if ($base === '/' || $base === '\\') $base = '';
     <meta charset="UTF-8">
     <title><?= isset($pageTitle) ? $pageTitle : 'Natiora_Radio_98.2' ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="<?php echo htmlspecialchars($assetBase); ?>/fontawesome/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
     <?php
     // Determine correct public asset path so CSS loads whether the server
     // has DocumentRoot set to project root or to the `public/` folder.
@@ -103,6 +103,7 @@ if ($base === '/' || $base === '\\') $base = '';
                 <img src="<?php echo htmlspecialchars($assetBase); ?>/images/LOGO%20RADIO.jpg" alt="Natiora Logo" class="logo">
                 <h1>Natiora Radio <span>98.2</span></h1>
             </div>
+            <div id="madagascar-clock" style="font-size:0.9em; color:#fff; margin-left:20px; font-weight:600; background: rgba(255,255,255,0.1); padding: 8px 12px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; gap: 6px;"></div>
             <nav class="main-nav" aria-label="Main navigation">
                 <a href="<?php echo $base; ?>/index.php?route=home" class="nav-btn">Accueil</a>
                 <a href="<?php echo $base; ?>/index.php?route=playlistes" class="nav-btn">Playlists</a>
@@ -229,9 +230,18 @@ if ($base === '/' || $base === '\\') $base = '';
 
     <!-- Footer -->
     <footer>
-        <p>© 2026 Natiora Radio 98.2 - created by Faniry Rabearisoa
-           
-        </p>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 15px; padding: 20px; flex-wrap: wrap;">
+            <img src="<?php echo htmlspecialchars($assetBase); ?>/images/creator.jpg" alt="Faniry Rabearisoa" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent);">
+            <div style="text-align: center;">
+                <p style="margin: 0; font-weight: 600; color: var(--text);">Créé par Faniry Rabearisoa</p>
+                <p style="margin: 5px 0 0 0; color: var(--muted); font-size: 0.9em;">© 2026 Natiora Radio 98.2</p>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <a href="https://instagram.com/faniry" target="_blank" rel="noopener" style="color: var(--accent); font-size: 1.2em;" title="Instagram"><i class="fab fa-instagram"></i></a>
+                <a href="https://facebook.com/faniry" target="_blank" rel="noopener" style="color: var(--accent); font-size: 1.2em;" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="mailto:faniry@natiora.mg" style="color: var(--accent); font-size: 1.2em;" title="Email"><i class="fas fa-envelope"></i></a>
+            </div>
+        </div>
     </footer>
 
     <!-- Login Modal -->
@@ -416,6 +426,20 @@ if ($base === '/' || $base === '\\') $base = '';
                 setInterval(updateMessagesBadge, 15000);
             }
         })();
+
+        // Madagascar clock
+        function updateMadagascarClock() {
+            const now = new Date();
+            const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+            const madagascarTime = new Date(utc + (3 * 3600000)); // UTC+3
+            const timeString = madagascarTime.toLocaleTimeString('fr-MG', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const clockEl = document.getElementById('madagascar-clock');
+            if (clockEl) {
+                clockEl.textContent = '🇲🇬 ' + timeString;
+            }
+        }
+        updateMadagascarClock();
+        setInterval(updateMadagascarClock, 1000);
     </script>
     <style>
         /* Theme variables: .theme-dark and .theme-light on <body> control colors */

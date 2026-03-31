@@ -234,4 +234,7 @@ $bg = $base . '/assets/images/playliste1.jpg';
         })();
     </script>
 
+    <!-- Container for history player -->
+    <div id="history-player-container" style="display:none; margin-top:20px; text-align:center;"></div>
+
 </section>
