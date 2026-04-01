@@ -724,6 +724,13 @@ if ((defined('DEBUG_ADMIN') && DEBUG_ADMIN) || (defined('DEV_ADMIN') && DEV_ADMI
                 <p>Consulter l'historique des actions des utilisateurs</p>
                 <a href="<?php echo $base; ?>/index.php?route=admin/historiques"><i class="fas fa-arrow-right"></i> Consulter</a>
             </div>
+
+            <div class="menu-card">
+                <div class="icon"><i class="fas fa-users"></i></div>
+                <h3>Responsables</h3>
+                <p>Gérer les responsables et leurs informations de contact</p>
+                <a href="<?php echo $base; ?>/index.php?route=admin/team"><i class="fas fa-arrow-right"></i> Gérer</a>
+            </div>
         </div>
 
         <!-- RECENT / QUICK MANAGEMENT -->

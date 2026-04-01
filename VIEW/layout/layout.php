@@ -237,8 +237,8 @@ if ($base === '/' || $base === '\\') $base = '';
                 <p style="margin: 5px 0 0 0; color: var(--muted); font-size: 0.9em;">© 2026 Natiora Radio 98.2</p>
             </div>
             <div style="display: flex; gap: 10px;">
+                <a href="https://facebook.com/profile.php?id=61587733689750" target="_blank" rel="noopener" style="color: var(--accent); font-size: 1.2em;" title="Facebook"><i class="fab fa-facebook-f"></i></a>
                 <a href="https://instagram.com/faniry" target="_blank" rel="noopener" style="color: var(--accent); font-size: 1.2em;" title="Instagram"><i class="fab fa-instagram"></i></a>
-                <a href="https://facebook.com/faniry" target="_blank" rel="noopener" style="color: var(--accent); font-size: 1.2em;" title="Facebook"><i class="fab fa-facebook-f"></i></a>
                 <a href="mailto:faniry@natiora.mg" style="color: var(--accent); font-size: 1.2em;" title="Email"><i class="fas fa-envelope"></i></a>
             </div>
         </div>

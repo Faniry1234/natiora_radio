@@ -4,11 +4,11 @@ define('REQUEST_START', microtime(true));
 session_start();
 
 // Quick static file handler for development when document-root is project root.
-// Serve any file under /public/ directory, except PHP and .htaccess for security.
+// Serve any file under /PUBLIC/ directory, except PHP and .htaccess for security.
 $reqPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 if ($reqPath && $reqPath !== '/' && !preg_match('/\.(php|htaccess)$/i', $reqPath)) {
-    $candidate = realpath(__DIR__ . '/public' . $reqPath);
-    if ($candidate && is_file($candidate) && strpos($candidate, realpath(__DIR__ . '/public') . DIRECTORY_SEPARATOR) === 0) {
+    $candidate = realpath(__DIR__ . '/PUBLIC' . $reqPath);
+    if ($candidate && is_file($candidate) && strpos($candidate, realpath(__DIR__ . '/PUBLIC') . DIRECTORY_SEPARATOR) === 0) {
         $mime = function_exists('mime_content_type') ? mime_content_type($candidate) : 'application/octet-stream';
         header('Content-Type: ' . $mime);
         header('Content-Length: ' . filesize($candidate));
@@ -66,6 +66,10 @@ switch($route){
     case 'admin/team':
         $admin = new AdminController();
         $admin->manageTeam();
+        break;
+    case 'admin/upload_image':
+        $admin = new AdminController();
+        $admin->uploadImage();
         break;
     case 'admin/playlists':
         $admin = new AdminController();

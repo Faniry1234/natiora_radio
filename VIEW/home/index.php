@@ -1,3 +1,47 @@
+<?php
+// Compute asset base for videos
+$projectRoot = realpath(__DIR__ . '/../../');
+$docRoot = isset($_SERVER['DOCUMENT_ROOT']) ? realpath($_SERVER['DOCUMENT_ROOT']) : false;
+$base = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\');
+if ($base === '/' || $base === '\\') $base = '';
+$assetBase = '/assets';
+if ($docRoot) {
+    if ($docRoot === $projectRoot) {
+        $assetBase = '/public/assets';
+    } elseif ($docRoot === $projectRoot . DIRECTORY_SEPARATOR . 'public') {
+        $assetBase = '/assets';
+    }
+} else {
+    if (file_exists($projectRoot . '/public/assets')) {
+        $assetBase = '/public/assets';
+    }
+}
+
+// Function to get list of videos
+function getVideosList($assetBase) {
+    $videosDir = __DIR__ . '/../../PUBLIC/assets/videos';
+    $videos = [];
+
+    if (is_dir($videosDir)) {
+        $files = scandir($videosDir);
+        foreach ($files as $file) {
+            if ($file !== '.' && $file !== '..' && pathinfo($file, PATHINFO_EXTENSION) === 'mp4') {
+                $videos[] = [
+                    'filename' => $file,
+                    'title' => urldecode(pathinfo($file, PATHINFO_FILENAME)),
+                    'url' => $assetBase . '/videos/' . rawurlencode($file)
+                ];
+            }
+        }
+    }
+
+    return $videos;
+}
+
+// Get videos for display
+$videos = getVideosList($assetBase);
+?>
+
 <section id="home" class="player">
     <div class="home-hero">
         <div class="hero-left">
@@ -60,7 +104,7 @@ function playRadio(){
             if (empty($responsables)) {
                 $responsables = [
                     ['name'=>'Mr Hossea','role'=>'Responsable programmation','phone'=>'+261386363474','whatsapp'=>'261386363474','email'=>'hossea@natiora.mg','facebook'=>'https://facebook.com/rakoto','instagram'=>'https://instagram.com/rakoto','img'=>$assetBase . '/images/contact.jpg'],
-                    ['name'=>'Rasoa Lala','role'=>'Responsable communication','phone'=>'+261339876543','whatsapp'=>'261339876543','email'=>'rasoa@natiora.mg','facebook'=>'https://facebook.com/rasoa','instagram'=>'https://instagram.com/rasoa','img'=>$assetBase . '/images/contact.jpg'],
+                    ['name'=>'Mr Hossea','role'=>'Responsable communication','phone'=>'+261339876543','whatsapp'=>'261339876543','email'=>'rasoa@natiora.mg','facebook'=>'https://facebook.com/rasoa','instagram'=>'https://instagram.com/rasoa','img'=>$assetBase . '/images/contact.jpg'],
                     ['name'=>'Jeanine Mamy','role'=>'Responsable technique','phone'=>'+261327654321','whatsapp'=>'261327654321','email'=>'jeanine@natiora.mg','facebook'=>'https://facebook.com/jeanine','instagram'=>'https://instagram.com/jeanine','img'=>$assetBase . '/images/contact.jpg']
                 ];
             }
@@ -100,6 +144,41 @@ function playRadio(){
             </div>
             <?php endforeach; ?>
         </div>
+
+        <!-- Videos Section -->
+        <?php if (!empty($videos)): ?>
+        <section id="videos" style="margin-top:36px;">
+            <div class="videos-wrapper" style="max-width:1100px;margin:0 auto;padding:18px;">
+                <h3 style="color:#e6f9f6;margin-bottom:12px;font-size:1.35rem">Tutoriels Vidéo</h3>
+                <p style="color:rgba(230,249,246,0.85);margin-bottom:18px;">Découvrez nos tutoriels Photoshop et apprenez de nouvelles techniques créatives.</p>
+                <div class="videos-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px;">
+                    <?php foreach ($videos as $video): ?>
+                    <div class="video-card" style="background:rgba(255,255,255,0.05);border-radius:12px;padding:16px;border:1px solid rgba(255,255,255,0.1);">
+                        <div class="video-title" style="color:#e6f9f6;font-weight:600;margin-bottom:12px;font-size:1rem;">
+                            <?php echo htmlspecialchars($video['title']); ?>
+                        </div>
+                        <div class="video-player" style="position:relative;width:100%;height:200px;background:#000;border-radius:8px;overflow:hidden;">
+                            <video
+                                controls
+                                preload="metadata"
+                                style="width:100%;height:100%;object-fit:contain;"
+                                poster="<?php echo htmlspecialchars($assetBase); ?>/images/LOGO RADIO.jpg"
+                            >
+                                <source src="<?php echo htmlspecialchars($video['url']); ?>" type="video/mp4">
+                                Votre navigateur ne supporte pas la lecture de vidéos.
+                            </video>
+                        </div>
+                        <div class="video-actions" style="margin-top:12px;text-align:center;">
+                            <a href="<?php echo htmlspecialchars($video['url']); ?>" target="_blank" class="btn-secondary" style="display:inline-block;padding:8px 16px;background:rgba(255,255,255,0.1);color:#e6f9f6;text-decoration:none;border-radius:6px;font-size:0.9rem;">
+                                <i class="fas fa-external-link-alt"></i> Ouvrir en plein écran
+                            </a>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </section>
+        <?php endif; ?>
 
         <!-- Contact card placed below responsables -->
         <div style="max-width:1100px;margin:18px auto 60px;padding:0 18px;">

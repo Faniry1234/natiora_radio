@@ -486,6 +486,9 @@ if ((defined('DEBUG_ADMIN') && DEBUG_ADMIN) || (defined('DEV_ADMIN') && DEV_ADMI
                 <button class="tab-btn <?php echo isset($_GET['view']) && $_GET['view'] === 'list' ? 'active' : ''; ?>" onclick="switchView('list')">
                     <i class="fas fa-eye"></i> Voir tout
                 </button>
+                <button class="tab-btn <?php echo isset($_GET['view']) && $_GET['view'] === 'videos' ? 'active' : ''; ?>" onclick="switchView('videos')">
+                    <i class="fas fa-video"></i> Vidéos générales
+                </button>
             </div>
         </div>
 
@@ -502,6 +505,72 @@ if ((defined('DEBUG_ADMIN') && DEBUG_ADMIN) || (defined('DEV_ADMIN') && DEV_ADMI
         </div>
 
         <!-- CONTENT GRID -->
+        <?php if (isset($_GET['view']) && $_GET['view'] === 'videos'): ?>
+        <!-- VIDEOS GENERALES SECTION -->
+        <div class="videos-section" style="width: 100%;">
+            <div class="form-section" style="margin-bottom: 30px;">
+                <h2 class="section-title"><i class="fas fa-video"></i> Upload Vidéo Générale</h2>
+                <?php if (!empty($message)): ?>
+                    <div class="flash-message <?php echo $messageType; ?>">
+                        <i class="fas fa-<?php echo $messageType === 'success' ? 'check-circle' : 'exclamation-triangle'; ?>"></i>
+                        <?php echo htmlspecialchars($message); ?>
+                    </div>
+                <?php endif; ?>
+                <form method="POST" action="<?php echo $base; ?>/index.php?route=admin/emissions&view=videos" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="video">Sélectionner une vidéo</label>
+                        <input type="file" id="video" name="video" accept="video/*" required>
+                        <small style="color: #666; font-size: 0.85em;">Formats acceptés: MP4, AVI, MOV, WMV (max 100MB)</small>
+                    </div>
+                    <button type="submit" class="btn-submit">
+                        <i class="fas fa-upload"></i> Uploader la vidéo
+                    </button>
+                </form>
+            </div>
+
+            <div class="list-section">
+                <h2 class="section-title"><i class="fas fa-list"></i> Vidéos Générales (<?php echo count($videos ?? []); ?>)</h2>
+                <?php if (empty($videos)): ?>
+                    <div class="empty-state">
+                        <i class="fas fa-video-slash"></i>
+                        <p>Aucune vidéo générale trouvée.</p>
+                        <p>Les vidéos uploadées ici seront affichées sur la page d'accueil.</p>
+                    </div>
+                <?php else: ?>
+                    <div class="videos-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                        <?php foreach ($videos as $video): ?>
+                            <div class="video-card" style="background: rgba(255,255,255,0.05); border-radius: 8px; padding: 15px; border: 1px solid rgba(255,255,255,0.1);">
+                                <div class="video-preview" style="width: 100%; height: 150px; background: #000; border-radius: 4px; margin-bottom: 10px; overflow: hidden;">
+                                    <video controls style="width: 100%; height: 100%; object-fit: cover;">
+                                        <source src="<?php echo htmlspecialchars($assetBase . '/videos/' . rawurlencode($video['filename'])); ?>" type="video/mp4">
+                                        Votre navigateur ne supporte pas la lecture vidéo.
+                                    </video>
+                                </div>
+                                <div class="video-info" style="margin-bottom: 10px;">
+                                    <div style="color: #e6f9f6; font-weight: 600; margin-bottom: 5px;"><?php echo htmlspecialchars($video['title']); ?></div>
+                                    <div style="color: rgba(230,249,246,0.7); font-size: 0.85em;">
+                                        Taille: <?php echo number_format($video['size'] / 1024 / 1024, 1); ?> MB<br>
+                                        Upload: <?php echo htmlspecialchars($video['date']); ?>
+                                    </div>
+                                </div>
+                                <div class="video-actions" style="display: flex; gap: 10px;">
+                                    <a href="<?php echo htmlspecialchars($assetBase . '/videos/' . rawurlencode($video['filename'])); ?>" target="_blank" class="btn-action btn-edit" style="flex: 1; text-align: center; text-decoration: none;">
+                                        <i class="fas fa-external-link-alt"></i> Voir
+                                    </a>
+                                    <form method="POST" action="<?php echo $base; ?>/index.php?route=admin/emissions&view=videos" style="display: inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette vidéo ?')">
+                                        <input type="hidden" name="delete_video" value="<?php echo htmlspecialchars($video['filename']); ?>">
+                                        <button type="submit" class="btn-action btn-delete">
+                                            <i class="fas fa-trash"></i> Supprimer
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
+        <?php else: ?>
         <div class="content-grid">
             <!-- FORM SECTION -->
             <div class="form-section">
@@ -640,6 +709,7 @@ if ((defined('DEBUG_ADMIN') && DEBUG_ADMIN) || (defined('DEV_ADMIN') && DEV_ADMI
             </div>
         </div>
         <?php endif; // FIN MODE GESTION ?>
+        <?php endif; // FIN CONDITION VIDEOS ?>
 
         <?php if (isset($_GET['view']) && $_GET['view'] === 'list'): // MODE VUE ?>
         <!-- ALL EMISSIONS VIEW -->
@@ -819,6 +889,8 @@ if ((defined('DEBUG_ADMIN') && DEBUG_ADMIN) || (defined('DEV_ADMIN') && DEV_ADMI
     function switchView(view) {
         if (view === 'list') {
             window.location.href = BASE_URL + '/index.php?route=admin/emissions&view=list';
+        } else if (view === 'videos') {
+            window.location.href = BASE_URL + '/index.php?route=admin/emissions&view=videos';
         } else {
             window.location.href = BASE_URL + '/index.php?route=admin/emissions';
         }
