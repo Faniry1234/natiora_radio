@@ -1,202 +1,53 @@
 <?php
+
+namespace App\Controller;
+
+use App\Model\Database;
+use App\Model\Emissions;
+use App\Model\Playlists;
+use App\Model\User;
+
 class AdminController {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-?>}    }        echo "Files: " . implode(', ', array_slice($imageFiles, 0, 5)) . "\n";    if (!empty($imageFiles)) {    echo "Images in directory: " . count($imageFiles) . "\n";    });        return !in_array($file, ['.', '..']) && preg_match('/\.(jpg|jpeg|png|gif|webp)$/i', $file);    $imageFiles = array_filter($files, function($file) {    $files = scandir($uploadDir);if (is_dir($uploadDir)) {echo "Directory writable: " . (is_writable($uploadDir) ? 'YES' : 'NO') . "\n";echo "Directory exists: " . (is_dir($uploadDir) ? 'YES' : 'NO') . "\n";echo "Upload directory: $uploadDir\n";$uploadDir = __DIR__ . '/PUBLIC/assets/images/responsables/';echo "Testing image upload directory...\n";    private $user;
+    private $base;
     private $emissions;
     private $playlists;
-    private $base;
+    private $user;
 
-    public function __construct(){
-        if(!class_exists('Database')) require_once __DIR__ . '/../MODEL/Database.php';
-        if(!class_exists('User')) require_once __DIR__ . '/../MODEL/User.php';
-        if(!class_exists('Emissions')) require_once __DIR__ . '/../MODEL/Emissions.php';
-        if(!class_exists('Playlists')) require_once __DIR__ . '/../MODEL/Playlists.php';
-        
-        $this->user = new User();
+    public function __construct($base) {
+        $this->base = $base;
         $this->emissions = new Emissions();
         $this->playlists = new Playlists();
-        // Compute base URL (works if app is in a subfolder)
-        $this->base = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\');
-        if ($this->base === '/' || $this->base === '\\') $this->base = '';
-
-        // If PDO is not available, keep admin accessible but warn the user.
-        // Models will return empty datasets when no DB connection exists.
-        if (!Database::getInstance()->isPdo()) {
-            if (!isset($_SESSION)) session_start();
-            // If PHP fallback data files exist, present a non-blocking info message instead of an error
-            $dataDir = __DIR__ . '/../../DATA/';
-            $hasFallback = file_exists($dataDir . 'emissions.php') && file_exists($dataDir . 'playlists.php') && file_exists($dataDir . 'users.php');
-            if ($hasFallback) {
-                $_SESSION['flash'] = ['type' => 'info', 'msg' => 'Base de données non disponible — mode local activé (données PHP utilisées).'];
-            } else {
-                $_SESSION['flash'] = ['type' => 'error', 'msg' => 'Base de données non disponible. Certaines fonctionnalités peuvent être limitées.'];
-            }
-            // Do not redirect/exit: allow admin pages to render using fallbacks.
-        }
-
-        $this->checkAdmin();
-    }
-
-    private function checkAdmin(){
-        if (session_status() === PHP_SESSION_NONE) session_start();
-
-        // Developer bypass: controlled via DEV_ADMIN constant (set in APP/config.php or .env)
-        // When DEV_ADMIN is true the application will create a lightweight admin session
-        // for local development. This must be explicitly enabled in the environment.
-        if (defined('DEV_ADMIN') && DEV_ADMIN) {
-            $_SESSION['user_id'] = $_SESSION['user_id'] ?? 1;
-            $_SESSION['user_name'] = $_SESSION['user_name'] ?? 'Dev Admin';
-            $_SESSION['user_email'] = $_SESSION['user_email'] ?? 'dev@local';
-            $_SESSION['user_role'] = 'admin';
-            return;
-        }
-
-        if (!isset($_SESSION['user_id'])) {
-            $_SESSION['flash'] = ['type' => 'error', 'msg' => 'Accès refusé. Connexion requise.'];
-            header('Location: ' . (defined('BASE_URL') ? BASE_URL : $this->base) . '/index.php?route=auth/login');
-            exit;
-        }
-
-        // If the session already marks the user as admin, trust it (useful for local/dev flows)
-        if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') {
-            return;
-        }
-
-        $user = $this->user->findById($_SESSION['user_id']);
-        if (!$user || ($user['role'] ?? 'user') !== 'admin') {
-            $_SESSION['flash'] = ['type' => 'error', 'msg' => 'Accès refusé. Droits administrateur requis.'];
-            header('Location: ' . (defined('BASE_URL') ? BASE_URL : $this->base) . '/index.php');
-            exit;
-        }
+        $this->user = new User();
     }
 
     public function dashboard(){
-        // Handle user management actions from dashboard
-        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && isset($_POST['user_action'])) {
-            $ua = $_POST['user_action'];
-            $uid = (int)($_POST['user_id'] ?? 0);
-            if ($uid > 0) {
-                if ($ua === 'promote') {
-                    $this->user->update($uid, ['role' => 'admin']);
-                    $_SESSION['flash'] = ['type' => 'success', 'msg' => 'Utilisateur promu administrateur.'];
-                } elseif ($ua === 'demote') {
-                    $this->user->update($uid, ['role' => 'user']);
-                    $_SESSION['flash'] = ['type' => 'success', 'msg' => 'Utilisateur rétrogradé.'];
-                } elseif ($ua === 'delete') {
-                    if ($uid == ($_SESSION['user_id'] ?? 0)) {
-                        $_SESSION['flash'] = ['type' => 'error', 'msg' => 'Vous ne pouvez pas supprimer votre propre compte.'];
-                    } else {
-                        $this->user->delete($uid);
-                        $_SESSION['flash'] = ['type' => 'success', 'msg' => 'Utilisateur supprimé.'];
-                    }
-                }
-            }
-            header('Location: ' . $this->base . '/index.php?route=admin');
+        // Ensure session is started
+        if (session_status() === PHP_SESSION_NONE) session_start();
+
+        // Check if user is admin
+        if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
+            header('Location: ' . $this->base . '/index.php?route=auth/login');
             exit;
         }
 
-        $allUsers = $this->user->getAll() ?? [];
-        $allEmissions = $this->emissions->getAll() ?? [];
-        $allPlaylists = $this->playlists->getAll() ?? [];
+        // Get recent data for dashboard
+        $users = $this->user->getAll() ?? [];
+        $playlists = $this->playlists->getAll() ?? [];
+        $emissions = $this->emissions->getAll() ?? [];
 
-        // If models returned empty datasets (DB unavailable or model issue),
-        // try to load PHP fallback files directly from DATA/ so admin shows content.
-        $dataDir = __DIR__ . '/../../DATA/';
-        if (empty($allEmissions) || (is_array($allEmissions) && array_reduce($allEmissions, function($c,$d){return $c + (is_array($d)?count($d):0);}, 0) === 0)) {
-            if (file_exists($dataDir . 'emissions.php')) {
-                $raw = include $dataDir . 'emissions.php';
-                $tmp = ['lundi'=>[],'mardi'=>[],'mercredi'=>[],'jeudi'=>[],'vendredi'=>[],'samedi'=>[],'dimanche'=>[]];
-                if (is_array($raw)) {
-                    foreach ($raw as $em) {
-                        $day = $em['day'] ?? 'autres';
-                        if (!isset($tmp[$day])) $tmp[$day] = [];
-                        $tmp[$day][] = $em;
-                    }
-                }
-                $allEmissions = $tmp;
-            }
-        }
-
-        if (empty($allPlaylists) && file_exists($dataDir . 'playlists.php')) {
-            $raw = include $dataDir . 'playlists.php';
-            if (is_array($raw)) $allPlaylists = $raw;
-        }
-
-        if (empty($allUsers) && file_exists($dataDir . 'users.php')) {
-            $raw = include $dataDir . 'users.php';
-            if (is_array($raw)) $allUsers = $raw;
-        }
-        
-        // Compter correctement toutes les émissions (regroupées par jour)
-        $totalEmissions = 0;
-        foreach ($allEmissions as $day => $emissions) {
-            $totalEmissions += count($emissions ?? []);
-        }
-        
-        $stats = [
-            'total_users' => count($allUsers),
-            'total_emissions' => $totalEmissions,
-            'total_playlists' => count($allPlaylists)
-        ];
-        // Additional user metrics: admins count and new users in last 30 days
-        $adminsCount = 0;
-        $newUsers30 = 0;
-        $now = time();
-        foreach ($allUsers as $u) {
-            $role = is_array($u) ? ($u['role'] ?? '') : ($u->role ?? '');
-            if (strtolower($role) === 'admin') $adminsCount++;
-            $created = null;
-            if (is_array($u) && !empty($u['created_at'])) $created = strtotime($u['created_at']);
-            if (is_object($u) && !empty($u->created_at)) $created = strtotime($u->created_at);
-            if ($created && ($now - $created) <= (30 * 24 * 3600)) $newUsers30++;
-        }
-        $stats['admins_count'] = $adminsCount;
-        $stats['new_users_30d'] = $newUsers30;
-        // Préparer quelques éléments récents pour le dashboard
-        $recent_playlists = array_slice($allPlaylists, 0, 6);
-
-        // Aplatir les émissions par jour pour obtenir un tableau plat trié par heure/date
+        // Flatten emissions for 'recent' list
         $recent_emissions = [];
-        foreach ($allEmissions as $day => $items) {
-            foreach ($items as $it) {
-                $it['_day'] = $day;
-                $recent_emissions[] = $it;
-            }
+        foreach ($emissions as $day => $items) {
+            foreach ($items as $it) { $it['_day'] = $day; $recent_emissions[] = $it; }
         }
-        // Ne pas re-trier par `strtotime` ici : le modèle `Emissions::getAll()`
-        // renvoie déjà les jours dans l'ordre souhaité (lundi..dimanche) et
-        // les émissions par jour sont ordonnées par heure. On conserve cet
-        // ordre lors de l'affichage dans le dashboard.
         $recent_emissions = array_slice($recent_emissions, 0, 8);
+        $recent_playlists = array_slice($playlists, 0, 6);
 
-        $users = $allUsers;
-        // If debug flag present (controlled by DEBUG_ADMIN or DEV_ADMIN), emit a small diagnostic block above the dashboard
-        if ((defined('DEBUG_ADMIN') && DEBUG_ADMIN) || (defined('DEV_ADMIN') && DEV_ADMIN)) {
-            echo "<div style='padding:12px;margin:12px;background:#fff;border:1px solid #ddd;max-width:1200px;'>";
-            echo "<strong>DEBUG ADMIN</strong><br>";
-            echo "Users count: " . count($allUsers) . " &nbsp;|&nbsp; Playlists: " . count($allPlaylists) . " &nbsp;|&nbsp; Emission days: " . count(array_filter($allEmissions)) . "<br>";
-            echo "DATA files present: ";
-            $dataDir = __DIR__ . '/../../DATA/';
-            echo "emissions.php=" . (file_exists($dataDir . 'emissions.php') ? 'yes' : 'no') . ", ";
-            echo "playlists.php=" . (file_exists($dataDir . 'playlists.php') ? 'yes' : 'no') . ", ";
-            echo "users.php=" . (file_exists($dataDir . 'users.php') ? 'yes' : 'no') . "<br>";
+        // Debug info if in dev mode
+        if (defined('DEV_ADMIN') && DEV_ADMIN) {
+            echo "<div style='background:#f0f0f0;padding:10px;margin:10px;border:1px solid #ccc;font-family:monospace;font-size:12px;'>";
+            echo "DEV MODE: Admin Dashboard Debug<br>";
+            echo "Users count: " . count($users) . " &nbsp;|&nbsp; Playlists count: " . count($playlists) . " &nbsp;|&nbsp; Emissions days: " . count($emissions) . "<br>";
             echo "Session user_id: " . ($_SESSION['user_id'] ?? '(none)') . " &nbsp;|&nbsp; user_role: " . ($_SESSION['user_role'] ?? '(none)') . "<br>";
             echo "</div>";
         }
@@ -458,7 +309,7 @@ class AdminController {
                 $this->user->addAction($_SESSION['user_id'], 'emission_edit', "Modification: {$title} ({$day} index {$index})");
             }
         } else {
-            $_SESSION['flash'] = ['type' => 'error', 'msg' => 'Émission non trouvée.'];
+            $_SESSION['flash'] = ['type' => 'error', 'msg' => 'Émission non trouvée.';
         }
     }
 
@@ -472,7 +323,7 @@ class AdminController {
                 $this->user->addAction($_SESSION['user_id'], 'emission_delete', "Suppression: {$day} index {$index}");
             }
         } else {
-            $_SESSION['flash'] = ['type' => 'error', 'msg' => 'Émission non trouvée.'];
+            $_SESSION['flash'] = ['type' => 'error', 'msg' => 'Émission non trouvée.';
         }
     }
 
@@ -722,7 +573,7 @@ class AdminController {
                 $this->user->addAction($_SESSION['user_id'], 'playlist_edit', "Edition playlist id: {$id}");
             }
         } else {
-            $_SESSION['flash'] = ['type' => 'error', 'msg' => 'Playlist non trouvée.'];
+            $_SESSION['flash'] = ['type' => 'error', 'msg' => 'Playlist non trouvée.';
         }
     }
 
@@ -735,7 +586,7 @@ class AdminController {
                 $this->user->addAction($_SESSION['user_id'], 'playlist_delete', "Suppression playlist id: {$id}");
             }
         } else {
-            $_SESSION['flash'] = ['type' => 'error', 'msg' => 'Playlist non trouvée.'];
+            $_SESSION['flash'] = ['type' => 'error', 'msg' => 'Playlist non trouvée.';
         }
     }
 

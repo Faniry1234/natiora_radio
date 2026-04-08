@@ -169,9 +169,9 @@ function playRadio(){
                             </video>
                         </div>
                         <div class="video-actions" style="margin-top:12px;text-align:center;">
-                            <a href="<?php echo htmlspecialchars($video['url']); ?>" target="_blank" class="btn-secondary" style="display:inline-block;padding:8px 16px;background:rgba(255,255,255,0.1);color:#e6f9f6;text-decoration:none;border-radius:6px;font-size:0.9rem;">
-                                <i class="fas fa-external-link-alt"></i> Ouvrir en plein écran
-                            </a>
+                            <button onclick="openVideoModal('<?php echo htmlspecialchars($video['url']); ?>', '<?php echo htmlspecialchars($video['title']); ?>')" class="btn-secondary" style="display:inline-block;padding:8px 16px;background:rgba(255,255,255,0.1);color:#e6f9f6;text-decoration:none;border-radius:6px;font-size:0.9rem;border:none;cursor:pointer;">
+                                <i class="fas fa-play"></i> Regarder
+                            </button>
                         </div>
                     </div>
                     <?php endforeach; ?>
@@ -322,6 +322,150 @@ document.addEventListener('DOMContentLoaded', function(){
     teamModal.addEventListener('click', function(e){ if (e.target === teamModal) closeTeamModal(); });
     document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeTeamModal(); });
 });
+
+// Video Modal Functions
+function openVideoModal(videoUrl, videoTitle) {
+    // Create modal if it doesn't exist
+    let modal = document.getElementById('videoModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'videoModal';
+        modal.innerHTML = `
+            <div class="video-modal-overlay">
+                <div class="video-modal-content">
+                    <div class="video-modal-header">
+                        <h3 id="videoModalTitle"></h3>
+                        <button class="video-modal-close" onclick="closeVideoModal()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="video-modal-body">
+                        <video id="videoModalPlayer" controls autoplay style="width:100%;max-height:70vh;object-fit:contain;border-radius:8px;">
+                            Votre navigateur ne supporte pas la lecture de vidéos.
+                        </video>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+
+        // Add modal styles
+        const style = document.createElement('style');
+        style.textContent = `
+            .video-modal-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.9);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+                animation: fadeIn 0.3s ease;
+            }
+            .video-modal-content {
+                background: #000;
+                border-radius: 12px;
+                max-width: 90vw;
+                max-height: 90vh;
+                width: 100%;
+                position: relative;
+                box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            }
+            .video-modal-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 20px;
+                border-bottom: 1px solid rgba(255,255,255,0.1);
+            }
+            .video-modal-header h3 {
+                color: #fff;
+                margin: 0;
+                font-size: 1.2rem;
+                font-weight: 600;
+            }
+            .video-modal-close {
+                background: none;
+                border: none;
+                color: #fff;
+                font-size: 1.5rem;
+                cursor: pointer;
+                padding: 5px;
+                border-radius: 50%;
+                width: 40px;
+                height: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: background 0.3s ease;
+            }
+            .video-modal-close:hover {
+                background: rgba(255,255,255,0.1);
+            }
+            .video-modal-body {
+                padding: 20px;
+            }
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            @media (max-width: 768px) {
+                .video-modal-content {
+                    max-width: 95vw;
+                    max-height: 95vh;
+                }
+                .video-modal-header {
+                    padding: 15px;
+                }
+                .video-modal-body {
+                    padding: 15px;
+                }
+                .video-modal-header h3 {
+                    font-size: 1rem;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    // Set video content
+    document.getElementById('videoModalTitle').textContent = videoTitle;
+    const videoPlayer = document.getElementById('videoModalPlayer');
+    videoPlayer.src = videoUrl;
+    videoPlayer.load();
+
+    // Show modal
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+
+    // Close modal when clicking overlay
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal || e.target.classList.contains('video-modal-overlay')) {
+            closeVideoModal();
+        }
+    });
+
+    // Close modal on escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeVideoModal();
+        }
+    });
+}
+
+function closeVideoModal() {
+    const modal = document.getElementById('videoModal');
+    if (modal) {
+        const videoPlayer = document.getElementById('videoModalPlayer');
+        videoPlayer.pause();
+        videoPlayer.src = '';
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+}
 </script>
     // Play handling is delegated to /assets/js/radio-player.js to avoid duplicate listeners
 
