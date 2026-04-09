@@ -309,7 +309,7 @@ class AdminController {
                 $this->user->addAction($_SESSION['user_id'], 'emission_edit', "Modification: {$title} ({$day} index {$index})");
             }
         } else {
-            $_SESSION['flash'] = ['type' => 'error', 'msg' => 'Émission non trouvée.';
+            $_SESSION['flash'] = ['type' => 'error', 'msg' => 'Émission non trouvée.'];
         }
     }
 
@@ -323,7 +323,7 @@ class AdminController {
                 $this->user->addAction($_SESSION['user_id'], 'emission_delete', "Suppression: {$day} index {$index}");
             }
         } else {
-            $_SESSION['flash'] = ['type' => 'error', 'msg' => 'Émission non trouvée.';
+            $_SESSION['flash'] = ['type' => 'error', 'msg' => 'Émission non trouvée.'];
         }
     }
 
@@ -573,7 +573,7 @@ class AdminController {
                 $this->user->addAction($_SESSION['user_id'], 'playlist_edit', "Edition playlist id: {$id}");
             }
         } else {
-            $_SESSION['flash'] = ['type' => 'error', 'msg' => 'Playlist non trouvée.';
+            $_SESSION['flash'] = ['type' => 'error', 'msg' => 'Playlist non trouvée.'];
         }
     }
 
@@ -586,7 +586,7 @@ class AdminController {
                 $this->user->addAction($_SESSION['user_id'], 'playlist_delete', "Suppression playlist id: {$id}");
             }
         } else {
-            $_SESSION['flash'] = ['type' => 'error', 'msg' => 'Playlist non trouvée.';
+            $_SESSION['flash'] = ['type' => 'error', 'msg' => 'Playlist non trouvée.'];
         }
     }
 
