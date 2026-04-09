@@ -370,20 +370,49 @@ class AdminController {
         if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             $raw = file_get_contents('php://input');
             $data = null;
+            $error = null;
+
             // Accept JSON body or form field 'data'
-            if ($raw) {
+            if ($raw !== false && $raw !== '') {
                 $data = json_decode($raw, true);
+                if ($data === null && json_last_error() !== JSON_ERROR_NONE) {
+                    $error = 'JSON decode error: ' . json_last_error_msg();
+                }
             }
-            if (!$data && isset($_POST['data'])) {
+
+            if ((!is_array($data) || $data === null) && isset($_POST['data'])) {
                 $try = json_decode($_POST['data'], true);
-                if (is_array($try)) $data = $try;
+                if (is_array($try)) {
+                    $data = $try;
+                    $error = null;
+                }
             }
+
             header('Content-Type: application/json; charset=utf-8');
-            if (!is_array($data)) { echo json_encode(['ok'=>false,'error'=>'Invalid payload']); exit; }
-            $out = "<?php\nreturn " . var_export($data, true) . ";\n";
+            if (!is_array($data)) {
+                if (!$error) {
+                    $error = 'Invalid payload';
+                }
+                echo json_encode(['ok' => false, 'error' => $error]);
+                exit;
+            }
+
             $file = __DIR__ . '/../../DATA/responsables.php';
-            if (file_put_contents($file, $out, LOCK_EX) === false) { echo json_encode(['ok'=>false,'error'=>'Write failed']); exit; }
-            echo json_encode(['ok'=>true]); exit;
+            $dir = dirname($file);
+            if (!is_dir($dir)) {
+                mkdir($dir, 0755, true);
+            }
+
+            $out = "<?php\nreturn " . var_export($data, true) . ";\n";
+            if (file_put_contents($file, $out, LOCK_EX) === false) {
+                $last = error_get_last();
+                $msg = $last['message'] ?? 'Write failed';
+                echo json_encode(['ok' => false, 'error' => 'Write failed: ' . $msg]);
+                exit;
+            }
+
+            echo json_encode(['ok' => true]);
+            exit;
         }
 
         $dataFile = __DIR__ . '/../../DATA/responsables.php';

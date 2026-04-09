@@ -1,6 +1,5 @@
 ﻿<?php
 if (session_status() === PHP_SESSION_NONE) session_start();
-
 if (!class_exists('Playlists')) require_once __DIR__ . '/../../APP/MODEL/Playlists.php';
 
 $playlistModel = new Playlists();
@@ -11,58 +10,54 @@ $playlists_by_day['autres'] = [];
 
 foreach ($playlists as $playlist) {
     $day = strtolower(trim($playlist['day'] ?? 'autres'));
-    if (!in_array($day, $days, true)) {
-        $day = 'autres';
-    }
+    if (!in_array($day, $days, true)) $day = 'autres';
     $playlists_by_day[$day][] = $playlist;
 }
-
-$heroImage = isset($assetBase) ? $assetBase . '/images/playliste1.jpg' : '/assets/images/playliste1.jpg';
 ?>
 <style>
-    .playlist-hero {
-        padding: 28px 20px;
-        border-radius: 14px;
-        color: #fff;
-        background-repeat: no-repeat;
-        background-size: cover;
-        background-position: center center;
-        box-shadow: 0 12px 36px rgba(16,24,40,0.12);
-        position: relative;
-        overflow: hidden;
-    }
-    .playlist-hero::after {
-        content: '';
-        position: absolute; inset: 0; z-index: 0;
-        background: linear-gradient(180deg, rgba(6,12,34,0.35) 0%, rgba(6,12,34,0.65) 100%);
-        pointer-events: none;
-    }
-    .playlist-hero .hero-content { position: relative; z-index: 1; }
-    .playlist-container { margin-top: 18px; }
-    .audio-item { background: rgba(255,255,255,0.06); padding: 18px; border-radius: 14px; margin-bottom: 18px; color: #fff; }
-    .audio-item h4 { margin: 0 0 10px; }
-    .audio-item .emission-meta { display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0; }
-    .audio-item .emission-meta span { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.08); padding: 6px 10px; border-radius: 999px; font-size: 0.92rem; }
-    .audio-item .emission-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
-    .audio-item .emission-details { margin-top: 8px; }
-    .audio-item .track-list { list-style: none; margin: 8px 0 0; padding: 0; }
-    .audio-item .track-list li { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; background: rgba(255,255,255,0.04); margin-bottom: 8px; }
-    .audio-item .track-list .track-title { flex: 1; color: rgba(255,255,255,0.92); }
-    .audio-item .track-list button { min-width: 40px; padding: 8px 12px; border-radius: 999px; border: none; background: rgba(0,255,231,0.15); color: #e6eef6; cursor: pointer; }
-    .audio-item .track-list button.disabled { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.5); cursor: not-allowed; }
-    .play-playlist-btn { cursor: pointer; border: none; padding: 10px 16px; border-radius: 999px; background: #2f80ed; color: #fff; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; }
-    .play-playlist-btn:hover { background: #2563eb; }
-    .play-playlist-btn.disabled { background: rgba(255,255,255,0.12); cursor: not-allowed; }
-    .cover-image { width: 120px; height: 120px; object-fit: cover; border-radius: 16px; flex-shrink: 0; }
-    .day-tabs { margin-top: 24px; display: flex; flex-wrap: wrap; gap: 8px; }
-    .day-tabs .day-btn { border: none; background: rgba(255,255,255,0.08); color: #fff; padding: 10px 14px; border-radius: 999px; cursor: pointer; transition: transform 120ms ease, background 120ms ease; }
-    .day-tabs .day-btn:hover { transform: translateY(-1px); }
-    .day-tabs .day-btn.active { background: rgba(255,255,255,0.18); }
-    .empty-state { color: rgba(255,255,255,0.85); padding: 30px; text-align: center; border: 1px dashed rgba(255,255,255,0.12); border-radius: 16px; }
-    .playlist-status { margin-top: 18px; font-size: 0.95rem; color: rgba(255,255,255,0.85); }
-    .playlist-actions { margin: 18px 0; display: flex; flex-wrap: wrap; gap: 10px; }
-    .playlist-feedback { margin-bottom: 12px; color: rgba(255,255,255,0.9); }
-    @media (max-width: 900px) { .audio-item { padding: 16px; } .cover-image { width: 100%; height: auto; } }
+.playlists-section { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+.playlists-section h2 { font-size: 2.5rem; color: #fff; margin-bottom: 12px; font-weight: 700; }
+.playlists-section > p { font-size: 1.1rem; color: rgba(255,255,255,0.8); margin-bottom: 40px; max-width: 700px; line-height: 1.6; }
+.day-tabs-container { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 40px; }
+.day-btn { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); color: #fff; padding: 10px 18px; border-radius: 50px; cursor: pointer; font-weight: 600; transition: all 0.3s ease; font-size: 0.95rem; }
+.day-btn:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.2); }
+.day-btn.active { background: linear-gradient(135deg, #2f80ed 0%, #1e5cdb 100%); border-color: #2f80ed; }
+.playlists-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
+.playlist-card { background: rgba(255,255,255,0.08); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.15); border-radius: 16px; padding: 24px; transition: all 0.3s ease; cursor: pointer; }
+.playlist-card:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.25); transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+.playlist-card-header { display: flex; gap: 16px; margin-bottom: 16px; align-items: flex-start; }
+.playlist-cover { width: 80px; height: 80px; border-radius: 12px; object-fit: cover; background: rgba(255,255,255,0.05); }
+.playlist-info { flex: 1; }
+.playlist-info h3 { color: #fff; font-size: 1.2rem; margin-bottom: 4px; line-height: 1.3; }
+.playlist-info .meta { display: flex; gap: 8px; font-size: 0.85rem; color: rgba(255,255,255,0.7); margin-bottom: 8px; }
+.meta-badge { background: rgba(47,128,237,0.2); padding: 4px 8px; border-radius: 6px; color: #7bb3ff; }
+.playlist-desc { color: rgba(255,255,255,0.75); font-size: 0.9rem; line-height: 1.4; margin-bottom: 16px; }
+.playlist-stats { display: flex; gap: 16px; margin-bottom: 16px; }
+.stat { display: flex; align-items: center; gap: 6px; color: rgba(255,255,255,0.8); font-size: 0.9rem; }
+.stat i { color: #2f80ed; }
+.play-btn { width: 100%; background: linear-gradient(135deg, #2f80ed 0%, #1e5cdb 100%); color: white; border: none; padding: 12px; border-radius: 10px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.play-btn:hover { transform: scale(1.02); box-shadow: 0 10px 25px rgba(47,128,237,0.3); }
+.play-btn.disabled { opacity: 0.5; cursor: not-allowed; }
+.player-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 3000; align-items: center; justify-content: center; padding: 20px; }
+.player-modal.active { display: flex; }
+.player-content { background: rgba(12,17,34,0.95); border-radius: 20px; padding: 30px; max-width: 500px; width: 100%; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+.player-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.player-header h2 { color: #fff; margin: 0; font-size: 1.5rem; }
+.close-btn { background: none; border: none; color: #fff; font-size: 1.8rem; cursor: pointer; opacity: 0.7; transition: opacity 0.2s; }
+.close-btn:hover { opacity: 1; }
+.audio-player { width: 100%; margin: 20px 0; }
+.queue-list { max-height: 300px; overflow-y: auto; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; margin-top: 20px; }
+.queue-item { padding: 10px 0; color: rgba(255,255,255,0.8); font-size: 0.9rem; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: color 0.2s; }
+.queue-item:hover { color: #2f80ed; }
+.queue-item.current { color: #2f80ed; font-weight: 600; }
+.empty-state { text-align: center; padding: 40px 20px; color: rgba(255,255,255,0.6); }
+.empty-state i { font-size: 3rem; display: block; margin-bottom: 12px; }
+@media (max-width: 768px) {
+  .playlists-grid { grid-template-columns: 1fr; }
+  .playlists-section h2 { font-size: 1.8rem; }
+  .playlist-card-header { flex-direction: column; }
+  .playlist-cover { width: 100%; height: 200px; }
+}
 </style>
 
 <section id="playlist" class="playlist-hero" style="background-image: linear-gradient(180deg, rgba(6,12,34,0.35), rgba(6,12,34,0.65)), url('<?php echo htmlspecialchars($heroImage); ?>');">
