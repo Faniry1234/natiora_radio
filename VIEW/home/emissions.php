@@ -1,3 +1,36 @@
+﻿<?php
+if (session_status() === PHP_SESSION_NONE) session_start();
+
+if (!class_exists('Emissions')) require_once __DIR__ . '/../../APP/MODEL/Emissions.php';
+
+$emissionModel = new Emissions();
+$emissions = $emissionModel->getAll();
+$days = ['lundi','mardi','mercredi','jeudi','vendredi','samedi','dimanche'];
+$emissions_by_day = array_fill_keys($days, []);
+
+foreach ($emissions as $day => $items) {
+    if (!in_array($day, $days, true)) {
+        continue;
+    }
+    $emissions_by_day[$day] = $items;
+}
+
+$heroImage = isset($assetBase) ? $assetBase . '/images/LOGO%20RADIO.jpg' : '/assets/images/LOGO%20RADIO.jpg';
+?>
+<style>
+    .emissions { color: #fff; }
+    .emission-card { background: rgba(255,255,255,0.06); border-radius: 18px; padding: 20px; margin-bottom: 20px; }
+    .emission-card h4 { margin: 0 0 12px; }
+    .emission-meta { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0; }
+    .emission-meta span { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.08); padding: 8px 12px; border-radius: 999px; font-size: 0.95rem; }
+    .day-tabs { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 10px; }
+    .day-tabs .day-btn { border: none; background: rgba(255,255,255,0.08); color: #fff; padding: 10px 14px; border-radius: 999px; cursor: pointer; }
+    .day-tabs .day-btn.active { background: rgba(255,255,255,0.18); }
+    .video-player-wrapper { margin-top: 16px; }
+    .empty-state { color: rgba(255,255,255,0.85); padding: 28px; text-align: center; border: 1px dashed rgba(255,255,255,0.12); border-radius: 16px; }
+    @media (max-width: 900px) { .video-player-wrapper video { width: 100%; } }
+</style>
+
 <section id="emissions" class="emissions">
     <h2>📻 Émissions</h2>
 
@@ -18,113 +51,8 @@
 
     <script>
         (function(){
-            const emissions = {
-                lundi: [
-                    { 
-                        time: '08:00', 
-                        title: 'Concevoir une affiche', 
-                        src: '/assets/videos/Tuto Boy  Comment concevoir une affiche sur Photoshop..mp4', 
-                        desc: "Atelier complet sur la composition d'affiche et typographie.", 
-                        presenter: 'Tuto Boy',
-                        duration: '45 min',
-                        level: 'Intermédiaire',
-                        category: 'Design Graphique'
-                    },
-                    { 
-                        time: '09:00', 
-                        title: 'Montage Flyer Professionnel', 
-                        src: '/assets/videos/TUTO BOY COMMENT FAIRE UN MONTAGE PHOTO SUR PHOTOSHOP  [flyer].mp4', 
-                        desc: "Techniques rapides et efficaces pour créer un flyer promotionnel captivant et professionnel.", 
-                        presenter: 'Tuto Boy',
-                        duration: '35 min',
-                        level: 'Débutant',
-                        category: 'Design Graphique'
-                    }
-                ],
-                mardi: [
-                    { 
-                        time: '10:00', 
-                        title: 'Dégradé sur texte Avancé', 
-                        src: '/assets/videos/[Tuto Boy] Comment faire un dégradé sur un texte dans Photoshop..mp4', 
-                        desc: "Effets de texte modernes, color grading et techniques de dégradé pour des résultats époustouflants.", 
-                        presenter: 'Tuto Boy',
-                        duration: '28 min',
-                        level: 'Avancé',
-                        category: 'Effets Visuels'
-                    },
-                    { 
-                        time: '11:00', 
-                        title: 'Effet de lumière Réaliste', 
-                        src: '/assets/videos/[Tuto boy] Comment faire un effet de lumière sur une image sur Photoshop.mp4', 
-                        desc: "Astuces professionnelles pour simuler des éclairages réalistes, ombres et reflets lumineux.", 
-                        presenter: 'Tuto Boy',
-                        duration: '32 min',
-                        level: 'Intermédiaire',
-                        category: 'Retouche Photo'
-                    }
-                ],
-                mercredi: [ 
-                    { 
-                        time: '09:30', 
-                        title: 'Concevoir une affiche - Rediffusion', 
-                        src: '/assets/videos/Tuto Boy  Comment concevoir une affiche sur Photoshop..mp4', 
-                        desc: "Rediffusion : composition, hiérarchie visuelle et principes de design graphique modernes.", 
-                        presenter: 'Tuto Boy',
-                        duration: '45 min',
-                        level: 'Intermédiaire',
-                        category: 'Design Graphique'
-                    } 
-                ],
-                jeudi: [ 
-                    { 
-                        time: '14:00', 
-                        title: 'Montage Flyer - Spécial Événement', 
-                        src: '/assets/videos/TUTO BOY COMMENT FAIRE UN MONTAGE PHOTO SUR PHOTOSHOP  [flyer].mp4', 
-                        desc: "Tutoriel pas-à-pas pour créer des flyers promotionnels pour vos événements et activations.", 
-                        presenter: 'Tuto Boy',
-                        duration: '40 min',
-                        level: 'Débutant',
-                        category: 'Design Graphique'
-                    } 
-                ],
-                vendredi: [ 
-                    { 
-                        time: '15:30', 
-                        title: 'Dégradé - Techniques Avancées', 
-                        src: '/assets/videos/[Tuto Boy] Comment faire un dégradé sur un texte dans Photoshop..mp4', 
-                        desc: "Techniques avancées de dégradé, raccourcis clavier, et astuces pour gagner du temps en production.", 
-                        presenter: 'Tuto Boy',
-                        duration: '30 min',
-                        level: 'Avancé',
-                        category: 'Effets Visuels'
-                    } 
-                ],
-                samedi: [ 
-                    { 
-                        time: '11:00', 
-                        title: 'Effets de Lumière - Créatifs', 
-                        src: '/assets/videos/[Tuto boy] Comment faire un effet de lumière sur une image sur Photoshop.mp4', 
-                        desc: "Effets créatifs avancés pour vos images, ajout de lumière naturelle et synthétique avec réalisme.", 
-                        presenter: 'Tuto Boy',
-                        duration: '38 min',
-                        level: 'Intermédiaire',
-                        category: 'Retouche Photo'
-                    } 
-                ],
-                dimanche: [ 
-                    { 
-                        time: '19:00', 
-                        title: 'Best Of - Compilation Spéciale', 
-                        src: '/assets/videos/Tuto Boy  Comment concevoir une affiche sur Photoshop..mp4', 
-                        desc: "Compilation des meilleurs extraits et tutoriels de la semaine avec conseils bonus et Q&A.", 
-                        presenter: 'Tuto Boy',
-                        duration: '60 min',
-                        level: 'Tous niveaux',
-                        category: 'Spécial'
-                    } 
-                ]
-            };
-
+            const emissions = <?php echo json_encode($emissions_by_day, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG); ?>;
+            const assetBase = '<?php echo htmlspecialchars($assetBase ?? '/assets'); ?>';
             const daysOrder = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
             const todayIndex = new Date().getDay();
             const todayName = daysOrder[todayIndex];
@@ -133,61 +61,59 @@
             const listEl = document.getElementById('emissionList');
             const titleEl = document.getElementById('emission-title');
 
-            function render(day){
+            function resolveVideoUrl(src) {
+                if (!src) return '';
+                if (/^https?:\/\//i.test(src) || src.indexOf('//') === 0) return src;
+                if (src.indexOf('/public/') === 0) return src.replace(/^\/public/, '');
+                if (/^\/(assets|uploads)\//.test(src) || /^\//.test(src)) return src;
+                return assetBase + '/videos/' + encodeURIComponent(src);
+            }
+
+            function render(day) {
                 listEl.innerHTML = '';
-                const arr = emissions[day] || [];
+                const items = emissions[day] || [];
                 titleEl.textContent = 'Émissions — ' + day.charAt(0).toUpperCase() + day.slice(1);
-                arr.forEach(item=>{
+
+                if (!items.length) {
+                    listEl.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i> Aucune émission prévue pour ce jour.</div>';
+                    return;
+                }
+
+                items.forEach(item => {
+                    const videoUrl = resolveVideoUrl(item.src || '');
                     const li = document.createElement('li');
-                    li.className = 'video-item';
+                    li.className = 'emission-card';
                     li.innerHTML = `
-                        <div class="emission-header">
-                            <div class="emission-time">
-                                <i class="fas fa-clock"></i> ${item.time}
-                            </div>
-                            <h4>${item.title}</h4>
-                            <div class="emission-meta">
-                                <span class="meta-badge duration"><i class="fas fa-hourglass-half"></i> ${item.duration}</span>
-                                <span class="meta-badge level"><i class="fas fa-signal"></i> ${item.level}</span>
-                                <span class="meta-badge category"><i class="fas fa-tag"></i> ${item.category}</span>
-                            </div>
+                        <div>
+                            <div class="emission-meta"><span><i class="fas fa-clock"></i> ${item.time || 'Heure inconnue'}</span><span><i class="fas fa-user"></i> ${item.presenter || 'Présentateur inconnu'}</span></div>
+                            <h4>${item.title || 'Titre non défini'}</h4>
+                            <div class="emission-meta"><span><i class="fas fa-hourglass-half"></i> ${item.duration || 'Durée non définie'}</span><span><i class="fas fa-signal"></i> ${item.level || 'Niveau inconnu'}</span><span><i class="fas fa-tag"></i> ${item.category || 'Catégorie'}</span></div>
                         </div>
-                                                <video controls width="100%" style="max-width: 640px; border-radius: 8px;">
-                                                    <source src="${encodeURI(item.src)}" type="video/mp4">
-                                                    Votre navigateur ne supporte pas la vidéo.
-                                                </video>
-                        <div class="emission-details">
-                            <p class="desc">${item.desc}</p>
-                            <div class="presenter-info">
-                                <i class="fas fa-user-circle"></i>
-                                <span><strong>Présentateur:</strong> ${item.presenter}</span>
-                            </div>
+                        <div class="video-player-wrapper">
+                            <video controls preload="metadata" width="100%" style="border-radius: 16px; background:#000;" playsinline>
+                                <source src="${videoUrl}" type="video/mp4">
+                                Votre navigateur ne supporte pas la lecture vidéo.
+                            </video>
+                        </div>
+                        <div style="margin-top:14px;">
+                            <p>${item.description || item.desc || ''}</p>
                         </div>
                     `;
+
                     listEl.appendChild(li);
                 });
             }
 
-            tabs.forEach(t=>{
-                const d = t.dataset.day;
-                if(d===todayName) t.classList.add('active');
-                t.addEventListener('click', function(){
-                    tabs.forEach(x=>x.classList.remove('active'));
-                    t.classList.add('active');
-                    render(d);
+            tabs.forEach(tab => {
+                if (tab.dataset.day === todayName) tab.classList.add('active');
+                tab.addEventListener('click', function() {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    render(tab.dataset.day);
                 });
             });
 
             render(todayName);
         })();
     </script>
-
 </section>
-
-
-
-<!-- Login Modal -->
-<!-- Login modal provided by layout -->
-
-</body>
-</html>

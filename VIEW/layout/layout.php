@@ -104,6 +104,7 @@ if ($base === '/' || $base === '\\') $base = '';
                 <h1>Natiora Radio <span>98.2</span></h1>
             </div>
             <div id="madagascar-clock" style="font-size:0.9em; color:#fff; margin-left:20px; font-weight:600; background: rgba(255,255,255,0.1); padding: 8px 12px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; gap: 6px;"></div>
+            <button id="mobileMenuToggle" type="button" class="mobile-menu-toggle" aria-label="Afficher le menu mobile"><i class="fas fa-bars"></i></button>
             <nav class="main-nav" aria-label="Main navigation">
                 <a href="<?php echo $base; ?>/index.php?route=home" class="nav-btn">Accueil</a>
                 <a href="<?php echo $base; ?>/index.php?route=playlistes" class="nav-btn">Playlists</a>
@@ -424,6 +425,17 @@ if ($base === '/' || $base === '\\') $base = '';
             if (role === 'admin') {
                 updateMessagesBadge();
                 setInterval(updateMessagesBadge, 15000);
+            }
+        })();
+
+        // Mobile menu behavior
+        (function(){
+            const toggle = document.getElementById('mobileMenuToggle');
+            const body = document.body;
+            if (toggle) {
+                toggle.addEventListener('click', function(){
+                    body.classList.toggle('mobile-nav-open');
+                });
             }
         })();
 

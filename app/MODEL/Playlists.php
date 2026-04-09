@@ -62,46 +62,65 @@ class Playlists {
      */
     private function normalizeSongs(array $songs){
         $out = [];
-        // build map of uploads filename (without ext) => web path
-        $uploadsDir = realpath(__DIR__ . '/../../public/uploads');
+        $publicRoot = realpath(__DIR__ . '/../../public');
+        $audioDirs = [];
+        if ($publicRoot && is_dir($publicRoot)) {
+            $audioDirs[] = $publicRoot . DIRECTORY_SEPARATOR . 'uploads';
+            $audioDirs[] = $publicRoot . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'audios';
+        }
+
         $map = [];
-        if ($uploadsDir && is_dir($uploadsDir)){
-            $files = scandir($uploadsDir);
-            if ($files) {
-                foreach ($files as $f) {
-                    if ($f === '.' || $f === '..') continue;
-                    $full = $uploadsDir . DIRECTORY_SEPARATOR . $f;
-                    if (!is_file($full)) continue;
-                    $nameNoExt = strtolower(pathinfo($f, PATHINFO_FILENAME));
+        foreach ($audioDirs as $dir) {
+            if (!is_dir($dir)) continue;
+            $files = scandir($dir);
+            if (!$files) continue;
+            foreach ($files as $f) {
+                if ($f === '.' || $f === '..') continue;
+                $full = $dir . DIRECTORY_SEPARATOR . $f;
+                if (!is_file($full)) continue;
+                $nameNoExt = strtolower(pathinfo($f, PATHINFO_FILENAME));
+                if (strpos($dir, DIRECTORY_SEPARATOR . 'uploads') !== false) {
                     $map[$nameNoExt] = '/uploads/' . $f;
+                } else {
+                    $map[$nameNoExt] = '/assets/audios/' . $f;
                 }
             }
         }
 
+        $publicRootNorm = $publicRoot ? str_replace('\\','/', $publicRoot) : null;
         foreach ($songs as $s) {
             if (!is_string($s) || $s === '') { continue; }
             $sTrim = trim($s);
-            // keep absolute http(s) or protocol-relative or root-relative
-            if (preg_match('#^https?://#i', $sTrim) || strpos($sTrim, '//') === 0 || strpos($sTrim, '/') === 0) {
+            if (preg_match('#^https?://#i', $sTrim) || strpos($sTrim, '//') === 0) {
                 $out[] = $sTrim;
                 continue;
             }
-            // if it already contains an extension and file exists under uploads
-            $uploadsCandidate = __DIR__ . '/../../public/' . ltrim($sTrim, '/');
-            if (preg_match('/\.(mp3|m4a|ogg|wav|mp4)$/i', $sTrim) && file_exists($uploadsCandidate)) {
-                // convert to web path relative to public/
-                $web = '/' . ltrim(str_replace(realpath(__DIR__ . '/../../public') . DIRECTORY_SEPARATOR, '', realpath($uploadsCandidate)), DIRECTORY_SEPARATOR);
-                $web = str_replace('\\','/',$web);
-                $out[] = $web;
+            if (preg_match('#^/public/#', $sTrim)) {
+                $out[] = preg_replace('#^/public#', '', $sTrim);
                 continue;
             }
-            // try map by basename
+            if (preg_match('#^/(assets|uploads)/#', $sTrim)) {
+                $out[] = $sTrim;
+                continue;
+            }
+
+            if (preg_match('/\.(mp3|m4a|ogg|wav|mp4)$/i', $sTrim)) {
+                $candidate = __DIR__ . '/../../public/' . ltrim($sTrim, '/');
+                $realCandidate = realpath($candidate);
+                if ($realCandidate && file_exists($realCandidate) && $publicRootNorm) {
+                    $web = str_replace('\\','/', $realCandidate);
+                    $web = preg_replace('#^' . preg_quote($publicRootNorm, '#') . '#', '', $web);
+                    $out[] = $web ?: '/' . basename($realCandidate);
+                    continue;
+                }
+            }
+
             $key = strtolower(preg_replace('/\.[^.]+$/', '', $sTrim));
             if (isset($map[$key])) {
                 $out[] = $map[$key];
                 continue;
             }
-            // fallback: keep original (will be used for TTS)
+
             $out[] = $sTrim;
         }
         return $out;

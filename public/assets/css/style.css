@@ -85,6 +85,83 @@ header .header-inner {
   .brand h1 { display: none; }
 }
 
+/* Mobile-only interface and layout adjustments */
+.mobile-menu-toggle {
+  display: none;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.28);
+  color: #e6eef6;
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-size: 1.05rem;
+  cursor: pointer;
+  transition: transform 180ms ease, background 180ms ease;
+}
+.mobile-menu-toggle:hover {
+  background: rgba(255,255,255,0.08);
+  transform: translateY(-1px);
+}
+
+@media (max-width: 900px) {
+  .mobile-menu-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .main-nav {
+    display: none;
+    width: 100%;
+  }
+  body.mobile-nav-open .main-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    margin-top: 12px;
+    padding: 14px;
+    background: rgba(0,0,0,0.75);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 18px;
+    box-shadow: 0 22px 40px rgba(0,0,0,0.22);
+  }
+  .main-nav .nav-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .header-inner { align-items: stretch; }
+  .brand h1 { display: block; font-size: 1.05rem; }
+  .brand { justify-content: space-between; width: 100%; }
+
+  .home-hero { padding: 20px 14px; margin: 24px auto; }
+  .home-hero .hero-left,
+  .home-hero .hero-right,
+  .home-hero .poster { width: 100%; }
+  .home-hero .poster { max-width: 100%; }
+
+  .audio-item,
+  .video-item,
+  .playlist-card,
+  .emission-card,
+  .track-list,
+  .video-player-wrapper {
+    width: 100% !important;
+  }
+
+  .page-hero { min-height: 130px; height: auto; }
+  .page-hero h1 { font-size: 1.4rem; }
+
+  .footer-inner,
+  .auth-card,
+  .playlist-card,
+  .emission-card,
+  .video-item,
+  .audio-item {
+    padding: 16px;
+  }
+}
+
 /* Home section background (uses assets/images/LOGO VAO.jpg)
    Use `contain` so the full photo is visible; keep a light overlay to preserve contrast.
 */

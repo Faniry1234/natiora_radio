@@ -47,6 +47,7 @@ class Emissions {
                             $result[$day] = [];
                         }
 
+                        $emission['src'] = $this->normalizeSrc($emission['src'] ?? '');
                         $result[$day][] = $emission;
                     }
                 }
@@ -82,6 +83,7 @@ class Emissions {
                 $result[$day] = [];
             }
 
+            $emission['src'] = $this->normalizeSrc($emission['src'] ?? '');
             $result[$day][] = $emission;
         }
 
@@ -103,6 +105,7 @@ class Emissions {
                     foreach ($data as $em) {
 
                         if (($em['day'] ?? '') === $day) {
+                            $em['src'] = $this->normalizeSrc($em['src'] ?? '');
                             $out[] = $em;
                         }
                     }
@@ -122,7 +125,48 @@ class Emissions {
 
         $stmt->execute([':day'=>$day]);
 
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $emissions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($emissions as &$emission) {
+            $emission['src'] = $this->normalizeSrc($emission['src'] ?? '');
+        }
+
+        return $emissions;
+    }
+
+    private function normalizeSrc($src){
+        $src = trim((string)$src);
+        if ($src === '') {
+            return '';
+        }
+        if (preg_match('#^(https?:)?//#i', $src)) {
+            return $src;
+        }
+        if (strpos($src, '/public/') === 0) {
+            return preg_replace('#^/public#', '', $src);
+        }
+        if (strpos($src, '/assets/') === 0 || strpos($src, '/uploads/') === 0 || strpos($src, '/') === 0) {
+            return $src;
+        }
+
+        $publicRoot = realpath(__DIR__ . '/../../public');
+        $candidates = [];
+        if ($publicRoot) {
+            $candidates[] = $publicRoot . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'videos' . DIRECTORY_SEPARATOR . $src;
+            $candidates[] = $publicRoot . DIRECTORY_SEPARATOR . 'videos' . DIRECTORY_SEPARATOR . $src;
+            $candidates[] = $publicRoot . DIRECTORY_SEPARATOR . $src;
+        }
+
+        foreach ($candidates as $candidate) {
+            if ($candidate && file_exists($candidate)) {
+                $candidate = str_replace('\\','/', realpath($candidate));
+                $publicRootNorm = $publicRoot ? str_replace('\\','/', $publicRoot) : '';
+                $web = preg_replace('#^' . preg_quote($publicRootNorm, '#') . '#', '', $candidate);
+                $web = '/' . ltrim($web, '/');
+                return $web;
+            }
+        }
+
+        return '/assets/videos/' . ltrim($src, '/');
     }
 
     public function add($day, $emission){

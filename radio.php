@@ -28,13 +28,22 @@ if (!$upstream) {
 // Handle local files
 if (strpos($upstream, '/') === 0) {
     $localPath = realpath(__DIR__ . '/public' . $upstream);
-    if ($localPath && file_exists($localPath) && strpos($localPath, realpath(__DIR__ . '/public') . DIRECTORY_SEPARATOR) === 0) {
+    $localRoot = realpath(__DIR__ . '/public');
+    if (!$localPath || !file_exists($localPath)) {
+        $localPath = realpath(__DIR__ . '/PUBLIC' . $upstream);
+        $localRoot = realpath(__DIR__ . '/PUBLIC');
+    }
+    if ($localPath && $localRoot && file_exists($localPath) && strpos($localPath, $localRoot . DIRECTORY_SEPARATOR) === 0) {
         $ext = strtolower(pathinfo($localPath, PATHINFO_EXTENSION));
         $mime = 'application/octet-stream';
         if ($ext === 'mp3') $mime = 'audio/mpeg';
         elseif ($ext === 'wav') $mime = 'audio/wav';
         elseif ($ext === 'ogg') $mime = 'audio/ogg';
         elseif ($ext === 'm4a') $mime = 'audio/mp4';
+        elseif ($ext === 'mp4') $mime = 'video/mp4';
+        elseif ($ext === 'webm') $mime = 'video/webm';
+        elseif ($ext === 'mov') $mime = 'video/quicktime';
+        elseif ($ext === 'avi') $mime = 'video/x-msvideo';
         header('Content-Type: ' . $mime);
         header('Content-Length: ' . filesize($localPath));
         readfile($localPath);

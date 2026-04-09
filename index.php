@@ -19,6 +19,9 @@ if ($reqPath && $reqPath !== '/' && !preg_match('/\.(php|htaccess)$/i', $reqPath
 
 require_once __DIR__ . '/app/config.php';
 
+$base = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\');
+if ($base === '/' || $base === '\\') $base = '';
+
 // Development helper: allow temporarily forcing an admin session by adding ?dev_admin=1
 if (isset($_GET['dev_admin']) && $_GET['dev_admin'] == '1') {
     if (session_status() === PHP_SESSION_NONE) session_start();
@@ -56,31 +59,31 @@ switch($route){
 
     // Admin Routes
     case 'admin':
-        $admin = new AdminController();
+        $admin = new \App\Controller\AdminController($base);
         $admin->dashboard();
         break;
     case 'admin/emissions':
-        $admin = new AdminController();
+        $admin = new \App\Controller\AdminController($base);
         $admin->manageEmissions();
         break;
     case 'admin/team':
-        $admin = new AdminController();
+        $admin = new \App\Controller\AdminController($base);
         $admin->manageTeam();
         break;
     case 'admin/upload_image':
-        $admin = new AdminController();
+        $admin = new \App\Controller\AdminController($base);
         $admin->uploadImage();
         break;
     case 'admin/playlists':
-        $admin = new AdminController();
+        $admin = new \App\Controller\AdminController($base);
         $admin->managePlaylists();
         break;
     case 'admin/messages':
-        $admin = new AdminController();
+        $admin = new \App\Controller\AdminController($base);
         $admin->manageMessages();
         break;
     case 'admin/historiques':
-        $admin = new AdminController();
+        $admin = new \App\Controller\AdminController($base);
         $admin->manageHistoriques();
         break;
 
@@ -586,6 +589,20 @@ switch($route){
             $stmt->execute([$id, $uid]);
             echo json_encode(['ok'=>true,'updated' => $stmt->rowCount()]); exit;
         } catch (Throwable $ex) { http_response_code(500); echo json_encode(['ok'=>false,'error'=>$ex->getMessage()]); exit; }
+
+    case 'api/playlists':
+        header('Content-Type: application/json; charset=utf-8');
+        if (!class_exists('Playlists')) require_once __DIR__ . '/APP/MODEL/Playlists.php';
+        $playlistModel = new Playlists();
+        echo json_encode(['ok' => true, 'data' => $playlistModel->getAll()]);
+        exit;
+
+    case 'api/emissions':
+        header('Content-Type: application/json; charset=utf-8');
+        if (!class_exists('Emissions')) require_once __DIR__ . '/APP/MODEL/Emissions.php';
+        $emissionModel = new Emissions();
+        echo json_encode(['ok' => true, 'data' => $emissionModel->getAll()]);
+        exit;
 
     // Views rendered through layout
     case 'auth/login':
