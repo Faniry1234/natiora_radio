@@ -19,6 +19,10 @@ if ($reqPath && $reqPath !== '/' && !preg_match('/\.(php|htaccess)$/i', $reqPath
 
 require_once __DIR__ . '/app/config.php';
 
+if (!class_exists('AdminController') && class_exists('\App\Controller\AdminController')) {
+    class_alias('\App\Controller\AdminController', 'AdminController');
+}
+
 $base = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\');
 if ($base === '/' || $base === '\\') $base = '';
 

@@ -69,8 +69,54 @@ $videos = getVideosList($assetBase);
 </div>
 
 <script>
-function playRadio(){
-    window.open('http://p.onlineradiobox.com/mg/natiora/player/?cs=mg.natiora&played=1', 'playerPopup', 'width=400,height=300,scrollbars=no,resizable=yes,popup=yes');
+function isMobileDevice() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+        || window.matchMedia('(max-width: 768px)').matches;
+}
+
+function playRadio() {
+    const streamUrl = 'http://p.onlineradiobox.com/mg/natiora/player/?cs=mg.natiora&played=1';
+    if (isMobileDevice()) {
+        openMobilePlayerModal(streamUrl);
+    } else {
+        window.open(streamUrl, 'playerPopup', 'width=400,height=300,scrollbars=no,resizable=yes,popup=yes');
+    }
+}
+
+function openMobilePlayerModal(streamUrl) {
+    let modal = document.getElementById('mobilePlayerModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'mobilePlayerModal';
+        modal.className = 'modal mobile-player-modal';
+        modal.innerHTML = `
+            <div class="modal-content mobile-player-content">
+                <button class="close" type="button" aria-label="Fermer">×</button>
+                <h3 style="margin-top:0;color:#e6f9f6;">Écoute mobile Natiora Radio</h3>
+                <p style="color:rgba(230,249,246,0.85);line-height:1.6;">Utilisez le lecteur mobile pour ouvrir notre flux directement sur votre appareil.</p>
+                <button id="mobileRadioOpenBtn" class="btn-primary" type="button" style="width:100%;margin-top:16px;">Ouvrir le lecteur mobile</button>
+                <p style="margin-top:12px;color:rgba(255,255,255,0.75);font-size:0.92rem;">Si le lecteur ne démarre pas automatiquement, appuyez sur le bouton ci-dessus.</p>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        modal.querySelector('.close').addEventListener('click', closeMobilePlayerModal);
+        modal.querySelector('#mobileRadioOpenBtn').addEventListener('click', function() {
+            window.open(streamUrl, '_blank');
+        });
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) closeMobilePlayerModal();
+        });
+    }
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeMobilePlayerModal() {
+    const modal = document.getElementById('mobilePlayerModal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
 }
 </script>
 
@@ -244,6 +290,31 @@ function playRadio(){
     z-index: 1200;
     align-items: center;
     justify-content: center;
+}
+.mobile-player-modal {
+    padding: 16px;
+}
+.mobile-player-content {
+    max-width: 420px;
+    width: 100%;
+    padding: 18px 20px;
+    background: rgba(12,17,34,0.96);
+    border: 1px solid rgba(255,255,255,0.08);
+}
+.mobile-player-content h3 {
+    margin: 0 0 10px;
+}
+.mobile-player-content .btn-primary {
+    background: #2f80ed;
+    border: none;
+    color: #fff;
+    padding: 12px 18px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-weight: 700;
+}
+.mobile-player-content .btn-primary:hover {
+    background: #2563eb;
 }
 .modal.show {
     display: flex;
