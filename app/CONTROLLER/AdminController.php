@@ -2,10 +2,10 @@
 
 namespace App\Controller;
 
-use App\Model\Database;
-use App\Model\Emissions;
-use App\Model\Playlists;
-use App\Model\User;
+if (!class_exists('\Database')) require_once __DIR__ . '/../MODEL/Database.php';
+if (!class_exists('\User')) require_once __DIR__ . '/../MODEL/User.php';
+if (!class_exists('\Emissions')) require_once __DIR__ . '/../MODEL/Emissions.php';
+if (!class_exists('\Playlists')) require_once __DIR__ . '/../MODEL/Playlists.php';
 
 class AdminController {
     private $base;
@@ -15,9 +15,9 @@ class AdminController {
 
     public function __construct($base) {
         $this->base = $base;
-        $this->emissions = new Emissions();
-        $this->playlists = new Playlists();
-        $this->user = new User();
+        $this->emissions = new \Emissions();
+        $this->playlists = new \Playlists();
+        $this->user = new \User();
     }
 
     public function dashboard(){
