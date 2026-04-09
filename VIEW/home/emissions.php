@@ -1,22 +1,203 @@
 ﻿<?php
-if (session_status() === PHP_SESSION_NONE) session_start();
-
-if (!class_exists('Emissions')) require_once __DIR__ . '/../../APP/MODEL/Emissions.php';
+session_start();
+if (!class_exists("Emissions")) require_once __DIR__ . "/../../APP/MODEL/Emissions.php";
 
 $emissionModel = new Emissions();
 $emissions = $emissionModel->getAll();
-$days = ['lundi','mardi','mercredi','jeudi','vendredi','samedi','dimanche'];
-$emissions_by_day = array_fill_keys($days, []);
 
-foreach ($emissions as $day => $items) {
-    $dayKey = strtolower(trim($day));
-    if (!in_array($dayKey, $days, true)) {
-        $dayKey = 'autres';
+// Scan vidéos et audios
+$videoDir = __DIR__ . "/../../PUBLIC/assets/videos/";
+$audioDir = __DIR__ . "/../../PUBLIC/assets/audios/";
+$mediaFiles = [];
+
+if (is_dir($videoDir)) {
+    foreach (scandir($videoDir) as $file) {
+        if (is_file($videoDir . $file) && preg_match("/\.(mp4|webm|mov|mkv|avi)$/i", $file)) {
+            $mediaFiles[] = ["name"=>pathinfo($file,PATHINFO_FILENAME),"path"=>"/assets/videos/".urlencode($file),"type"=>"video"];
+        }
     }
-    $emissions_by_day[$dayKey] = $items;
 }
+if (is_dir($audioDir)) {
+    foreach (scandir($audioDir) as $file) {
+        if (is_file($audioDir . $file) && preg_match("/\.(mp3|wav|aac|m4a|ogg|flac)$/i", $file)) {
+            $mediaFiles[] = ["name"=>pathinfo($file,PATHINFO_FILENAME),"path"=>"/assets/audios/".urlencode($file),"type"=>"audio"];
+        }
+    }
+}
+sort($mediaFiles);
 
-$heroImage = isset($assetBase) ? $assetBase . '/images/LOGO%20RADIO.jpg' : '/assets/images/LOGO%20RADIO.jpg';
+$days = ["lundi","mardi","mercredi","jeudi","vendredi","samedi","dimanche"];
+$grouped = array_fill_keys($days, []);
+foreach ($emissions as $emission) {
+    $day = strtolower(trim($emission["day"] ?? "autres"));
+    if (!in_array($day, $days)) $day = "autres";
+    if (!isset($grouped[$day])) $grouped[$day] = [];
+    $grouped[$day][] = $emission;
+}
+$today = strtolower(date("l"));
+$dayMap = ["monday"=>"lundi","tuesday"=>"mardi","wednesday"=>"mercredi","thursday"=>"jeudi","friday"=>"vendredi","saturday"=>"samedi","sunday"=>"dimanche"];
+$today = isset($dayMap[date("l")]) ? $dayMap[date("l")] : "lundi";
+?>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>📻 Émissions Radio</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);color:#fff;min-height:100vh}
+.header{background:linear-gradient(180deg,rgba(44,83,100,.5),rgba(15,32,39,.8));padding:60px 20px;text-align:center;border-bottom:1px solid rgba(255,255,255,.1)}
+.header h1{font-size:3.2rem;font-weight:800;margin-bottom:12px}
+.container{max-width:1400px;margin:0 auto;padding:40px 20px}
+.day-tabs{display:flex;gap:12px;margin-bottom:40px;flex-wrap:wrap;justify-content:center}
+.day-tab{background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.15);color:#fff;padding:12px 22px;border-radius:30px;cursor:pointer;font-weight:600;transition:all .3s;font-size:1rem}
+.day-tab:hover{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3);transform:translateY(-2px)}
+.day-tab.active{background:linear-gradient(135deg,#4facff,#00f2fe);border-color:#4facff;box-shadow:0 8px 30px rgba(79,172,255,.3)}
+.emissions-list{display:flex;flex-direction:column;gap:24px}
+.emission-item{background:rgba(255,255,255,.06);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:24px;transition:all .4s;display:grid;grid-template-columns:auto 1fr;gap:24px;align-items:start}
+.emission-item:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.25);box-shadow:0 15px 40px rgba(0,0,0,.3);transform:translateX(8px)}
+.emission-time{background:linear-gradient(135deg,#4facff,#00f2fe);color:#fff;padding:16px 20px;border-radius:14px;font-weight:800;text-align:center;font-size:1.3rem;min-width:100px}
+.emission-content h3{font-size:1.4rem;margin-bottom:8px;font-weight:700}
+.emission-content p{font-size:.95rem;opacity:.85;line-height:1.5;margin-bottom:12px}
+.emission-meta{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px}
+.meta-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(79,172,255,.2);color:#7fbfff;padding:8px 14px;border-radius:20px;font-size:.85rem;font-weight:600}
+.play-media-btn{background:linear-gradient(135deg,#4facff,#00f2fe);color:#fff;border:none;padding:10px 18px;border-radius:10px;font-weight:700;cursor:pointer;font-size:.95rem;transition:all .3s;display:inline-flex;align-items:center;gap:8px}
+.play-media-btn:hover{transform:scale(1.05);box-shadow:0 10px 25px rgba(79,172,255,.4)}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.85);z-index:9999;align-items:center;justify-content:center;padding:20px}
+.modal.active{display:flex}
+.modal-content{background:rgba(15,32,39,.95);border-radius:20px;max-width:800px;width:100%;padding:30px;border:1px solid rgba(255,255,255,.15);box-shadow:0 30px 80px rgba(0,0,0,.6);position:relative}
+.modal-close{position:absolute;top:20px;right:20px;background:0;border:none;color:#fff;font-size:1.8rem;cursor:pointer;opacity:.7;transition:opacity .2s}
+.modal-close:hover{opacity:1}
+.modal h2{font-size:1.6rem;margin-bottom:8px}
+.modal p{opacity:.85;margin-bottom:20px;line-height:1.6}
+audio{width:100%;height:50px;border-radius:10px;margin-bottom:20px}
+video{width:100%;max-height:500px;border-radius:10px;margin-bottom:20px}
+.empty-state{text-align:center;padding:80px 20px;opacity:.7}
+.empty-state-icon{font-size:4rem;margin-bottom:20px}
+@media (max-width:768px){.emission-item{grid-template-columns:1fr}.emission-time{width:100%}}
+</style>
+</head>
+<body>
+<div class="header"><h1>📻 Émissions</h1><p>Programme radio avec audio/vidéo. Fichiers: <?php echo count($mediaFiles); ?></p></div>
+<div class="container">
+<div class="day-tabs" id="dayTabs">
+<?php foreach ($days as $day): ?><button class="day-tab <?php echo ($day === $today ? "active" : ""); ?>" data-day="<?php echo $day; ?>"><?php echo ucfirst($day); ?></button><?php endforeach; ?>
+</div>
+<div id="emissionsList" class="emissions-list"></div>
+</div>
+<div id="mediaModal" class="modal">
+<div class="modal-content">
+<button class="modal-close" onclick="closeModal()">✕</button>
+<h2 id="modalTitle" style="margin-top:0;"></h2>
+<p id="modalDesc"></p>
+<div id="mediaContainer"></div>
+</div>
+</div>
+<script>
+const data = {media:<?php echo json_encode($mediaFiles); ?>,emissions:<?php echo json_encode($grouped); ?>};
+let currentDay = "<?php echo $today; ?>";
+(function(){
+  document.querySelectorAll(".day-tab").forEach(tab=>{
+    tab.addEventListener("click",function(){
+      document.querySelectorAll(".day-tab").forEach(t=>t.classList.remove("active"));
+      this.classList.add("active");
+      currentDay = this.dataset.day;
+      render();
+    });
+  });
+  
+  function render(){
+    const emissions = (data.emissions[currentDay] || []).sort((a,b)=>(a.time||"").localeCompare(b.time||""));
+    const container = document.getElementById("emissionsList");
+    if (!emissions.length) {
+      container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📻</div><p>Pas d\'émission</p></div>';
+      return;
+    }
+    container.innerHTML = emissions.map(e=>`
+      <div class="emission-item">
+        <div class="emission-time">${e.time||"--:--"}</div>
+        <div class="emission-content">
+          <h3>${e.title||"Sans titre"}</h3>
+          <p>${e.description||e.category||"Émission radio"}</p>
+          <div class="emission-meta">
+            <span class="meta-badge">🎙️ ${e.presenter||"Animateur"}</span>
+            <span class="meta-badge">⏱️ ${e.duration||"60 min"}</span>
+            <span class="meta-badge">📊 ${e.level||"Général"}</span>
+            <span class="meta-badge">🎵 ${e.category||"Musique"}</span>
+          </div>
+          <button class="play-media-btn" onclick="playMedia(${JSON.stringify(e).replace(/"/g, '&quot;')})">▶️ Écouter</button>
+        </div>
+      </div>
+    `).join("");
+  }
+  
+  window.playMedia = function(emission){
+    let media = data.media.find(m=>emission.title && m.name.toLowerCase().includes(emission.title.toLowerCase()));
+    if (!media) media = data.media[0];
+    if (!media) {alert("Aucun média"); return;}
+    const modal = document.getElementById("mediaModal");
+    document.getElementById("modalTitle").textContent = emission.title || "Émission";
+    document.getElementById("modalDesc").textContent = emission.description || "";
+    const container = document.getElementById("mediaContainer");
+    if (media.type === "video") {
+      container.innerHTML = '<video controls><source src="' + media.path + '" type="video/mp4"></video>';
+    } else {
+      container.innerHTML = '<audio controls autoplay><source src="' + media.path + '" type="audio/mpeg"></audio>';
+    }
+    modal.classList.add("active");
+  };
+  
+  window.closeModal = function(){
+    document.getElementById("mediaModal").classList.remove("active");
+    const media = document.querySelector("#mediaContainer audio, #mediaContainer video");
+    if (media) media.pause();
+  };
+  
+  render();
+})();
+</script>
+</body>
+</html>
+<?php
+session_start();
+if (!class_exists("Emissions")) require_once __DIR__ . "/../../APP/MODEL/Emissions.php";
+
+$emissionModel = new Emissions();
+$emissions = $emissionModel->getAll();
+
+// Scan vidéos et audios
+$videoDir = __DIR__ . "/../../PUBLIC/assets/videos/";
+$audioDir = __DIR__ . "/../../PUBLIC/assets/audios/";
+$mediaFiles = [];
+
+if (is_dir($videoDir)) {
+    foreach (scandir($videoDir) as $file) {
+        if (is_file($videoDir . $file) && preg_match("/\.(mp4|webm|mov|mkv|avi)$/i", $file)) {
+            $mediaFiles[] = ["name"=>pathinfo($file,PATHINFO_FILENAME),"path"=>"/assets/videos/".urlencode($file),"type"=>"video"];
+        }
+    }
+}
+if (is_dir($audioDir)) {
+    foreach (scandir($audioDir) as $file) {
+        if (is_file($audioDir . $file) && preg_match("/\.(mp3|wav|aac|m4a|ogg|flac)$/i", $file)) {
+            $mediaFiles[] = ["name"=>pathinfo($file,PATHINFO_FILENAME),"path"=>"/assets/audios/".urlencode($file),"type"=>"audio"];
+        }
+    }
+}
+sort($mediaFiles);
+
+$days = ["lundi","mardi","mercredi","jeudi","vendredi","samedi","dimanche"];
+$grouped = array_fill_keys($days, []);
+foreach ($emissions as $emission) {
+    $day = strtolower(trim($emission["day"] ?? "autres"));
+    if (!in_array($day, $days)) $day = "autres";
+    if (!isset($grouped[$day])) $grouped[$day] = [];
+    $grouped[$day][] = $emission;
+}
+$today = strtolower(date("l"));
+$dayMap = ["monday"=>"lundi","tuesday"=>"mardi","wednesday"=>"mercredi","thursday"=>"jeudi","friday"=>"vendredi","saturday"=>"samedi","sunday"=>"dimanche"];
+$today = isset($dayMap[date("l")]) ? $dayMap[date("l")] : "lundi";
 ?>
 <style>
     .emissions { color: #fff; }

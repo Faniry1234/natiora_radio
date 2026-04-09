@@ -1,10 +1,180 @@
 ﻿<?php
-if (session_status() === PHP_SESSION_NONE) session_start();
-if (!class_exists('Playlists')) require_once __DIR__ . '/../../APP/MODEL/Playlists.php';
+session_start();
+if (!class_exists("Playlists")) require_once __DIR__ . "/../../APP/MODEL/Playlists.php";
 
 $playlistModel = new Playlists();
 $playlists = $playlistModel->getAll();
-$days = ['lundi','mardi','mercredi','jeudi','vendredi','samedi','dimanche'];
+
+// Scan les fichiers audio
+$audioDir = __DIR__ . "/../../PUBLIC/assets/audios/";
+$audioFiles = [];
+if (is_dir($audioDir)) {
+    foreach (scandir($audioDir) as $file) {
+        if (is_file($audioDir . $file) && preg_match("/\.(mp3|wav|aac|m4a|ogg|flac)$/i", $file)) {
+            $audioFiles[] = [
+                "name" => pathinfo($file, PATHINFO_FILENAME),
+                "path" => "/assets/audios/" . urlencode($file)
+            ];
+        }
+    }
+}
+sort($audioFiles);
+
+$days = ["lundi","mardi","mercredi","jeudi","vendredi","samedi","dimanche"];
+$grouped = array_fill_keys($days, []);
+foreach ($playlists as $p) {
+    $day = strtolower(trim($p["day"] ?? "autres"));
+    if (!in_array($day, $days)) $day = "autres";
+    $grouped[$day][] = $p;
+}
+$today = strtolower(date("l"));
+$dayMap = ["monday"=>"lundi","tuesday"=>"mardi","wednesday"=>"mercredi","thursday"=>"jeudi","friday"=>"vendredi","saturday"=>"samedi","sunday"=>"dimanche"];
+$today = isset($dayMap[date("l")]) ? $dayMap[date("l")] : "lundi";
+?>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>🎵 Playlists Radio</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:linear-gradient(135deg,#1a1f3a,#16213e,#0f3460);color:#fff;min-height:100vh}
+.hero{background:linear-gradient(180deg,rgba(31,96,201,.4),rgba(10,30,60,.6));padding:80px 20px;text-align:center}
+.hero h1{font-size:3.5rem;font-weight:800;margin-bottom:16px;text-shadow:0 2px 10px rgba(0,0,0,.3)}
+.container{max-width:1200px;margin:0 auto;padding:40px 20px}
+.tabs-nav{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:40px;justify-content:center}
+.day-tab{background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.15);color:#fff;padding:12px 20px;border-radius:50px;cursor:pointer;font-weight:600;transition:all .3s;font-size:1rem}
+.day-tab:hover{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3);transform:translateY(-2px)}
+.day-tab.active{background:linear-gradient(135deg,#ff6b6b,#ee5a6f);border-color:#ff6b6b;box-shadow:0 8px 20px rgba(255,107,107,.3)}
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px;margin-bottom:60px}
+.card{background:rgba(255,255,255,.06);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:28px;transition:all .4s cubic-bezier(.34,1.56,.64,1)}
+.card:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.25);transform:translateY(-8px);box-shadow:0 20px 50px rgba(0,0,0,.4)}
+.card h3{font-size:1.3rem;margin:12px 0 8px;font-weight:700}
+.badge{display:inline-flex;align-items:center;background:rgba(255,107,107,.2);color:#ff9a9e;padding:6px 12px;border-radius:20px;font-size:.85rem;font-weight:600}
+.play-button{width:100%;background:linear-gradient(135deg,#ff6b6b,#ee5a6f);color:#fff;border:none;padding:12px;border-radius:12px;font-weight:700;cursor:pointer;font-size:1rem;transition:all .3s;margin-top:16px}
+.play-button:hover{transform:scale(1.05);box-shadow:0 10px 25px rgba(255,107,107,.4)}
+.player-mini{position:fixed;bottom:20px;right:20px;background:rgba(20,30,60,.95);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.15);border-radius:16px;padding:16px;width:350px;max-width:calc(100% - 40px);z-index:100;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.player-mini.hidden{display:none}
+.player-mini-title{font-weight:700;margin-bottom:12px;font-size:.9rem;opacity:.95;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.player-mini-controls{display:flex;gap:10px;margin-bottom:10px}
+.player-mini-btn{background:rgba(255,255,255,.12);border:none;color:#ff6b6b;width:40px;height:40px;border-radius:50%;cursor:pointer;font-size:1.2rem;transition:all .2s}
+.player-mini-btn:hover{background:rgba(255,107,107,.3);transform:scale(1.1)}
+audio{width:100%;height:32px;border-radius:8px}
+.empty-state{text-align:center;padding:60px 20px;opacity:.75}.empty-state-icon{font-size:4rem;margin-bottom:20px}
+@media (max-width:768px){.cards-grid{grid-template-columns:1fr}.player-mini{width:calc(100% - 40px);right:20px;bottom:20px}}
+</style>
+</head>
+<body>
+<div class="hero"><h1>🎵 Playlists</h1><p>Écoutez nos playlists sélectionnées. Fichiers: <?php echo count($audioFiles); ?></p></div>
+<div class="container">
+<div class="tabs-nav" id="dayTabs">
+<?php foreach ($days as $day): ?><button class="day-tab <?php echo ($day === $today ? "active" : ""); ?>" data-day="<?php echo $day; ?>"><?php echo ucfirst($day); ?></button><?php endforeach; ?>
+</div>
+<div id="cardsContainer" class="cards-grid"></div>
+</div>
+<div id="playerMini" class="player-mini hidden">
+<div class="player-mini-title" id="playerTitle">Prêt à écouter</div>
+<div class="player-mini-controls">
+<button class="player-mini-btn" id="playPauseBtn" onclick="togglePlay()">▶️</button>
+<button class="player-mini-btn" id="closeMiniBtn" onclick="closeMiniPlayer()">✕</button>
+</div>
+<audio id="audioPlayer"></audio>
+</div>
+<script>
+const data = {audios:<?php echo json_encode($audioFiles); ?>,playlists:<?php echo json_encode($grouped); ?>};
+let currentDay = "<?php echo $today; ?>",isPlaying = false;
+(function(){
+  document.querySelectorAll(".day-tab").forEach(tab=>{
+    tab.addEventListener("click",function(){
+      document.querySelectorAll(".day-tab").forEach(t=>t.classList.remove("active"));
+      this.classList.add("active");
+      currentDay = this.dataset.day;
+      render();
+    });
+  });
+  
+  function render(){
+    const playlists = data.playlists[currentDay] || [];
+    const container = document.getElementById("cardsContainer");
+    if (!playlists.length) {
+      container.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="empty-state-icon">🎵</div><p>Pas de playlist</p></div>';
+      return;
+    }
+    container.innerHTML = playlists.map((p,i)=>`
+      <div class="card">
+        <h3>#${i+1} ${p.title||"Sans titre"}</h3>
+        <p style="opacity:.85;margin:8px 0">${p.desc||"Playlist"}</p>
+        <div><span class="badge">🎵 ${(p.songs||[]).length} pistes</span></div>
+        <button class="play-button" onclick="play(${i})">▶️ Écouter</button>
+      </div>
+    `).join("");
+  }
+  
+  window.play = function(idx){
+    const p = data.playlists[currentDay][idx];
+    if (!p.songs || p.songs.length === 0) {alert("Aucune piste"); return;}
+    const audio = data.audios[0];
+    if (!audio) {alert("Aucun audio"); return;}
+    showPlayer(audio, p.title);
+  };
+  
+  window.showPlayer = function(audio, title){
+    const player = document.getElementById("audioPlayer");
+    const mini = document.getElementById("playerMini");
+    player.src = audio.path;
+    document.getElementById("playerTitle").textContent = title || audio.name;
+    mini.classList.remove("hidden");
+    player.play(); isPlaying = true; updateBtn();
+  };
+  
+  window.togglePlay = function(){
+    const player = document.getElementById("audioPlayer");
+    if (isPlaying) {player.pause();} else {player.play();}
+    isPlaying = !isPlaying; updateBtn();
+  };
+  
+  function updateBtn(){
+    document.getElementById("playPauseBtn").textContent = isPlaying ? "⏸️" : "▶️";
+  }
+  
+  window.closeMiniPlayer = function(){
+    document.getElementById("audioPlayer").pause();
+    document.getElementById("playerMini").classList.add("hidden");
+    isPlaying = false;
+  };
+  
+  render();
+})();
+</script>
+</body>
+</html>
+<?php
+session_start();
+if (!class_exists("Playlists")) require_once __DIR__ . "/../../APP/MODEL/Playlists.php";
+
+$playlistModel = new Playlists();
+$playlists = $playlistModel->getAll();
+
+// Scan les fichiers audio disponibles
+$audioDir = __DIR__ . "/../../PUBLIC/assets/audios/";
+$audioFiles = [];
+if (is_dir($audioDir)) {
+    foreach (scandir($audioDir) as $file) {
+        if (preg_match("/\.(mp3|wav|aac|flac|m4a|ogg)$/i", $file)) {
+            $audioFiles[] = [
+                "name" => pathinfo($file, PATHINFO_FILENAME),
+                "file" => $file,
+                "path" => "/assets/audios/" . urlencode($file),
+                "size" => filesize($audioDir . $file)
+            ];
+        }
+    }
+}
+sort($audioFiles);
+
+// Grouper par jour
+$days = ["lundi","mardi","mercredi","jeudi","vendredi","samedi","dimanche"];
 $playlists_by_day = array_fill_keys($days, []);
 $playlists_by_day['autres'] = [];
 
